@@ -1,0 +1,41 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+### Config Params ###
+VM_HOSTNAME = "maas1"
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/ubuntu2004"
+  config.vm.hostname = VM_HOSTNAME
+
+  # Normal network configuration in vagrant would be:
+  #config.vm.network "public_network", bridge: "Host Network", ip: "10.10.0.5"
+  # However, Vagrant with Hyper-V Cannot configure a static IP in the normal fashion. See:
+  # https://superuser.com/questions/1354658/hyperv-static-ip-with-vagrant
+  # Therefore we configure simple below, BUT YOU MUST CHOOSE 'Default Switch' when prompted
+  config.vm.network "public_network"
+  
+  # Disable folder sync - unsupported on Win 10?
+  config.vm.synced_folder "../data", "/vagrant_data", disabled: true
+
+  # Provider-specific see; 
+  # https://www.vagrantup.com/docs/providers/hyperv/configuration
+  config.vm.provider :hyperv do |v|
+    v.memory = 2048
+    v.cpus = 2
+    #v.vlan_id = 900
+    v.vmname = VM_HOSTNAME
+  end
+
+
+  # Do the network magic outside of vagrant
+  config.trigger.before :reload do |trigger|
+    trigger.info = "Changing Hyper-V switch to 'Host Network' to allow for static IP..."
+
+    trigger.run = {privileged: "true", powershell_elevated_interactive: "true", path: "./set-hyperv-switch.ps1"}
+  end
+
+  config.vm.provision "shell", path: "./configure-static-ip.sh"
+
+  config.vm.provision :reload
+end
