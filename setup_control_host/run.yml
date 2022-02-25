@@ -1,0 +1,17 @@
+---
+#https://www.codesandnotes.be/2020/01/13/generate-ssh-keys-using-ansible/
+
+- name: Setup SSH user on all infrastructure
+  hosts: 127.0.0.1
+  connection: local
+
+  vars:
+    ssh_key_filename: id_ed25519_infadmin
+  
+  tasks:
+    - name: Generate SSH keypair "{{ssh_key_filename}}"
+      openssh_keypair:
+        path: "~/.ssh/{{ssh_key_filename}}"
+        type: ed25519
+        state: present
+
