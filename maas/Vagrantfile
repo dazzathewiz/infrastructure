@@ -32,7 +32,11 @@ Vagrant.configure("2") do |config|
   config.trigger.before :reload do |trigger|
     trigger.info = "Changing Hyper-V switch to 'Host Network' to allow for static IP..."
 
-    trigger.run = {privileged: "true", powershell_elevated_interactive: "true", path: "./set-hyperv-switch.ps1"}
+    # Using vagrant in powershell:
+    #trigger.run = {privileged: "true", powershell_elevated_interactive: "true", path: "./set-hyperv-switch.ps1"}
+    
+    # Using vagrant in WSL:
+    trigger.run = {path: "./wsl-set-hyperv-switch.sh"}
   end
 
   config.vm.provision "shell", path: "./configure-static-ip.sh"
