@@ -12,9 +12,7 @@
 Using Windows Subsystem for Linux (WSL) 
 1. Start the Ubuntu app (WSL) - make sure you "Run as Administrator" on Windows (required for Hyper-V provider)
 2. Create/Checkout the Vagrantfile to a subfolder of VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH
-3. ```
-vagrant up
-```
+3. ``` vagrant up ```
 IMPORTANT: You will be asked to choose a switch to attach to the VM. Ensure you choose: Default Switch, even though the machine will be put on a different switch, this will be done as part of provisioning in Vagrantfile
 
 ## Teardown

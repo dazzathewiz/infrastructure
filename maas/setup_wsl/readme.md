@@ -35,7 +35,7 @@ Restart-Service -Name "LxssManager"
 Follow: https://github.com/deluxebrain/wsl-vagrant-hyperv-setup; getting this right can be painful first time.
 
 1. Install Vagrant in WSL by deb package by wget, get URL from: https://releases.hashicorp.com/
-2. Install the vagrent-reload plugin
+2. Install the vagrant-reload plugin
 3. Install Ansible from apt
 4. Runs the run.yml ansible playbook to:
     a) modify ~/.profile and add these environment variables. Change HOME_PATH to suit your situation:
