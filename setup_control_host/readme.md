@@ -10,5 +10,6 @@ ansible-playbook run.yml
 ```
 
 ## SSH Key
-The key is stored in ```~/.ssh/id_ed25519_infadmin```
-No passphrase is applied to the key, although you may add a passphase after creation: ```ssh-keygen -p -f ~/.ssh/id_ed25519_infadmin```
+The key is stored in ```~/.ssh/{{keyfilename}}```
+Change the keyfilename variable in ../group_vars/all/vars.yml
+No passphrase is applied to the key, although you may add a passphase after creation: ```ssh-keygen -p -f ~/.ssh/{{group_vars/all/keyfilename}}```
