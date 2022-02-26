@@ -5,13 +5,13 @@
   hosts: 127.0.0.1
   connection: local
 
-  vars:
-    ssh_key_filename: id_ed25519_infadmin
+  vars_files:
+    - ../group_vars/all/vars.yml
   
   tasks:
-    - name: Generate SSH keypair "{{ssh_key_filename}}"
+    - name: Generate SSH keypair "{{keyfilename}}"
       openssh_keypair:
-        path: "~/.ssh/{{ssh_key_filename}}"
+        path: "~/.ssh/{{keyfilename}}"
         type: ed25519
         state: present
 
