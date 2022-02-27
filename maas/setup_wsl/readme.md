@@ -13,23 +13,12 @@ dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux 
 ```
 sudo ./install.sh
 ```
-Close the terminal window and re-open
-
-Run the run.yml ansible but add your sudo password to secret.yml with variable SUDO, first
-```
-ansible-vault create secret.yml
-ansible-playbook run.yml
-```
-
-Example secret.yml:
-```
-SUDO: "yourpassword"
-```
-
+Close the terminal window
 In PowerShell, restart your Ubuntu container:
 ```
 Restart-Service -Name "LxssManager"
 ```
+Reopen the terminal window
 
 ## What it does
 Follow: https://github.com/deluxebrain/wsl-vagrant-hyperv-setup; getting this right can be painful first time.
