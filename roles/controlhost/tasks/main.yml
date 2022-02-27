@@ -1,0 +1,35 @@
+- name: Generate SSH keypair "{{ private_key }}"
+  openssh_keypair:
+    path: "{{ private_key }}"
+    type: ed25519
+    state: present
+
+- name: Ensure ansible_ssh_hosts directory exists in ~/.ssh/
+  file:
+    path: ~/.ssh/ansible_ssh_hosts
+    state: directory
+
+- name: Check ~/.ssh/config exists
+  stat:
+    path: ~/.ssh/config
+  register: stat_result
+
+- name: touch ~/.ssh/config
+  file:
+    path: "~/.ssh/config"
+    state: touch
+  when: not stat_result.stat.exists
+
+- name: Ensure ~/.ssh/config includes ~/.ssh/ansible_ssh_hosts/*
+  lineinfile:
+    dest: ~/.ssh/config
+    insertbefore: BOF
+    regexp: "~/.ssh/ansible_ssh_hosts/"
+    line: "Include ~/.ssh/ansible_ssh_hosts/*"
+
+# Example taken from: https://www.trustedsec.com/blog/generating-ssh-config-files-with-ansible/
+- name: Create ansible curated ssh config file
+  template:
+    src: ssh_conf.j2
+    dest: ~/.ssh/ansible_ssh_hosts/ssh.conf
+    mode: 0644

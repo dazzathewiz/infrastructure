@@ -1,0 +1,7 @@
+---
+- hosts: controlhost
+
+  roles:
+    - controlhost
+
+
