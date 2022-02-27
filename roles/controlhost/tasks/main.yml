@@ -1,13 +1,13 @@
+- name: Ensure ansible_ssh_hosts directory exists in ~/.ssh/
+  file:
+    path: ~/.ssh/ansible_ssh_hosts
+    state: directory
+
 - name: Generate SSH keypair "{{ private_key }}"
   openssh_keypair:
     path: "{{ private_key }}"
     type: ed25519
     state: present
-
-- name: Ensure ansible_ssh_hosts directory exists in ~/.ssh/
-  file:
-    path: ~/.ssh/ansible_ssh_hosts
-    state: directory
 
 - name: Check ~/.ssh/config exists
   stat:

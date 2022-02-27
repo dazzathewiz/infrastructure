@@ -11,7 +11,7 @@ dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux 
 
 ## Basic Usage
 ```
-./install.sh
+sudo ./install.sh
 ```
 Close the terminal window and re-open
 
