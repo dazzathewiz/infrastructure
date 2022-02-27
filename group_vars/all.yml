@@ -1,0 +1,5 @@
+---
+
+# Note: changing keyfilename will break vagrant provisioning if not updated Vagrantfile's in this project
+public_key: "~/.ssh/id_ed25519_infadmin.pub"
+private_key: "~/.ssh/id_ed25519_infadmin"

@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
   # Therefore we configure simple below, BUT YOU MUST CHOOSE 'Default Switch' when prompted
   config.vm.network "public_network"
   
-  # Disable folder sync - unsupported on Win 10?
+  # Disable folder sync - uses insecure SMB version
   config.vm.synced_folder "../data", "/vagrant_data", disabled: true
 
   # Provider-specific see; 
@@ -23,10 +23,14 @@ Vagrant.configure("2") do |config|
   config.vm.provider :hyperv do |v|
     v.memory = 2048
     v.cpus = 2
-    #v.vlan_id = 900
     v.vmname = VM_HOSTNAME
   end
 
+  config.ssh.forward_agent = true
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "../vagrant-provision-maas.yml"
+  end
 
   # Do the network magic outside of vagrant
   config.trigger.before :reload do |trigger|

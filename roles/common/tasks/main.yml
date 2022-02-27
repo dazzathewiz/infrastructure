@@ -1,0 +1,38 @@
+- name: Ensure sudo,admin groups exists
+  group: name={{ item }} state=present
+  with_items:
+    - sudo
+    - admin
+
+- name: Ensure "{{ user }}" user is admin
+  user:
+    name: "{{ user }}"
+    state: present
+    groups: sudo,admin
+    shell: /bin/bash
+    home: "/home/{{ user }}"
+
+- name: Ensure authorized keys for deploy user
+  authorized_key:
+    user: "{{ user }}"
+    key: "{{ lookup('file', public_key) }}"
+
+- name: Enable passwordless sudo for "{{ user }}"
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "&%wheel"
+    line: "{{ user }} ALL=(ALL) NOPASSWD: ALL"
+    validate: "/usr/sbin/visudo -cf %s"
+
+- name: Disable SSH password auth
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "^#PasswordAuthentication yes"
+    line: "PasswordAuthentication no"
+  register: sshd_config
+
+- name: Restart SSH Daemon
+  service:
+    name: sshd
+    state: restarted
+  when: sshd_config.changed
