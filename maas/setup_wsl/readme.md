@@ -11,7 +11,7 @@ dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux 
 
 ## Basic Usage
 ```
-sudo ./install.sh
+./install.sh
 ```
 Close the terminal window
 In PowerShell, restart your Ubuntu container:
