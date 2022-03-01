@@ -12,10 +12,12 @@
     shell: /bin/bash
     home: "/home/{{ user }}"
 
-- name: Ensure authorized keys for deploy user
+- name: Ensure authorized keys for "{{ user }}" user
   authorized_key:
     user: "{{ user }}"
-    key: "{{ lookup('file', public_key) }}"
+    key: "{{ lookup('file', item) }}"
+  with_fileglob:
+    - "roles/controlhost/files/*.pub"
 
 - name: Enable passwordless sudo for "{{ user }}"
   lineinfile:

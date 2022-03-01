@@ -9,6 +9,12 @@
     type: ed25519
     state: present
 
+- name: Copy "{{ public_key }}" to you local git repo
+  copy:
+    src: "{{ public_key }}"
+    dest: "{{ playbook_dir }}/roles/controlhost/files/{{ ansible_hostname }}.pub"
+  register: keyupdated
+
 - name: Check ~/.ssh/config exists
   stat:
     path: ~/.ssh/config
@@ -33,3 +39,17 @@
     src: ssh_conf.j2
     dest: ~/.ssh/ansible_ssh_hosts/ssh.conf
     mode: 0644
+
+- name: Display public key added message
+  debug:
+    msg:
+      - 'A new public key for your control host was added. You will need to manaully:'
+      - '  - checkin your key to the infrastructure repository:'
+      - '    `cd "{{ playbook_dir }}/roles/controlhost/files"`'
+      - '    `git add "{{ ansible_hostname }}.pub"`'
+      - '    `git commit -m "add new pub key"`'
+      - '    `git push`'
+      - '  - add new pub key to infrastructure hosts, must be done on another control host with working key'
+      - '    `git pull`'
+      - '    `ansible-playbook (notcreatedyet)`'
+  when: keyupdated.changed
