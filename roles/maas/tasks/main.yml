@@ -1,0 +1,10 @@
+---
+- name: Update packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Install packages for maas role
+  package:
+    name: "{{ packages }}"
+    state: latest
