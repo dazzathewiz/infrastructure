@@ -1,0 +1,106 @@
+---
+
+- name: Add "no-subscription" apt source
+  blockinfile:
+    path: /etc/apt/sources.list
+    block: |
+      # not for production user
+      deb http://download.proxmox.com/debian buster pve-no-subscription
+  register: update_apt
+
+- name: Remove "pve-enterprise" apt source
+  lineinfile:
+    dest: /etc/apt/sources.list.d/pve-enterprise.list
+    regexp: "^deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
+    line: "# deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
+  register: update_apt
+
+- name: Update packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+  when: update_apt.changed
+
+# from: https://forum.proxmox.com/threads/when-to-reboot.29230/
+#- name: Check if reboot required
+#  shell:  "[ `ls -tr /boot/initrd* | tail -1 | cut -d '-' -f 2-` != `uname -r` ]"
+#  register: result
+#  ignore_errors: true
+#- debug: msg="{{ inventory_hostname }} needs reboot"
+#  when: result|success
+#- name: Reboot if required
+#  reboot:
+#  when: result|success
+
+
+# Identify the processor manufacturer by looking for "Intel" or "AMD"
+# in `/proc/cpuinfo`.
+- name: check if Intel processor
+  command: grep -q Intel /proc/cpuinfo
+  ignore_errors: true
+  register: is_intel
+  failed_when: is_intel == 2
+
+- name: check if AMD processor
+  command: grep -q AMD /proc/cpuinfo
+  ignore_errors: true
+  register: is_amd
+  failed_when: is_amd == 2
+
+- name: Update GRUB to enable iommu at boot - Intel CPU
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on"'
+  when: is_intel|success
+  register: update_grub
+
+- name: Update GRUB to enable iommu at boot - AMD CPU
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"'
+  when: is_amd|success
+  register: update_grub
+
+- name: update-grub
+  shell: update-grub
+  when: update_grub.changed
+
+- name: Update vfio modules
+  blockinfile:
+    path: /etc/modules
+    block: |
+      vfio
+      vfio_iommu_type1
+      vfio_pci
+      vfio_virqfd
+  register: vfio
+
+- name: Reboot to apply changes
+  reboot:
+  when: update_grub.changed or vfio.changed
+
+# After reboot please verify:
+# IOMMU is enabled: `dmesg | grep -e DMAR -e IOMMU`
+
+- name: Enable VLAN aware nic on vmbr0
+  lineinfile:
+    dest: /etc/network/interfaces
+    insertafter: 'bridge-fd 0'
+    line: "        bridge-vlan-aware yes"
+
+
+# TODO
+
+# Attach some ISO storage path (NFS)
+
+# Download latest ISOs into ISO path
+# - https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
+# - https://software.download.prss.microsoft.com/pr/Win11_English_x64v1.iso?t=4dce17e0-201e-4b31-807f-48468a04029a&e=1647942861&h=ef770efb38fd23e5bf331fbc6b899d305c57fb5d6648b42e2494185c574e55fd
+# - https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+# - https://releases.ubuntu.com/20.04/ubuntu-20.04.4-live-server-amd64.iso
+
+# Create VM Template
+
+# Setup NIC's, bonding, etc

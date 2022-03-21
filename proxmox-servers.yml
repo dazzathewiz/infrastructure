@@ -1,0 +1,10 @@
+---
+- hosts: proxmox
+
+  roles:
+#    - common
+    - proxmox
+
+#- hosts: prox1
+#  roles:
+#    - prox1
