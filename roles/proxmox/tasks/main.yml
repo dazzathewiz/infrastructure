@@ -6,31 +6,32 @@
     block: |
       # not for production user
       deb http://download.proxmox.com/debian buster pve-no-subscription
-  register: update_apt
+  register: update_apt_nosub
 
 - name: Remove "pve-enterprise" apt source
   lineinfile:
     dest: /etc/apt/sources.list.d/pve-enterprise.list
     regexp: "^deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
     line: "# deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
-  register: update_apt
+  register: update_apt_enterprise
 
 - name: Update packages
   apt:
     update_cache: yes
     upgrade: yes
-  when: update_apt.changed
+  when: update_apt_nosub.changed or update_apt_enterprise.changed
 
 # from: https://forum.proxmox.com/threads/when-to-reboot.29230/
-#- name: Check if reboot required
-#  shell:  "[ `ls -tr /boot/initrd* | tail -1 | cut -d '-' -f 2-` != `uname -r` ]"
-#  register: result
-#  ignore_errors: true
-#- debug: msg="{{ inventory_hostname }} needs reboot"
-#  when: result|success
-#- name: Reboot if required
-#  reboot:
-#  when: result|success
+- name: Check if reboot required
+  shell:  "[ `ls -tr /boot/initrd* | tail -1 | cut -d '-' -f 2-` != `uname -r` ]"
+  register: result
+  ignore_errors: true
+  failed_when: result == 2
+- debug: msg="{{ inventory_hostname }} needs reboot"
+  when: result.rc == 0
+- name: Reboot if required
+  reboot:
+  when: result.rc == 0
 
 
 # Identify the processor manufacturer by looking for "Intel" or "AMD"
@@ -47,25 +48,29 @@
   register: is_amd
   failed_when: is_amd == 2
 
+#- debug: msg="{{ is_amd }}"
+#- debug: msg="{{ is_intel }}"
+
 - name: Update GRUB to enable iommu at boot - Intel CPU
   lineinfile:
     dest: /etc/default/grub
     regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
     line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on"'
-  when: is_intel|success
-  register: update_grub
+  when: is_intel.rc == 0
+  register: update_grub_intel
 
 - name: Update GRUB to enable iommu at boot - AMD CPU
   lineinfile:
     dest: /etc/default/grub
     regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
     line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"'
-  when: is_amd|success
-  register: update_grub
+  when: is_amd.rc == 0
+  register: update_grub_amd
 
 - name: update-grub
   shell: update-grub
-  when: update_grub.changed
+  when: update_grub_intel.changed or update_grub_amd.changed
+  register: update_grub
 
 - name: Update vfio modules
   blockinfile:
@@ -77,6 +82,8 @@
       vfio_virqfd
   register: vfio
 
+- debug: msg="{{ inventory_hostname }} needs reboot"
+  when: update_grub.changed or vfio.changed
 - name: Reboot to apply changes
   reboot:
   when: update_grub.changed or vfio.changed
