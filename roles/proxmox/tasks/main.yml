@@ -120,8 +120,9 @@
     - "{{ nfs }}"
 
 # Download latest ISOs into ISO path
-- set_fact:
-    mount_names: "{{ ansible_mounts | map(attribute='mount') | list}}"
+- name: Check the NFS ISO share is mounted
+  shell: df | grep /mnt/pve/ISO | wc -l
+  register: mounted
 - name: Check and download ISO images
   get_url:
     url: "{{ item }}"
@@ -129,7 +130,7 @@
     dest: /mnt/pve/ISO/template/iso/
   with_items:
     - "{{ images }}"
-  when: ("/mnt/pve/ISO") in mount_names
+  when: mounted.stdout  != "0"
 
 
 # TODO
