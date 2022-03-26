@@ -105,15 +105,36 @@
   with_items:
     - "{{ dns }}"
 
-# TODO
-
-# Attach some ISO storage path (NFS)
+- name: Attach NFS shared storage
+  blockinfile:
+    path: /etc/pve/storage.cfg
+    block: |
+      nfs: {{ item['name'] }}
+        export {{ item['path'] }}
+        path /mnt/pve/{{ item['name'] }}
+        server {{ item['host'] }}
+        content images,iso
+        options vers=4.2
+        prune-backups keep-all=1
+  with_items:
+    - "{{ nfs }}"
 
 # Download latest ISOs into ISO path
-# - https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
-# - https://software.download.prss.microsoft.com/pr/Win11_English_x64v1.iso?t=4dce17e0-201e-4b31-807f-48468a04029a&e=1647942861&h=ef770efb38fd23e5bf331fbc6b899d305c57fb5d6648b42e2494185c574e55fd
-# - https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
-# - https://releases.ubuntu.com/20.04/ubuntu-20.04.4-live-server-amd64.iso
+- set_fact:
+    mount_names: "{{ ansible_mounts | map(attribute='mount') | list}}"
+- name: Check and download ISO images
+  get_url:
+    url: "{{ item }}"
+    tmp_dest: /mnt/pve/ISO/template/iso/
+    dest: /mnt/pve/ISO/template/iso/
+  with_items:
+    - "{{ images }}"
+  when: ("/mnt/pve/ISO") in mount_names
+
+
+# TODO
+
+
 
 # Create VM Template
 
