@@ -1,18 +1,21 @@
 ---
 
+#- debug: msg="{{ ansible_distribution_release }}"
+
+# Adds packages for no-subscription model, as seen in: https://www.youtube.com/watch?v=GoZaMgEgrHw
 - name: Add "no-subscription" apt source
   blockinfile:
     path: /etc/apt/sources.list
     block: |
       # not for production user
-      deb http://download.proxmox.com/debian buster pve-no-subscription
+      deb http://download.proxmox.com/debian {{ ansible_distribution_release }} pve-no-subscription
   register: update_apt_nosub
 
 - name: Remove "pve-enterprise" apt source
   lineinfile:
     dest: /etc/apt/sources.list.d/pve-enterprise.list
-    regexp: "^deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
-    line: "# deb https://enterprise.proxmox.com/debian/pve buster pve-enterprise"
+    regexp: "^deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
+    line: "# deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
   register: update_apt_enterprise
 
 - name: Update packages
@@ -47,9 +50,6 @@
   ignore_errors: true
   register: is_amd
   failed_when: is_amd == 2
-
-#- debug: msg="{{ is_amd }}"
-#- debug: msg="{{ is_intel }}"
 
 - name: Update GRUB to enable iommu at boot - Intel CPU
   lineinfile:
@@ -97,6 +97,13 @@
     insertafter: 'bridge-fd 0'
     line: "        bridge-vlan-aware yes"
 
+- name: Set DNS servers in /etc/resolv.conf
+  lineinfile:
+    dest: /etc/resolv.conf
+    regexp: "^nameserver {{ item }}"
+    line: "nameserver {{ item }}"
+  with_items:
+    - "{{ dns }}"
 
 # TODO
 
