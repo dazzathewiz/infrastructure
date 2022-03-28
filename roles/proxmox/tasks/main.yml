@@ -106,16 +106,25 @@
     - "{{ dns }}"
 
 - name: Attach NFS shared storage
-  blockinfile:
-    path: /etc/pve/storage.cfg
-    block: |
-      nfs: {{ item['name'] }}
-        export {{ item['path'] }}
-        path /mnt/pve/{{ item['name'] }}
-        server {{ item['host'] }}
-        content images,iso
-        options vers=4.2
-        prune-backups keep-all=1
+  shell: |
+    pvesm add nfs {{ item['name'] }} \
+    --export {{ item['path'] }} \
+    --path /mnt/pve/{{ item['name'] }} \
+    --server {{ item['host'] }} \
+    --content images,iso \
+    --options vers=4.2 \
+    --prune-backups keep-all=1    
+#  blockinfile:
+#    path: /etc/pve/storage.cfg
+#    block: |
+#      
+#      nfs: {{ item['name'] }}
+#        export {{ item['path'] }}
+#        path /mnt/pve/{{ item['name'] }}
+#        server {{ item['host'] }}
+#        content images,iso
+#        options vers=4.2
+#        prune-backups keep-all=1
   with_items:
     - "{{ nfs }}"
 
