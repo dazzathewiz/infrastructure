@@ -1,7 +1,5 @@
 ---
 
-#- debug: msg="{{ ansible_distribution_release }}"
-
 # Adds packages for no-subscription model, as seen in: https://www.youtube.com/watch?v=GoZaMgEgrHw
 - name: Add "no-subscription" apt source
   blockinfile:
@@ -133,8 +131,8 @@
 
 # TODO
 
-
-
 # Create VM Template
-
 # Setup NIC's, bonding, etc
+# Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
+#- name: Proxmox VE Ceph installation
+#  shell: pveceph install
