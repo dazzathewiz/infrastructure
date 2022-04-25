@@ -1,0 +1,11 @@
+---
+images:
+  - https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso
+#  - https://software.download.prss.microsoft.com/pr/Win11_English_x64v1.iso?t=4dce17e0-201e-4b31-807f-48468a04029a&e=1647942861&h=ef770efb38fd23e5bf331fbc6b899d305c57fb5d6648b42e2494185c574e55fd
+  - https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img
+  - https://releases.ubuntu.com/20.04/ubuntu-20.04.4-live-server-amd64.iso
+
+nfs:
+  - name: ISO
+    host: "{{ hostvars['unnas'].ansible_host }}"
+    path: /mnt/user/ISO/proxmox
