@@ -70,27 +70,35 @@
   when: update_grub_intel.changed or update_grub_amd.changed
   register: update_grub
 
-- name: Update modules for vfio and pci passthrough
-  blockinfile:
-    path: /etc/modules
-    block: |
-      # Modules required for PCI passthrough
-      vfio
-      vfio_iommu_type1
-      vfio_pci
-      vfio_virqfd
-
-      # Modules required for Intel GVT
-      kvmgt
-      exngt
-      vfio-mdev
+- name: Register modules for vfio
+  lineinfile:
+    dest: /etc/modules
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^vfio$', line: 'vfio' }
+    - { regexp: '^vfio_iommu_type1', line: 'vfio_iommu_type1' }
+    - { regexp: '^vfio_pci', line: 'vfio_pci' }
+    - { regexp: '^vfio_virqfd', line: 'vfio_virqfd' }
   register: vfio
 
+- name: Register modules for Intel GPU passthrough (Intel GVT)
+  lineinfile:
+    dest: /etc/modules
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^kvmgt', line: 'kvmgt' }
+    - { regexp: '^exngt', line: 'exngt' }
+    - { regexp: '^vfio-mdev', line: 'vfio-mdev' }
+  when: is_intel.rc == 0
+  register: gvt
+
 - debug: msg="{{ inventory_hostname }} needs reboot"
-  when: update_grub.changed or vfio.changed
+  when: update_grub.changed or vfio.changed or gvt.changed
 - name: Reboot to apply changes
   reboot:
-  when: update_grub.changed or vfio.changed
+  when: update_grub.changed or vfio.changed or gvt.changed
 
 # After reboot please verify:
 # IOMMU is enabled: `dmesg | grep -e DMAR -e IOMMU`
