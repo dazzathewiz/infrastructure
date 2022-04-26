@@ -128,6 +128,9 @@
     --prune-backups keep-all=1
   with_items:
     - "{{ nfs }}"
+  register: result
+  failed_when: result.rc not in [ 0, 255 ]
+  changed_when: result.rc == 0
 
 # Download latest ISOs into ISO path
 - name: Check the NFS ISO share is mounted
