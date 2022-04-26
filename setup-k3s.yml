@@ -1,0 +1,7 @@
+---
+- hosts: test-i915
+  become: yes
+
+  roles:
+    - common
+    - vmguest
