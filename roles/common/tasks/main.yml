@@ -33,6 +33,7 @@
     regexp: "^#PasswordAuthentication yes"
     line: "PasswordAuthentication no"
   register: sshd_config
+  when: disable_password_auth
 
 - name: Restart SSH Daemon
   service:

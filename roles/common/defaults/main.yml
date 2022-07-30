@@ -1,3 +1,4 @@
 ---
 user: infadmin
 timezone: Australia/Brisbane
+disable_password_auth: true
