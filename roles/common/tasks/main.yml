@@ -38,7 +38,4 @@
     name: sshd
     state: restarted
   when: sshd_config.changed
-
-- name: Set timezone to Australia/Brisbane
-  shell: timedatectl set-timezone Australia/Brisbane
   
