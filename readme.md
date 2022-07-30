@@ -4,6 +4,20 @@ An attempt to manage Infrastructure as Code in my homelab/environment
 ## Requirements
 1. Ansible installed - Use a machine that has Ansible installed (WSL if on Windows) and SSH
 
+## Managing Secrets (passwords)
+Check-out this repository on your local machine and setup a secrets file with your passwords;
+```
+cd group_vars
+ansible-vault create secret.yml
+```
+secret.yml should contain a password for infadmin, eg:
+infadmin: "password"
+
+To edit the secret.yml later:
+```
+ansible-vault edit secret.yml
+```
+
 ## Usage
 See sections below for:
 - Setup local machine as an Infrastructure Control Host
@@ -21,6 +35,15 @@ No passphrase is applied to the key, although you may add a passphase after crea
 ## Proxmox Configuration Management
 ```
 ansible-playbook proxmox.yml
+```
+
+## Dietpi Configuration Management
+Ensure you have group_vars/secret.yml setup with variables:
+dietpi_default_password: "dietpi"  # this is the bootstrap password
+
+Run the playbook:
+```
+ansible-playbook dietpi.yml
 ```
 
 ### Requirements

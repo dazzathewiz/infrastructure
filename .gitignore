@@ -1,2 +1,5 @@
 .DS_Store
 secret.yml
+secrets.yml
+secret
+vault

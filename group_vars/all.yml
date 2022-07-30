@@ -8,3 +8,6 @@ private_key: "~/.ssh/id_ed25519_infadmin"
 dns:
   - 192.168.10.53
   - 192.168.10.153
+
+# Secrets
+infadmin_password: secret_infadmin_password
