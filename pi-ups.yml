@@ -1,0 +1,13 @@
+---
+- hosts: dietpi_ups
+  vars_files: group_vars/secret.yml
+
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+
+  roles:
+    - dietpi
+    - { role: geerlingguy.pip, become: true }
+    - { role: geerlingguy.docker_arm, become: true }
