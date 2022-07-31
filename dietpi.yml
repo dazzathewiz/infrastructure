@@ -1,5 +1,5 @@
 ---
 - hosts: dietpi
-
+  vars_files: group_vars/secret.yml
   roles:
     - dietpi

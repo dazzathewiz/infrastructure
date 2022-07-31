@@ -4,3 +4,5 @@ dependencies:
     become: true
     vars:
       user: dietpi
+      disable_password_auth: false
+      set_user_password: true
