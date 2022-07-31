@@ -10,5 +10,12 @@ Setup DietPi with essential config for homelab environment
 
 I configure the above in the SD card image from: https://github.com/dazzathewiz/mac-raspberrypi-bootstrap
 
+## Dependancies
+dietpi role assumes default user: 'dietpi' and will reset the password of this account during configuration with password specified in 'infadmin_password' variable.
+Ensure you have group_vars/secret.yml setup with 'infadmin_password'. 
+
+The dietpi role depends on 'common' role to reset the password of 'dietpi', but leaves password authentication enabled.
+
 ## Functionality
+Simply performs update and sets the timezone if not already set.
 

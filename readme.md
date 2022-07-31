@@ -3,6 +3,7 @@ An attempt to manage Infrastructure as Code in my homelab/environment
 
 ## Requirements
 1. Ansible installed - Use a machine that has Ansible installed (WSL if on Windows) and SSH
+2. Install required Ansible roles: ```ansible-galaxy install -r requirements.yml```
 
 ## Managing Secrets (passwords)
 Check-out this repository on your local machine and setup a secrets file with your passwords;
@@ -11,7 +12,7 @@ cd group_vars
 ansible-vault create secret.yml
 ```
 secret.yml should contain a password for infadmin, eg:
-infadmin: "password"
+infadmin_password: "password"
 
 To edit the secret.yml later:
 ```
@@ -23,6 +24,7 @@ See sections below for:
 - Setup local machine as an Infrastructure Control Host
 - Provision MaaS on Hyper-V with Vagrant
 - Proxmox configuration management
+- DietPi configuration management
 
 ## Setup local machine as an Infrastructure Control Host
 ```
@@ -37,18 +39,16 @@ No passphrase is applied to the key, although you may add a passphase after crea
 ansible-playbook proxmox.yml
 ```
 
-## Dietpi Configuration Management
-Ensure you have group_vars/secret.yml setup with variables:
-dietpi_default_password: "dietpi"  # this is the bootstrap password
-
-Run the playbook:
-```
-ansible-playbook dietpi.yml
-```
-
 ### Requirements
 1. SSH keys setup with the Infrastructure Control Host role above
 2. A Proxmox host with basic installation from ISO completed
 3. SSH key copied to the new instance:
 ``` ssh-copy-id -i ~/.ssh/id_ed25519_infadmin.pub root@<host-ip> ```
 4. DNS servers defined in group_vars/all.yml
+
+## Dietpi Configuration Management
+Ensure you have group_vars/secret.yml setup with variables for the environment. The dietpi's use the 'common' role to reset the password of 'dietpi' user to that specified in group_vars/secret.yml -> infadmin_password
+
+Configure a dietpi - note you need to handle the vault-password in your environment. You can choose to specify the vault password manually by appending ```--ask-vault-password``` to any of these:
+Base bootstrap: ```ansible-playbook dietpi-default.yml```
+pi-ups: ```ansible-playbook pi-ups.yml```
