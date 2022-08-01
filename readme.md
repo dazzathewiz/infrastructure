@@ -49,6 +49,12 @@ ansible-playbook proxmox.yml
 ## Dietpi Configuration Management
 Ensure you have group_vars/secret.yml setup with variables for the environment. The dietpi's use the 'common' role to reset the password of 'dietpi' user to that specified in group_vars/secret.yml -> infadmin_password
 
-Configure a dietpi - note you need to handle the vault-password in your environment. You can choose to specify the vault password manually by appending ```--ask-vault-password``` to any of these:
-Base bootstrap: ```ansible-playbook dietpi-default.yml```
-pi-ups: ```ansible-playbook pi-ups.yml```
+### Configure a dietpi
+Note:
+1. Your dietpi will need to have finished its 'first run' setup. You can ssh dietpi and ssh will tell you if setup is still running.
+2. You need to handle the vault-password in your environment. You can choose to specify the vault password manually by appending ```--ask-vault-password``` 
+3. On first run the dietpi password and ssh keys have not been provisioned. Append ```-k``` to ask for root password of your dietpi
+
+Base bootstrap: ```ansible-playbook dietpi-default.yml -k --ask-vault-password```
+
+pi-ups (manages UPS stats in the homelab): ```ansible-playbook pi-ups.yml -k --ask-vault-password```
