@@ -1,5 +1,6 @@
 ---
 - hosts: dietpi_ups
+
   vars_files: group_vars/secret.yml
 
   vars:
@@ -11,3 +12,6 @@
     - dietpi
     - { role: geerlingguy.pip, become: true }
     - { role: geerlingguy.docker_arm, become: true }
+    - role: containers/portainer
+      tags:
+        - containers

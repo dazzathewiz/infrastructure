@@ -8,3 +8,7 @@ private_key: "~/.ssh/id_ed25519_infadmin"
 dns:
   - 192.168.10.53
   - 192.168.10.153
+timezone: Australia/Brisbane
+
+# Container defaults
+docker_dir: /opt/docker/data
