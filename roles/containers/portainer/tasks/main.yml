@@ -12,13 +12,6 @@
 # - This role now uses the file method, which puts the password in plain text file with root only permissions
 
 
-- name: Create portainer data folder
-  become: yes
-  file:
-    path: "{{ docker_dir }}/{{ container_name }}"
-    state: directory
-    recurse: yes
-
 - name: Ensure admin_pass file is created
   become: yes
   file:
