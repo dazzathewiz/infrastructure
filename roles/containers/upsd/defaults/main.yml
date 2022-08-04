@@ -1,0 +1,4 @@
+---
+container_name: upsd
+password_file: nut-upsd-password
+container_password: "{{ nut_upsd_password }}"
