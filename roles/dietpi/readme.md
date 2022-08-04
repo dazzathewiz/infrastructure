@@ -18,4 +18,5 @@ The dietpi role depends on 'common' role to reset the password of 'dietpi', but 
 
 ## Functionality
 Simply performs update and sets the timezone if not already set.
+*Note: I couldn't find a programtic/cli way to run ```dietpi-update```. It is a bash shell script that does more than 'apt upgrade' and when researching the issue I found that dietpi founders prefer the command to be run interactively by a user because there is always parts of the update that need user intervention.
 
