@@ -1,3 +1,5 @@
+---
+
 - name: Update packages
   become: yes
   apt:
@@ -27,3 +29,8 @@
   when: current_timezone.stdout != timezone
   notify:
   - Update timezone
+
+- name: Set hostname {{ inventory_hostname }}
+  become: yes
+  shell: "{{ change_hostname }} {{ inventory_hostname }}"
+  when: ansible_hostname != inventory_hostname
