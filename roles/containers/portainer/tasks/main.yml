@@ -12,17 +12,8 @@
 # - This role now uses the file method, which puts the password in plain text file with root only permissions
 
 
-- name: Ensure admin_pass file is created
-  become: yes
-  file:
-    path: "{{ docker_dir }}/{{ container_name }}/admin_pass"
-    owner: root
-    group: root
-    mode: '0600'
-    state: touch
-- name: Store admin password into admin_pass
-  become: yes
-  shell: echo -n {{ infadmin_password }} > {{ docker_dir }}/{{ container_name }}/admin_pass
+- name: Do password file
+  import_tasks: roles/containers/common/tasks/passwordfile.yml
 
 - name: Make sure the Portainer container is created and running
   become: yes
@@ -39,6 +30,6 @@
     volumes:
       - "{{ docker_dir }}/{{ container_name }}/data:/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "{{ docker_dir }}/{{ container_name }}/admin_pass:/tmp/admin_pass"
+      - "{{ docker_dir }}/{{ container_name }}/secrets/{{ password_file }}:/tmp/admin_pass"
     command: "--admin-password-file /tmp/admin_pass"
     restart_policy: always

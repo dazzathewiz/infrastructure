@@ -1,2 +1,4 @@
 ---
 container_name: portainer
+password_file: admin_pass
+container_password: "{{ infadmin_password }}"
