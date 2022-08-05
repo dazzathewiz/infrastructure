@@ -1,4 +1,15 @@
 ---
+
 container_name: upsd
 password_file: nut-upsd-password
 container_password: "{{ nut_upsd_password }}"
+container_port: "3493"
+
+# ups.conf settings - see: https://hub.docker.com/r/instantlinux/nut-upsd
+ups_driver: "usbhid-ups"    # driver (see compatibility list: https://networkupstools.org/stable-hcl.html)
+ups_port: "auto"            # device port (e.g. /dev/ttyUSB0) on host
+ups_vendorid: ""            # vendor ID for ups.conf
+ups_description: "UPS"      # user-assigned description
+ups_serial: ""              # hardware serial number of UPS
+ups_pollinterval: ""        # Poll Interval for ups.conf
+ups_name: "ups"             # user-assigned config name
