@@ -11,8 +11,11 @@ Check-out this repository on your local machine and setup a secrets file with yo
 cd group_vars
 ansible-vault create secret.yml
 ```
-secret.yml should contain a password for infadmin, eg:
-infadmin_password: "password"
+secret.yml should contain:
+```
+infadmin_password: "***password***"
+nut_upsd_password: "***password***"
+```
 
 To edit the secret.yml later:
 ```
