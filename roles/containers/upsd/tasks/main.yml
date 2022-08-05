@@ -11,7 +11,7 @@
     pull: yes
     state: 'started'
     ports:
-      - "{{ container_port }}:{{ container_port }}"
+      - "{{ container_port }}:3493"
     env:
       "TZ": "{{ timezone }}"
       "DESCRIPTION": "{{ ups_description }}"
