@@ -1,0 +1,82 @@
+---
+- hosts: dietpi_ups
+
+  vars_files: group_vars/secret.yml
+
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+
+  roles:
+    - dietpi
+    - { role: geerlingguy.pip, become: true }
+    - { role: geerlingguy.docker_arm, become: true }
+    - role: containers/portainer
+      vars:
+        container_name: portainer       # set the container name due to variable precedence in this play
+      tags:
+        - containers
+    - role: containers/portainer_agent
+      vars:
+        container_name: agent           # set the container name due to variable precedence in this play
+      tags:
+        - containers
+
+    # APC 1600SI
+    - role: containers/upsd
+      vars:
+        container_name: upsd_apc1600si
+        container_port: "3492"
+        ups_driver: "usbhid-ups"
+        ups_port: "auto"
+        ups_vendorid: "051d"
+        ups_description: "APC Back-UPS RS 1600SI"
+        ups_serial: ""  #"{{ apc1600si_serial }}"
+        ups_pollinterval: ""
+        ups_name: "ups"
+      tags:
+        - containers
+
+    # Eaton 1500
+    - role: containers/upsd
+      vars:
+        container_name: upsd_eaton1500
+        container_port: "3493"
+        ups_driver: "bcmxcp_usb"
+        ups_port: "auto"
+        ups_vendorid: ""
+        ups_description: "Powerware UPS" #from product output of nut-scanner
+        ups_serial: ""
+        ups_pollinterval: ""
+        ups_name: "ups"
+      tags:
+        - containers
+
+  # manually update ups.conf for Eaton1500 container to help with undetected settings
+  tasks:
+    - name: Set in ups.conf default.battery.voltage.high = 27.7 for Eaton1500 UPS
+      become: yes
+      lineinfile:
+        dest: "{{ docker_dir }}/{{ container_name }}/data/ups.conf"
+        regexp: "^	default.battery.voltage.high = 27.7"
+        insertafter: EOF
+        line: "	default.battery.voltage.high = 27.7"
+      register: configupdate1
+      tags: containers
+    - name: Set in ups.conf default.battery.voltage.low = 20.0 for Eaton1500 UPS
+      become: yes
+      lineinfile:
+        dest: "{{ docker_dir }}/{{ container_name }}/data/ups.conf"
+        regexp: "^	default.battery.voltage.low = 20.0"
+        insertafter: EOF
+        line: "	default.battery.voltage.low = 20.0"
+      register: configupdate2
+      tags: containers
+    - name: restart upsd_eaton1500 container
+      become: yes
+      docker_container:
+        name: upsd_eaton1500
+        restart: yes
+      when: configupdate1.changed or configupdate2.changed
+      tags: containers

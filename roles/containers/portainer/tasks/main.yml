@@ -1,0 +1,35 @@
+---
+
+# A few notes in the setup of the portainer container role and admin password
+# - I wanted to automate the provision of the admin password from Ansible secrets
+# - The portainer docker has a couple of methods for setup of admin password:
+#   - https://docs.portainer.io/v/ce-2.6/advanced/cli 
+# - I couldn't get the hash password method working after much troubleshooting EG:
+#   - https://gist.github.com/deviantony/62c009b41bde5e078b1a7de9f11f5e55
+#   - I tried getting a docker output using httpd:2.4-alpine image (couldn't get output)
+#   - I tried installing apache2-utils for htpasswd use with shell script
+#   - Even when getting the hash, trying escaping chars etc, the admin login never worked with correct password
+# - This role now uses the file method, which puts the password in plain text file with root only permissions
+
+
+- name: Do password file
+  import_tasks: roles/containers/common/tasks/passwordfile.yml
+
+- name: Make sure the Portainer container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "portainer/portainer"
+    pull: yes
+    state: 'started'
+    ports:
+      - 9000:9000
+      - 8000:8000
+    env:
+      "TZ": "{{ timezone }}"
+    volumes:
+      - "{{ docker_dir }}/{{ container_name }}/data:/data"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "{{ docker_dir }}/{{ container_name }}/secrets/{{ password_file }}:/tmp/admin_pass"
+    command: "--admin-password-file /tmp/admin_pass"
+    restart_policy: always

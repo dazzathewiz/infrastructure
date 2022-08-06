@@ -1,0 +1,36 @@
+---
+
+- name: Update packages
+  become: yes
+  apt:
+    update_cache: yes
+    upgrade: yes
+
+- name: Check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+
+- name: Reboot if required
+  reboot:
+  when: reboot_required_file.stat.exists
+
+- name: Check timezone
+  shell: cat /etc/timezone
+  register: current_timezone
+
+- name: Set timezone {{ timezone }}
+  copy: content={{ timezone }}
+        dest=/etc/timezone
+        owner=root
+        group=root
+        mode=0644
+        backup=yes
+  when: current_timezone.stdout != timezone
+  notify:
+  - Update timezone
+
+- name: Set hostname {{ inventory_hostname }}
+  become: yes
+  shell: "{{ change_hostname }} {{ inventory_hostname }}"
+  when: ansible_hostname != inventory_hostname

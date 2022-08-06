@@ -1,0 +1,17 @@
+---
+
+- name: Make sure the Portainer-Agent container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "portainer/agent"
+    pull: yes
+    state: 'started'
+    ports:
+      - 9001:9001
+    env:
+      "TZ": "{{ timezone }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/lib/docker/volumes:/var/lib/docker/volumes"
+    restart_policy: always
