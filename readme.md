@@ -37,6 +37,9 @@ This will create an SSH key ~/.ssh/id_ed25519_infadmin and configure hosts in yo
 
 No passphrase is applied to the key, although you may add a passphase after creation: ```ssh-keygen -p -f ~/.ssh/id_ed25519_infadmin```
 
+The playbook will also attempt to copy the public key to all hosts. You likely will need to specify the admin password if the machine
+ansible doesn't already have pub keys on the ansible hosts. ```ansible-playbook setup-control-host.yml -k```
+
 ## Proxmox Configuration Management
 ```
 ansible-playbook proxmox.yml
