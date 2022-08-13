@@ -103,6 +103,28 @@
 # After reboot please verify:
 # IOMMU is enabled: `dmesg | grep -e DMAR -e IOMMU`
 
+
+# check and update hostname (see: https://pve.proxmox.com/wiki/Renaming_a_PVE_node)
+- name: Update hostname in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    line: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} {{ inventory_hostname }}.{{ ansible_dns['search'][0] }} {{ inventory_hostname }}"
+  register: update_hostname1
+
+- name: Update hostname in /etc/hostname
+  lineinfile:
+    dest: /etc/hostname
+    regexp: ".*"
+    line: "{{ inventory_hostname }}"
+  register: update_hostname2
+
+- debug: msg="{{ inventory_hostname }} needs reboot after hostname changes"
+  when: update_hostname1.changed or update_hostname2.changed
+- name: Reboot
+  reboot:
+  when: update_hostname1.changed or update_hostname2.changed
+
 - name: Enable VLAN aware nic on vmbr0
   lineinfile:
     dest: /etc/network/interfaces
@@ -144,6 +166,7 @@
   with_items:
     - "{{ images }}"
   when: mounted.stdout  != "0"
+  run_once: true    # Only do this task on 1 host
 
 
 # TODO
