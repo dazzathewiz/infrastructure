@@ -14,7 +14,7 @@ See proxmox.yml
 ---
 - hosts: proxmox
   roles:
-    - proxmox
+    - proxmox/setup
 ```
 
 ## Functionality
@@ -22,6 +22,7 @@ See proxmox.yml
 The playbook sets up:
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources
 - sets "iommu=on" for either Intel or AMD based CPU's in Grub config
+- sets the hostname of the proxmox host to be the same as configured in ansible hosts file
 - ensures vmbr0 (nic) is "VLAN aware" - sets `bridge-vlan-aware yes` in nic interfaces file
 - sets DNS servers in /etc/resolv.conf as defined in global group_vars -> all.yml -> dns
 - attaches NFS storage defined in vars -> main.yml -> nfs
