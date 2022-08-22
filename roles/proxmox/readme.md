@@ -27,3 +27,17 @@ The playbook sets up:
 - sets DNS servers in /etc/resolv.conf as defined in global group_vars -> all.yml -> dns
 - attaches NFS storage defined in vars -> main.yml -> nfs
 - ensures the latest ISO versions are available on the NFS share, which are defined in vars -> main.yml -> images
+
+## Clustering
+
+The clustering functions are derived from https://github.com/lae/ansible-role-proxmox
+See defaults for variables, refer to lae.proxmox for more information:
+```
+pve_cluster_clustername: "TEST"
+pve_cluster_enabled: yes
+pve_cluster_ha_groups: []
+```
+You can also configure [HA manager groups][ha-group]
+
+
+[ha-group]: https://pve.proxmox.com/wiki/High_Availability#ha_manager_groups

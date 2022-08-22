@@ -1,0 +1,11 @@
+---
+image: focal-server-cloudimg-amd64.img
+storage: local-lvm
+
+vm_template_name: ubuntu-cloud
+vm_id: 8000
+mem: 4096
+cores: 4
+interface: vmbr0
+
+recreate: false   # deletes and re-creates the template

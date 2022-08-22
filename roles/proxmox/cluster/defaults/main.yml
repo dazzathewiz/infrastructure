@@ -1,0 +1,11 @@
+---
+
+pve_group: proxmox
+pve_cluster_clustername: "TEST"
+pve_cluster_enabled: yes
+pve_cluster_ha_groups: []
+pve_cluster_addr0: "{{ ansible_default_ipv4.address if ansible_default_ipv4.address is defined else ansible_default_ipv6.address if ansible_default_ipv6.address is defined }}"
+# pve_cluster_addr1: "{{ ansible_eth1.ipv4.address }}
+
+pve_manage_ssh: true
+pve_ssh_port: 22

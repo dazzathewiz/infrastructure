@@ -1,0 +1,31 @@
+---
+
+- name: delete old image if re-creating
+  shell: qm destroy "{{ vm_id }}"
+  when: recreate
+
+- name: Build the cloud image template
+  shell: |
+    qm create "{{ vm_id }}" --memory "{{ mem }}" --core "{{ cores }}" --name "{{ vm_template_name }}" --net0 virtio,bridge="{{ interface }}"
+    qm importdisk "{{ vm_id }}" /mnt/pve/ISO/template/iso/"{{ image }}" "{{ storage }}"
+    qm set "{{ vm_id }}" --scsihw virtio-scsi-pci --scsi0 "{{ storage }}":vm-"{{ vm_id }}"-disk-0
+    qm set "{{ vm_id }}" --ide2 "{{ storage }}":cloudinit
+    qm set "{{ vm_id }}" --boot c --bootdisk scsi0
+    qm set "{{ vm_id }}" --serial0 socket --vga serial0
+  register: template
+- debug: var=template.stdout_lines
+
+- name: Setup cloud init config
+  shell: |
+    qm set "{{ vm_id }}" --ciuser "{{ provisioning_user }}"
+    qm set "{{ vm_id }}" --cipassword "{{ infadmin_password }}"
+    qm set "{{ vm_id }}" --searchdomain "{{ search_domain }}"
+    qm set "{{ vm_id }}" --sshkey ~/.ssh/authorized_keys
+    qm set "{{ vm_id }}" --ipconfig0 ip=dhcp
+  register: cloud_init
+- debug: var=cloud_init.stdout_lines
+
+- name: Convert VM {{ vm_id }} to template
+  shell: qm template "{{ vm_id }}"
+  register: success
+- debug: var=success.stdout_lines
