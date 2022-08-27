@@ -1,5 +1,14 @@
 ---
 - hosts: proxmox
 
+  vars_files: group_vars/secret.yml
+
   roles:
-    - proxmox
+    - role: proxmox/setup
+      tags: setup
+    - role: proxmox/vmtemplates
+      vars:
+        recreate: no
+      tags: vmtemplates
+    - role: proxmox/cluster
+      tags: cluster
