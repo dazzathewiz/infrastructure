@@ -9,3 +9,4 @@ pve_cluster_addr0: "{{ ansible_default_ipv4.address if ansible_default_ipv4.addr
 
 pve_manage_ssh: true
 pve_ssh_port: 22
+#pve_min_nodes: 1  # sets the minimum number of nodes that can operate within the cluster, default in proxmox is 2 but you can't login if only 1 is running
