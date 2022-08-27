@@ -12,6 +12,8 @@
     qm set "{{ vm_id }}" --ide2 "{{ storage }}":cloudinit
     qm set "{{ vm_id }}" --boot c --bootdisk scsi0
     qm set "{{ vm_id }}" --serial0 socket --vga serial0
+  args:
+    creates: "{{ storage }}/base-{{ vm_id }}-disk-0"
   register: template
 - debug: var=template.stdout_lines
 
