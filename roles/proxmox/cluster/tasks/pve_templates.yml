@@ -1,0 +1,35 @@
+---
+
+- name: Delete old cloud image if re-creating
+  shell: qm destroy "{{ pve_template_id }}"
+  when: pve_template_recreate and _pve_template_image_disk is defined
+
+- name: Build the cloud image template
+  shell: |
+    qm create "{{ pve_template_id }}" --memory "{{ pve_template_mem }}" --core "{{ pve_template_cores }}" --name "{{ pve_template_name }}" --net0 virtio,bridge="{{ pve_template_interface }}"
+    qm importdisk "{{ pve_template_id }}" /mnt/pve/ISO/template/iso/"{{ pve_template_image }}" "{{ _pve_local_storage }}"
+    qm set "{{ pve_template_id }}" --scsihw virtio-scsi-pci --scsi0 "{{ _pve_local_storage }}":vm-"{{ pve_template_id }}"-disk-0
+    qm set "{{ pve_template_id }}" --ide2 "{{ _pve_local_storage }}":cloudinit
+    qm set "{{ pve_template_id }}" --boot c --bootdisk scsi0
+    qm set "{{ pve_template_id }}" --serial0 socket --vga serial0
+  when: pve_template_recreate or _pve_template_image_disk is not defined
+  register: template
+- debug: var=template.stdout_lines
+  when: pve_template_recreate or _pve_template_image_disk is not defined
+
+- name: Setup cloud init config
+  shell: |
+    qm set "{{ pve_template_id }}" --ciuser "{{ provisioning_user }}"
+    qm set "{{ pve_template_id }}" --cipassword "{{ infadmin_password }}"
+    qm set "{{ pve_template_id }}" --searchdomain "{{ search_domain }}"
+    qm set "{{ pve_template_id }}" --sshkey ~/.ssh/authorized_keys
+    qm set "{{ pve_template_id }}" --ipconfig0 ip=dhcp
+  register: cloud_init
+- debug: var=cloud_init.stdout_lines
+
+- name: Convert VM {{ pve_template_id }} to template
+  shell: qm template "{{ pve_template_id }}"
+  when: template.changed
+  register: success
+- debug: var=success.stdout_lines
+  when: template.changed

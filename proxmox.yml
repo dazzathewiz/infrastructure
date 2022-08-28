@@ -6,9 +6,6 @@
   roles:
     - role: proxmox/setup
       tags: setup
-    - role: proxmox/vmtemplates
-      vars:
-        recreate: no
-      tags: vmtemplates
     - role: proxmox/cluster
-      tags: cluster
+      vars:
+        pve_template_recreate: yes

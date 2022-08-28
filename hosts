@@ -7,7 +7,7 @@ controlhost ansible_host=127.0.0.1 ansible_connection=local
 [proxmox]
 prox1 ansible_host=10.10.2.174 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 prox2 ansible_host=10.10.2.23 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-#prox-test ansible_host=10.10.2.158 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+#prox3 ansible_host=192.168.10.129 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [unraid]
 unnas ansible_host=192.168.10.10 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin

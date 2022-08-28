@@ -1,10 +1,12 @@
 ---
 - name: Gather distribution specific variables
   include_vars: "debian-{{ ansible_distribution_release }}.yml"
+  tags: cluster
 
 - name: Ensure pve_cluster_addr0 is in the host facts
   set_fact:
     pve_cluster_addr0: "{{ pve_cluster_addr0 }}"
+  tags: cluster
 
 - name: Calculate list of SSH addresses
   set_fact:
@@ -12,3 +14,46 @@
       ["{{ ansible_fqdn }}", "{{ ansible_hostname }}",
       "{{ pve_cluster_addr0 }}",
       {% if pve_cluster_addr1 is defined %}"{{ pve_cluster_addr1 }}"{% endif %}]
+  tags: cluster
+
+- name: Import template vars
+  include_vars: "templates.yml"
+  when: "pve_create_templates | bool"
+  tags: templates
+
+- name: Lookup local storage information
+  proxmox_query:
+    query: storage
+  register: _pve_storage
+  tags: templates
+
+- name: Set fact for local storage
+  set_fact:
+    _pve_local_storage: '{{ _pve_storage | json_query(query) }}'
+  when: "_pve_storage | json_query(query) | ternary(true, false)"
+  vars:
+    query: "response[?starts_with(storage,'local-')].storage | [0]"
+  tags: templates
+
+- name: Lookup content in storage {{ _pve_local_storage }}
+  proxmox_query:
+    query: nodes/{{ ansible_hostname }}/storage/{{ _pve_local_storage }}/content
+  when: _pve_local_storage is defined
+  register: _pve_local_storage_content
+  tags: templates
+
+- name: Set fact for local storage VM template image
+  set_fact:
+    _pve_template_image_disk: '{{ _pve_local_storage_content | json_query(query) }}'
+  when: "_pve_local_storage_content | json_query(query) | ternary(true, false)"
+  vars:
+    query: "response[?vmid==`{{pve_template_id}}`].volid"
+  tags: templates
+
+#- name: Check if cloud init config image exists
+#  set_fact:
+#    _pve_template_cloudinit_image: yes
+#  loop: "{{ _pve_template_image_disk }}"
+#  when: _pve_template_image_disk is defined and item in _pve_template_image_disk
+#  tags: templates
+

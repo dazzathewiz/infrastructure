@@ -42,14 +42,15 @@ ansible doesn't already have pub keys on the ansible hosts. ```ansible-playbook 
 
 ## Proxmox Configuration Management
 ```
-ansible-playbook proxmox.yml
+ansible-playbook proxmox.yml --ask-vault-password
 ```
 
 ### Requirements
-1. SSH keys setup with the Infrastructure Control Host role above
-2. A Proxmox host with basic installation from ISO completed
-3. SSH key copied to the new instance:
-``` ssh-copy-id -i ~/.ssh/id_ed25519_infadmin.pub root@<host-ip> ```
+1. Proxmox hosts defined under 'proxmox' group in hosts file.
+2. SSH keys setup with the Infrastructure Control Host role above -> ```ansible-playbook setup-control-host.yml -k```
+3. A Proxmox host with basic installation from ISO completed
+    a) If not clustering multiple hosts, change ```pve_cluster_enabled: no``` variable in you playbook.
+    b) If you are clustering, install from ISO by selecting ZFS - this will allow local storage replication to other nodes
 4. DNS servers defined in group_vars/all.yml
 
 ## Dietpi Configuration Management
