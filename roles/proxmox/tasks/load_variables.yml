@@ -1,13 +1,13 @@
 ---
 
-# Setup config vars
-- name: Setup configuration vars
+# Image and ISO download vars
+- name: Cloud download urls for ISO's and image vars
   block:
 
     - name: Load iso_images variables
       include_vars: "iso_images.yml"
   
-  tags: setup
+  tags: update_images
 
 # Cluster config vars
 - name: Cluster config vars

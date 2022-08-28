@@ -154,24 +154,9 @@
   failed_when: result.rc not in [ 0, 255 ]
   changed_when: result.rc == 0
 
-# Download latest ISOs into ISO path
-- name: Check the NFS ISO share is mounted
-  shell: df | grep /mnt/pve/ISO | wc -l
-  register: mounted
-- name: Check and download ISO images
-  get_url:
-    url: "{{ item }}"
-    tmp_dest: /mnt/pve/ISO/template/iso/
-    dest: /mnt/pve/ISO/template/iso/
-  with_items:
-    - "{{ images }}"
-  when: mounted.stdout  != "0"
-  run_once: true    # Only do this task on 1 host
-
 
 # TODO
 
-# Create VM Template
 # Setup NIC's, bonding, etc
 # Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
 #- name: Proxmox VE Ceph installation
