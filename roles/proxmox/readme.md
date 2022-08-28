@@ -21,22 +21,28 @@ See ../proxmox.yml
 
 ## Functionality
 
-The playbook sets up:
+The playbook performs all of these by default (or independantly with tags):
+1. Setup of a proxmox host ```ansible-playbook proxmox.yml --tags setup```
+2. Downloading of cloud images and ISO's to configured NFS ISO share ```ansible-playbook proxmox.yml --tags update_images```
+3. Clusters together all proxmox nodes in the playbook ```ansible-playbook proxmox.yml --tags cluster```
+4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
 
-### Setup
+### 1. Setup
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources
 - sets "iommu=on" for either Intel or AMD based CPU's in Grub config
 - sets the hostname of the proxmox host to be the same as configured in ansible hosts file
 - ensures vmbr0 (nic) is "VLAN aware" - sets `bridge-vlan-aware yes` in nic interfaces file
 - sets DNS servers in /etc/resolv.conf as defined in global group_vars -> all.yml -> dns
 - attaches NFS storage defined in vars -> main.yml -> nfs
+
+### 2. Download of cloud images
 - ensures the latest ISO versions are available on the NFS share, which are defined in vars -> main.yml -> images
 
-### Clustering
+### 3. Clustering
 - adds all hosts into a cluster by default. To disable clustering, configure: ```pve_cluster_enabled: no```
 ** See the notes on clustering below **
 
-### VM Cloud image template
+### 4. VM Cloud image template
 - creates a Ubuntu cloud image template with VM ID 800# where # is the host node number. 
   Template uses the following variables to be defined outside of this role:
      ```infadmin_password:``` to be set (in vault)
