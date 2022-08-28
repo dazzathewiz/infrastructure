@@ -37,22 +37,29 @@
       include_vars: "templates.yml"
       when: "pve_create_templates | bool"
 
-    - name: Lookup local storage information
+    - name: Lookup local node storage information
       proxmox_query:
-        query: storage
-      register: _pve_storage
+        query: "nodes/{{ ansible_hostname }}/storage"
+      register: _node_storage
 
-    - name: Set fact for local storage
+    - name: Set fact for multiple local storage in cluster
       set_fact:
-        _pve_local_storage: '{{ _pve_storage | json_query(query) }}'
-      when: "_pve_storage | json_query(query) | ternary(true, false)"
+        _node_storage_local: '{{ _node_storage | json_query(query) }}'
+      when: "_node_storage | json_query(query) | ternary(true, false)"
       vars:
-        query: "response[?starts_with(storage,'local-')].storage | [0]"
+        query: "response[?starts_with(storage,'local-')]"
 
-    - name: Lookup content in storage {{ _pve_local_storage }}
+    - name: Set fact for enabled local storage
+      set_fact:
+        _node_storage_local: '{{ _node_storage_local | json_query(query) }}'
+      when: "_node_storage_local | json_query(query) | ternary(true, false)"
+      vars:
+        query: "[?enabled==`1`].storage | [0]"
+
+    - name: Lookup content in local-* storage
       proxmox_query:
-        query: nodes/{{ ansible_hostname }}/storage/{{ _pve_local_storage }}/content
-      when: _pve_local_storage is defined
+        query: "nodes/{{ ansible_hostname }}/storage/{{ _node_storage_local }}/content"
+      when: _node_storage_local is defined
       register: _pve_local_storage_content
 
     - name: Set fact for local storage VM template image

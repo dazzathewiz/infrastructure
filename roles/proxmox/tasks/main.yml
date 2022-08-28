@@ -18,5 +18,5 @@
   tags: cluster
 
 - import_tasks: pve_templates_config.yml
-  when: _pve_local_storage is defined
+  when: _node_storage_local is defined
   tags: templates
