@@ -4,8 +4,6 @@
   vars_files: group_vars/secret.yml
 
   roles:
-    - role: proxmox/setup
-      tags: setup
     - role: proxmox/cluster
       vars:
         pve_template_recreate: yes

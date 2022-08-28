@@ -2,6 +2,9 @@
 
 - import_tasks: load_variables.yml
 
+- import_tasks: pve_setup_config.yml
+  tags: setup
+
 - import_tasks: ssh_cluster_config.yml
   when:
     - "pve_manage_ssh | bool and pve_cluster_enabled | bool"
@@ -11,6 +14,6 @@
   when: "pve_cluster_enabled | bool"
   tags: cluster
 
-- import_tasks: pve_templates.yml
+- import_tasks: pve_templates_config.yml
   when: _pve_local_storage is defined
   tags: templates
