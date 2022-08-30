@@ -1,4 +1,15 @@
 ---
+- name: Register any existing VMs
+  proxmox_query:
+    query: "nodes/{{ ansible_hostname }}/qemu"
+  register: _pve_vms
+
+- name: Ensure that no VMs are present to prevent cluster joining
+  assert:
+    that:
+      - "_pve_vms.response | length <= 0"
+    msg: "Proxmox host {{ ansible_hostname }} already contains virtual guests and cannot join a cluster until removed!"
+
 - name: Lookup cluster information
   proxmox_query:
     query: cluster/status
