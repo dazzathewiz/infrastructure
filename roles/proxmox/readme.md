@@ -32,6 +32,7 @@ The playbook performs all of these by default (or independantly with tags):
 - sets "iommu=on" for either Intel or AMD based CPU's in Grub config
 - sets the hostname of the proxmox host to be the same as configured in ansible hosts file
 - ensures vmbr0 (nic) is "VLAN aware" - sets `bridge-vlan-aware yes` in nic interfaces file
+- setup vmbr1 (nic) when there is a second nic found matching ```pve_second_nic_regex``` variable
 - sets DNS servers in /etc/resolv.conf as defined in global group_vars -> all.yml -> dns
 - attaches NFS storage defined in vars -> main.yml -> nfs
 
