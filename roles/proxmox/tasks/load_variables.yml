@@ -1,5 +1,20 @@
 ---
 
+# Setup config vars
+- name: Setup config vars
+  block:
+    
+    # Find an interface as specified by pve_second_nic_regex variable, but not the NIC tied to default vmbr0 bridge
+    - name: Set fact when secondary NIC available for configuration
+      set_fact:
+        _pve_second_nic: '{{ item }}'
+      loop: "{{ ansible_interfaces }}"
+      when: >
+        hostvars[inventory_hostname]['ansible_vmbr0']['interfaces'][0] != item  and
+        item is regex(pve_second_nic_regex)
+
+  tags: setup
+
 # Image and ISO download vars
 - name: Cloud download urls for ISO's and image vars
   block:
