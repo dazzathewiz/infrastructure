@@ -175,9 +175,8 @@
   changed_when: result.rc == 0
 
 
-# TODO
+# For future, perhaps
 
-# Setup NIC's, bonding, etc
 # Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
 #- name: Proxmox VE Ceph installation
 #  shell: pveceph install
