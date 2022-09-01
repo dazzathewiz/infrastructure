@@ -1,5 +1,9 @@
 ---
 - hosts: proxmox
 
+  vars_files: group_vars/secret.yml
+
   roles:
-    - proxmox
+    - role: proxmox
+      #vars:
+      #  pve_template_recreate: yes

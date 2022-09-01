@@ -129,7 +129,27 @@
   lineinfile:
     dest: /etc/network/interfaces
     insertafter: 'bridge-fd 0'
-    line: "        bridge-vlan-aware yes"
+    line: "	bridge-vlan-aware yes"
+  notify:
+    - restart pve node
+
+- name: Add vmbr1 configuration to /etc/network/interfaces when a second nic is identified
+  blockinfile:
+    path: /etc/network/interfaces
+    block: |
+      iface {{ _pve_second_nic }} inet manual
+
+      auto vmbr1
+      iface vmbr1 inet static
+      	address {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | ipmath(1) }}/24
+      	bridge-ports {{ _pve_second_nic }}
+      	bridge-stp off
+      	bridge-fd 0
+      	bridge-vlan-aware yes
+      	bridge-vids 2-4094
+  when: _pve_second_nic is defined
+  notify:
+    - restart pve node
 
 - name: Set DNS servers in /etc/resolv.conf
   lineinfile:
@@ -154,25 +174,9 @@
   failed_when: result.rc not in [ 0, 255 ]
   changed_when: result.rc == 0
 
-# Download latest ISOs into ISO path
-- name: Check the NFS ISO share is mounted
-  shell: df | grep /mnt/pve/ISO | wc -l
-  register: mounted
-- name: Check and download ISO images
-  get_url:
-    url: "{{ item }}"
-    tmp_dest: /mnt/pve/ISO/template/iso/
-    dest: /mnt/pve/ISO/template/iso/
-  with_items:
-    - "{{ images }}"
-  when: mounted.stdout  != "0"
-  run_once: true    # Only do this task on 1 host
 
+# For future, perhaps
 
-# TODO
-
-# Create VM Template
-# Setup NIC's, bonding, etc
 # Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
 #- name: Proxmox VE Ceph installation
 #  shell: pveceph install

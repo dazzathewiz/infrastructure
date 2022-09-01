@@ -1,0 +1,10 @@
+---
+
+pve_template_image: focal-server-cloudimg-amd64.img
+pve_tempate_id_prefix: 800
+
+pve_template_name: ubuntu-cloud
+pve_template_id: "{{ pve_tempate_id_prefix }}{{ inventory_hostname[-1] }}"
+pve_template_mem: 4096
+pve_template_cores: 4
+pve_template_interface: vmbr0
