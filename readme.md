@@ -65,3 +65,24 @@ Note:
 Base bootstrap: ```ansible-playbook dietpi-default.yml -k --ask-vault-password```
 
 pi-ups (manages UPS stats in the homelab): ```ansible-playbook pi-ups.yml -k --ask-vault-password```
+
+## Kubernetes cluster with k3s
+
+To setup k3s infrastructure, use [dazzathewiz/ks3-ansible][k3s-ansible]
+
+### First time setup
+1. ```git clone https://github.com/dazzathewiz/k3s-ansible```
+2. ```cd k3s-ansible/inventory/<env>/group_vars```
+3. Create secrets variable "k3s_token" ```ansible-vault create secret.yml```
+
+### Run k3s cluster setup
+1. ```ansible-playbook ./site.yml -i ./inventory/prod/hosts.ini -K -e @inventory/prod/group_vars/secret.yml --ask-vault-password```
+2. Copy .kube config to local machine ```scp -i ~/.ssh/id_ed25519_infadmin infadmin@10.10.1.187:~/.kube/config ~/.kube/config```
+
+### Note:
+- Modify paths if the environemtn is different to "prod"
+- ```-K``` required where your server is not configured for passwordless sudo
+- ```-e @inventory/prod/group_vars/secret.yml``` required to specify the secretes vars file not set in the playbook.yml file
+- Servers specified in the ```inventory/<env>/hosts.ini``` should be deployed and running with ssh keys deployed
+
+[k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
