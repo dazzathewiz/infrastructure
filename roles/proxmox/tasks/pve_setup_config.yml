@@ -1,0 +1,182 @@
+---
+
+# Adds packages for no-subscription model, as seen in: https://www.youtube.com/watch?v=GoZaMgEgrHw
+- name: Add "no-subscription" apt source
+  blockinfile:
+    path: /etc/apt/sources.list
+    block: |
+      # not for production user
+      deb http://download.proxmox.com/debian {{ ansible_distribution_release }} pve-no-subscription
+  register: update_apt_nosub
+
+- name: Remove "pve-enterprise" apt source
+  lineinfile:
+    dest: /etc/apt/sources.list.d/pve-enterprise.list
+    regexp: "^deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
+    line: "# deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
+  register: update_apt_enterprise
+
+- name: Update packages
+  apt:
+    update_cache: yes
+    upgrade: yes
+  when: update_apt_nosub.changed or update_apt_enterprise.changed
+
+# from: https://forum.proxmox.com/threads/when-to-reboot.29230/
+- name: Check if reboot required
+  shell:  "[ `ls -tr /boot/initrd* | tail -1 | cut -d '-' -f 2-` != `uname -r` ]"
+  register: result
+  ignore_errors: true
+  failed_when: result == 2
+- debug: msg="{{ inventory_hostname }} needs reboot"
+  when: result.rc == 0
+- name: Reboot if required
+  reboot:
+  when: result.rc == 0
+
+
+# Identify the processor manufacturer by looking for "Intel" or "AMD"
+# in `/proc/cpuinfo`.
+- name: check if Intel processor
+  command: grep -q Intel /proc/cpuinfo
+  ignore_errors: true
+  register: is_intel
+  failed_when: is_intel == 2
+
+- name: check if AMD processor
+  command: grep -q AMD /proc/cpuinfo
+  ignore_errors: true
+  register: is_amd
+  failed_when: is_amd == 2
+
+- name: Update GRUB to enable iommu at boot - Intel CPU
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_gvt=1"'
+  when: is_intel.rc == 0
+  register: update_grub_intel
+
+- name: Update GRUB to enable iommu at boot - AMD CPU
+  lineinfile:
+    dest: /etc/default/grub
+    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
+    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"'
+  when: is_amd.rc == 0
+  register: update_grub_amd
+
+- name: update-grub
+  shell: update-grub
+  when: update_grub_intel.changed or update_grub_amd.changed
+  register: update_grub
+
+- name: Register modules for vfio
+  lineinfile:
+    dest: /etc/modules
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^vfio$', line: 'vfio' }
+    - { regexp: '^vfio_iommu_type1', line: 'vfio_iommu_type1' }
+    - { regexp: '^vfio_pci', line: 'vfio_pci' }
+    - { regexp: '^vfio_virqfd', line: 'vfio_virqfd' }
+  register: vfio
+
+- name: Register modules for Intel GPU passthrough (Intel GVT)
+  lineinfile:
+    dest: /etc/modules
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^kvmgt', line: 'kvmgt' }
+    - { regexp: '^exngt', line: 'exngt' }
+    - { regexp: '^vfio-mdev', line: 'vfio-mdev' }
+  when: is_intel.rc == 0
+  register: gvt
+
+- debug: msg="{{ inventory_hostname }} needs reboot"
+  when: update_grub.changed or vfio.changed or gvt.changed
+- name: Reboot to apply changes
+  reboot:
+  when: update_grub.changed or vfio.changed or gvt.changed
+
+# After reboot please verify:
+# IOMMU is enabled: `dmesg | grep -e DMAR -e IOMMU`
+
+
+# check and update hostname (see: https://pve.proxmox.com/wiki/Renaming_a_PVE_node)
+- name: Update hostname in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "^{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    line: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} {{ inventory_hostname }}.{{ ansible_dns['search'][0] }} {{ inventory_hostname }}"
+  register: update_hostname1
+
+- name: Update hostname in /etc/hostname
+  lineinfile:
+    dest: /etc/hostname
+    regexp: ".*"
+    line: "{{ inventory_hostname }}"
+  register: update_hostname2
+
+- debug: msg="{{ inventory_hostname }} needs reboot after hostname changes"
+  when: update_hostname1.changed or update_hostname2.changed
+- name: Reboot
+  reboot:
+  when: update_hostname1.changed or update_hostname2.changed
+
+- name: Enable VLAN aware nic on vmbr0
+  lineinfile:
+    dest: /etc/network/interfaces
+    insertafter: 'bridge-fd 0'
+    line: "	bridge-vlan-aware yes"
+  notify:
+    - restart pve node
+
+- name: Add vmbr1 configuration to /etc/network/interfaces when a second nic is identified
+  blockinfile:
+    path: /etc/network/interfaces
+    block: |
+      iface {{ _pve_second_nic }} inet manual
+
+      auto vmbr1
+      iface vmbr1 inet static
+      	address {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | ipmath(1) }}/24
+      	bridge-ports {{ _pve_second_nic }}
+      	bridge-stp off
+      	bridge-fd 0
+      	bridge-vlan-aware yes
+      	bridge-vids 2-4094
+  when: _pve_second_nic is defined
+  notify:
+    - restart pve node
+
+- name: Set DNS servers in /etc/resolv.conf
+  lineinfile:
+    dest: /etc/resolv.conf
+    regexp: "^nameserver {{ item }}"
+    line: "nameserver {{ item }}"
+  with_items:
+    - "{{ dns }}"
+
+- name: Attach NFS shared storage
+  shell: |
+    pvesm add nfs {{ item['name'] }} \
+    --export {{ item['path'] }} \
+    --path /mnt/pve/{{ item['name'] }} \
+    --server {{ item['host'] }} \
+    --content images,iso \
+    --options vers=4.2 \
+    --prune-backups keep-all=1
+  with_items:
+    - "{{ nfs }}"
+  register: result
+  failed_when: result.rc not in [ 0, 255 ]
+  changed_when: result.rc == 0
+
+
+# For future, perhaps
+
+# Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
+#- name: Proxmox VE Ceph installation
+#  shell: pveceph install

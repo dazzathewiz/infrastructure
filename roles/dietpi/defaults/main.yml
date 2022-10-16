@@ -1,0 +1,4 @@
+---
+
+# https://github.com/MichaIng/DietPi/blob/dev/dietpi/func/change_hostname
+change_hostname: /boot/dietpi/func/change_hostname

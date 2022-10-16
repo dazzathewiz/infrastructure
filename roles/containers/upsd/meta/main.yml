@@ -1,0 +1,4 @@
+---
+dependencies:
+  - role: containers/common
+allow_duplicates: true

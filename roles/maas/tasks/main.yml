@@ -1,4 +1,7 @@
 ---
+- name: Set timezone to "{{ timezone }}"
+  shell: timedatectl set-timezone "{{ timezone }}"
+
 - name: Update packages
   apt:
     update_cache: yes

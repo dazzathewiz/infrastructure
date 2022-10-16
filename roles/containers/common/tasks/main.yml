@@ -1,0 +1,10 @@
+---
+
+# Common tasks between multiple containers. This role is meant as a depenancy only, not to be directly called.
+
+- name: Create {{ container_name }} data folder
+  become: yes
+  file:
+    path: "{{ docker_dir }}/{{ container_name }}"
+    state: directory
+    recurse: yes

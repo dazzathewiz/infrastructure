@@ -1,0 +1,29 @@
+---
+
+- name: Do password file
+  import_tasks: roles/containers/common/tasks/passwordfile.yml
+
+- name: Make sure the {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "instantlinux/nut-upsd:latest"
+    pull: yes
+    state: 'started'
+    ports:
+      - "{{ container_port }}:3493"
+    env:
+      "TZ": "{{ timezone }}"
+      "DESCRIPTION": "{{ ups_description }}"
+      "DRIVER": "{{ ups_driver }}"
+      "NAME": "{{ ups_name }}"
+      "POLLINTERVAL": "{{ ups_pollinterval }}"
+      "PORT": "{{ ups_port }}"
+      "SERIAL": "{{ ups_serial }}"
+      "VENDORID": "{{ ups_vendorid }}"
+    volumes:
+      - "/dev/bus/usb:/dev/bus/usb"
+      - "{{ docker_dir }}/{{ container_name }}/data:/etc/nut"
+      - "{{ docker_dir }}/{{ container_name }}/secrets:/run/secrets"
+    privileged: yes
+    restart_policy: always
