@@ -85,4 +85,7 @@ To setup k3s infrastructure, use [dazzathewiz/ks3-ansible][k3s-ansible]
 - ```-e @inventory/prod/group_vars/secret.yml``` required to specify the secretes vars file not set in the playbook.yml file
 - Servers specified in the ```inventory/<env>/hosts.ini``` should be deployed and running with ssh keys deployed
 
+## Bootstrap QEMU VM
+```ansible <host or host_group> -m include_role -a name=vmguest -K```
+
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
