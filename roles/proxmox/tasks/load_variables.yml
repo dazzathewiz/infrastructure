@@ -13,6 +13,24 @@
         hostvars[inventory_hostname]['ansible_vmbr0']['interfaces'][0] != item  and
         item is regex(pve_second_nic_regex)
 
+    - name: Detect SYSTEMD bootloader
+      command: efibootmgr -v | grep -q systemd
+      ignore_errors: true
+      register: systemd
+      failed_when: systemd == 2
+
+    # Default to grub if no "systemd" found from out of `efibootmgr -v`
+    # Can detect grub specifically if ever required with `efibootmgr -v | grep -q grub`
+    - name: Set GRUB as default bootloader
+      set_fact:
+        _pve_bootloader: 'grub'
+      when: systemd.rc != 0
+    
+    - name: Set SYSTEMD as system bootloader
+      set_fact:
+        _pve_bootloader: 'systemd'
+      when: systemd.rc == 0
+
   tags: setup
 
 # Image and ISO download vars
