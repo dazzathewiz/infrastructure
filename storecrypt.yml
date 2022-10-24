@@ -1,0 +1,40 @@
+---
+
+# Replaces fil-miner functions into proxmox VM
+
+# Create the VM in proxmox?
+
+# On VM:
+
+Configure correct timezone > dpkg-reconfigure tzdata
+
+Install ZFS
+
+Install 45drives Houston Command Centre
+ - ZFS manager
+ - Samba 
+
+Import ZFS pool
+
+Install monitoring tools
+- 45Drives Alert manager & Prometheus?? (from evernote notes)
+- Monitor drive temps from passthrough PCIe (somehow)
+- ZFS monitoring
+
+Install and setup MergerFS
+
+Setup mount points & mount them with fstab
+
+Install docker (not snap docker!)
+#- Docker compose?
+
+Dockers:
+- machinaris* #Docker compose?
+- scprime
+- silicoin
+- telegraf
+- portainer & agent
+
+# Managing docker
+# - How to manage container updates?
+# - How to add or change containers in code?
