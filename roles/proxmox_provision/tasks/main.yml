@@ -49,6 +49,11 @@
   when: vm.changed and vm_pcie_device is defined
   tags: provision
 
+- name: Enable qemu agent
+  shell: qm set {{ vm.vmid }} --agent 1
+  when: vm_enable_agent and vm.changed
+  tags: provision
+
 - name: starting new Virtual Machine ID {{ vm.vmid }}
   proxmox_kvm:
     api_user : root@pam

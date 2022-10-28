@@ -6,3 +6,4 @@ vm_name: "{{ lookup('community.general.random_string', upper=false, numbers=fals
 
 vm_disk_increase: 0     # Increase the vm disk by x GB
 vm_start: yes           # Start the VM after it's provisioned
+vm_enable_agent: yes    # Enable the proxmox qemu agent
