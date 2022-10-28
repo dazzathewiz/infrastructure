@@ -1,0 +1,6 @@
+---
+- name: Wait for server "{{ host }}" to be online/available
+  wait_for:
+    host: "{{ host }}"
+    port: 22
+    timeout: 30
