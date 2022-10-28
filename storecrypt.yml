@@ -2,38 +2,47 @@
 
 # Replaces fil-miner functions into proxmox VM
 
-# Create the VM in proxmox?
+# Create VM
+- import_playbook: vm_deploy_storecrypt.yml
 
-# On VM:
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['storecrypt']['ansible_host'] }}"
 
-Configure correct timezone > dpkg-reconfigure tzdata
+- hosts: storecrypt
+  roles:
+    - vmguest
 
-Install ZFS
 
-Install 45drives Houston Command Centre
- - ZFS manager
- - Samba 
+#Install ZFS
 
-Import ZFS pool
+#Install 45drives Houston Command Centre
+# - ZFS manager
+# - Samba 
 
-Install monitoring tools
-- 45Drives Alert manager & Prometheus?? (from evernote notes)
-- Monitor drive temps from passthrough PCIe (somehow)
-- ZFS monitoring
+#Import ZFS pool
 
-Install and setup MergerFS
+#Install monitoring tools
+#- 45Drives Alert manager & Prometheus?? (from evernote notes)
+#- Monitor drive temps from passthrough PCIe (somehow)
+#- ZFS monitoring
 
-Setup mount points & mount them with fstab
+#Install and setup MergerFS
 
-Install docker (not snap docker!)
+#Setup mount points & mount them with fstab
+
+#Install docker (not snap docker!)
 #- Docker compose?
 
-Dockers:
-- machinaris* #Docker compose?
-- scprime
-- silicoin
-- telegraf
-- portainer & agent
+#Dockers:
+#- machinaris* #Docker compose?
+#- scprime
+#- silicoin
+#- telegraf
+#- portainer & agent
 
 # Managing docker
 # - How to manage container updates?

@@ -1,0 +1,18 @@
+---
+- hosts: prox1
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        vm_name: storecrypt
+        vm_memory: 10240
+        #vm_cpu: 6
+        vm_network_bridge: vmbr1
+        #vm_network_vlan: 115
+        vm_network_mac: 26:0d:67:53:2d:2b
+        vm_disk_increase: 46
+        #vm_pcie_device: "03:00.0"
