@@ -15,8 +15,10 @@
 - hosts: storecrypt
   roles:
     - vmguest
+
     - role: 45drives/repo
       tags: 45drives
+    
     - role: system
       vars:
         packages:
@@ -28,24 +30,24 @@
           - cockpit
           - cockpit-file-sharing
       tags: setup
+
     - role: 45drives/zfs-manager
       tags: setup
 
+    - role: storecrypt
 
+    - role: geerlingguy.docker
+      become: true
+      vars:
+        docker_users:
+          - "{{ provisioning_user }}"
+      tags: setup
 
-#Import ZFS pool
 
 #Install monitoring tools
 #- 45Drives Alert manager & Prometheus?? (from evernote notes)
 #- Monitor drive temps from passthrough PCIe (somehow)
 #- ZFS monitoring
-
-#setup MergerFS
-
-#Setup mount points & mount them with fstab
-
-#Install docker (not snap docker!)
-#- Docker compose?
 
 #Dockers:
 #- machinaris* #Docker compose?
