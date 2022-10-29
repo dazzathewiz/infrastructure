@@ -15,13 +15,23 @@
 - hosts: storecrypt
   roles:
     - vmguest
+    - role: 45drives/repo
+      tags: 45drives
+    - role: system
+      vars:
+        packages:
+          - zfsutils-linux
+          - mergerfs
+          - samba
+          - cifs-utils
+          - 45drives-tools
+          - cockpit
+          - cockpit-file-sharing
+      tags: setup
+    - role: 45drives/zfs-manager
+      tags: setup
 
 
-#Install ZFS
-
-#Install 45drives Houston Command Centre
-# - ZFS manager
-# - Samba 
 
 #Import ZFS pool
 
@@ -30,7 +40,7 @@
 #- Monitor drive temps from passthrough PCIe (somehow)
 #- ZFS monitoring
 
-#Install and setup MergerFS
+#setup MergerFS
 
 #Setup mount points & mount them with fstab
 
