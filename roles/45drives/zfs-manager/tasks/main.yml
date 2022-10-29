@@ -1,0 +1,17 @@
+---
+# See: https://github.com/45Drives/cockpit-zfs-manager
+
+#include_vars: roles/45drives/repo/defaults/main.yml
+
+- name: Git clone {{ cockpit_zfs_manager }}
+  git:
+    repo: "{{ cockpit_zfs_manager }}"
+    dest: "{{ scripts }}/cockpit-zfs-manager"
+
+- name: Copy zfs-manager into cockpit
+  become: yes
+  copy:
+    src: "{{ scripts }}/cockpit-zfs-manager/zfs"
+    dest: /usr/share/cockpit
+    remote_src: yes
+    directory_mode: yes

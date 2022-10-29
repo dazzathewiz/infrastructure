@@ -1,0 +1,24 @@
+---
+# See: https://github.com/45Drives/tools
+
+- name: Check {{ scripts }} directory
+  file:
+    path: "{{ scripts }}"
+    state: directory
+
+- name: Check if 45drives repo file exists
+  stat:
+    path: "{{ scripts }}/setup"
+  register: setup
+
+- name: curl setup script {{ repo_setup_script }}
+  get_url:
+    url: "{{ repo_setup_script }}"
+    dest: "{{ scripts }}/setup"
+    mode: 0755
+  when: not setup.stat.exists
+
+- name: Add 45drives Repo tools
+  become: yes
+  shell: "{{ scripts }}/setup"
+  when: not setup.stat.exists
