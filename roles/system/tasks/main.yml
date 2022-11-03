@@ -2,5 +2,4 @@
 - include_tasks: essential.yml
 
 - include_tasks: powersaving.yml
-  when: enable_powersaving | default(False)
-  
+  when: (enable_powersaving | default(False)) and inventory_hostname in groups["baremetal"]
