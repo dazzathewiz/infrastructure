@@ -163,17 +163,17 @@
     - name: gather service facts
       ansible.builtin.service_facts:
 
-    - name: disable undefined scrub timer
-      ansible.builtin.systemd:
-        name: "zpool-scrub@{{ item }}.timer"
-        enabled: false
-        state: stopped
-      loop: "{{
-              ansible_facts.services.keys() |
-              select('match', 'zpool-scrub@.+\\.service') |
-              map('regex_replace', 'zpool-scrub@(.+)\\.service', '\\1') | list |
-              difference(zfs_pools | selectattr2('scrub', '==', true, default=true) | map(attribute='name') | list)
-            }}"
+#    - name: disable undefined scrub timer
+#      ansible.builtin.systemd:
+#        name: "zpool-scrub@{{ item }}.timer"
+#        enabled: false
+#        state: stopped
+#      loop: "{{
+#              ansible_facts.services.keys() |
+#              select('match', 'zpool-scrub@.+\\.service') |
+#              map('regex_replace', 'zpool-scrub@(.+)\\.service', '\\1') | list |
+#              difference(zfs_pools | selectattr2('scrub', '==', true, default=true) | map(attribute='name') | list)
+#            }}"
 
 
 
