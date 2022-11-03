@@ -12,10 +12,13 @@
       vars:
         host: "{{ hostvars['storecrypt']['ansible_host'] }}"
 
+# Setup storecrypt server
 - hosts: storecrypt
   vars_files: group_vars/secret.yml
 
   vars:
+
+    # pip docker package is used for deploying docker containers
     pip_package: python3-pip
     pip_install_packages:
       - name: docker
@@ -26,6 +29,7 @@
     - role: 45drives/repo
       tags: 45drives
     
+    # Install system packages, config, mount points
     - role: system
       vars:
         packages:
@@ -36,13 +40,45 @@
           - 45drives-tools
           - cockpit
           - cockpit-file-sharing
+        mounts:
+
+          # Disk mounts
+          - { path: /mnt/disk1, src: UUID=6d1faaa6-3179-4218-b936-7639a2832b67, fstype: xfs }
+          - { path: /mnt/disk2, src: UUID=0d0fc5a5-0367-40f0-bb43-a6c0fd797b64, fstype: xfs }
+          - { path: /mnt/disk3, src: UUID=b664d8a4-9cad-4a7e-95c2-fbfd5ffbf70f, fstype: xfs }
+          - { path: /mnt/disk4, src: UUID=c2f06c17-a83a-4b3a-a087-89d03ec846a3, fstype: xfs }
+          - { path: /mnt/disk5, src: UUID=dee733f1-4935-4062-a47c-2f876143745e, fstype: xfs }
+
+          # MergerFS mount
+          - { path: /mnt/storage, src: /mnt/disk*, fstype: fuse.mergerfs, opts: 'allow_other,direct_io,use_ino,category.create=mfs,moveonenospc=true,minfreespace=2G,fsname=array' }
+
       tags: setup
 
     - role: 45drives/zfs-manager
       tags: setup
 
-    - role: storecrypt
+    # Setup ZFS
+    - role: zfs
+      vars:
+        zfs_pools:
+        - name: filsectors-1
+          vdev: >-
+            raidz2
+              wwn-0x5000c500db8d28a1
+              wwn-0x5000c50066727ccc
+              wwn-0x5000c5008715dc76
+              wwn-0x5000c5008715e269
+              wwn-0x5000c5006672ec28
+              wwn-0x5000c500e34a81c6
+          filesystem_properties:
+            mountpoint: /filsectors-1
+            acltype: posixacl
+            atime: true
+        zfs_zrepl_enabled: false
 
+    #- role: storecrypt
+
+    # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
     - role: geerlingguy.docker
       become: true
@@ -51,8 +87,16 @@
           - "{{ provisioning_user }}"
       tags: setup
     
+    # Deploy docker containers
     - { role: containers/portainer, tags: [containers] }
     - { role: containers/portainer_agent, tags: [containers] }
+    # machinaris containers
+    #- role: containers/docker_compose
+    #  vars:
+    #    container_use_git: true
+    #    container_git_repo: https://github.com/dazzathewiz/chia-forks.git
+    #    container_git_subpath: "{{ inventory_hostname }}"
+    #  tags: containers,test
 
 
 #Install monitoring tools
