@@ -1,0 +1,20 @@
+---
+- name: reload udev rules
+  ansible.builtin.shell: "udevadm control --reload && udevadm trigger"
+  changed_when: true
+
+- name: update initramfs (Debian)
+  ansible.builtin.command: update-initramfs -u -k all
+  changed_when: true
+  when: ansible_os_family | lower == 'debian'
+
+- name: mkinitcpio (Arch Linux)
+  ansible.builtin.command: mkinitcpio -P
+  changed_when: true
+  when: ansible_os_family | lower == 'archlinux'
+
+- name: restart zrepl
+  ansible.builtin.systemd:
+    name: zrepl
+    state: restarted
+  when: zfs_zrepl_enabled | bool

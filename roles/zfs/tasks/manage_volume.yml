@@ -1,0 +1,29 @@
+---
+- name: assert correctness of ZFS volume parameters
+  ansible.builtin.assert:
+    that:
+      - zfs_volume.name is defined and zfs_volume.name is string
+      - (zfs_volume.properties | default({})) is mapping
+      - (zfs_volume.state | default('present')) in ['present', 'absent']
+    quiet: true
+    fail_msg: ZFS volume parameters are invalid
+
+- name: gather properties of '{{ zfs_volume.name }}'
+  community.general.zfs_facts:
+    name: "{{ zfs_volume.name }}"
+  failed_when: false
+  changed_when: false
+  register: zfs_volume_facts
+
+- name: prepare volume properties
+  prepare_zfs_properties:
+    new_properties: "{{ zfs_volume_properties }}"
+    current_properties: "{{ ansible_zfs_datasets[0] | default({}) }}"
+    type: volume
+  register: prepared_volume_properties
+
+- name: manage volume '{{ zfs_volume.name }}'
+  community.general.zfs:
+    name: "{{ zfs_volume.name }}"
+    state: "{{ zfs_volume.state | default('present') }}"
+    extra_zfs_properties: "{{ prepared_volume_properties.properties }}"
