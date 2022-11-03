@@ -1,0 +1,88 @@
+---
+- name: include OS-specific variables
+  tags: [zfs, always]
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution | lower }}.yml"
+    - "{{ ansible_os_family | lower }}_{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_os_family | lower }}.yml"
+
+- name: assert correctness of configuration
+  tags: [zfs, always]
+  ansible.builtin.assert:
+    that:
+      - zfs_redhat_style in ['kmod', 'dkms']
+      - zfs_redhat_repo_dkms_url is string
+      - zfs_redhat_repo_kmod_url is string
+      - zfs_debian_repo is string
+      - (zfs_service_import_cache_enabled | bool) is boolean
+      - (zfs_service_import_scan_enabled | bool) is boolean
+      - (zfs_service_mount_enabled | bool) is boolean
+      - (zfs_service_share_enabled | bool) is boolean
+      - (zfs_service_volume_wait_enabled | bool) is boolean
+      - (zfs_service_zed_enabled | bool) is boolean
+      - (zfs_use_zfs_mount_generator | bool) is boolean
+      - zfs_scrub_schedule is string
+      - zfs_config_none_ioscheduler is list
+      - zfs_pools is list
+      - zfs_pools_defaults is mapping
+      - zfs_volumes is list
+      - zfs_volumes_properties_defaults is mapping
+      - zfs_filesystems is list
+      - zfs_filesystems_properties_defaults is mapping
+      - zfs_zrepl_config is mapping
+      - (zfs_zrepl_enabled | bool) is boolean
+      - zfs_zrepl_redhat_repo_url is string
+      - zfs_zrepl_debian_repo_url is string
+    quiet: true
+    fail_msg: configuration for ZFS Role is invalid, check your parameters
+
+- name: include installation tasks
+  tags: [zfs, zfs_install, install]
+  ansible.builtin.include_tasks: "{{ task_file }}"
+  loop_control:
+    loop_var: task_file
+  with_first_found:
+    - "install_{{ ansible_distribution | lower }}_{{ ansible_distribution_major_version }}.yml"
+    - "install_{{ ansible_distribution | lower }}.yml"
+    - "install_{{ ansible_os_family | lower }}_{{ ansible_distribution_major_version }}.yml"
+    - "install_{{ ansible_os_family | lower }}.yml"
+
+- name: include configuration tasks
+  tags: [zfs, zfs_config, config]
+  ansible.builtin.import_tasks: configure_zfs.yml
+
+- name: include pool management tasks
+  tags: [zfs, zfs_pool]
+  ansible.builtin.include_tasks: manage_pools.yml
+
+- name: include volume management tasks
+  tags: [zfs, zfs_volumes, zfs_dataset]
+  ansible.builtin.include_tasks: manage_volume.yml
+  vars:
+    zfs_volume_properties: "{{ zfs_volumes_properties_defaults | combine(zfs_volume.properties | default({})) }}"
+  loop: "{{ zfs_volumes }}"
+  loop_control:
+    loop_var: zfs_volume
+
+- name: include filesystem management tasks
+  tags: [zfs, zfs_filesystem, zfs_dataset]
+  ansible.builtin.include_tasks: manage_filesystem.yml
+  vars:
+    zfs_filesystem_properties: "{{
+        zfs_filesystems_properties_defaults |
+        combine(zfs_filesystem.properties |
+        default({}))
+      }}"
+  loop: "{{ zfs_filesystems }}"
+  loop_control:
+    loop_var: zfs_filesystem
+
+- name: include snapshot configuration tasks
+  tags: [zfs, zfs_snapshots, zfs_config, config]
+  ansible.builtin.import_tasks: configure_snapshots.yml
+
+- name: include service management tasks
+  tags: [zfs, zfs_service, service]
+  ansible.builtin.import_tasks: manage_services.yml
