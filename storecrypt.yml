@@ -76,7 +76,11 @@
             atime: true
         zfs_zrepl_enabled: false
 
-    #- role: storecrypt
+    # Install hddtemp monitoring
+    - role: hddtemp 
+      become: true
+      hddtemp_run_daemon: yes
+      tags: [setup,test]
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
@@ -90,13 +94,9 @@
     # Deploy docker containers
     - { role: containers/portainer, tags: [containers] }
     - { role: containers/portainer_agent, tags: [containers] }
+    
     # machinaris containers
-    #- role: containers/docker_compose
-    #  vars:
-    #    container_use_git: true
-    #    container_git_repo: https://github.com/dazzathewiz/chia-forks.git
-    #    container_git_subpath: "{{ inventory_hostname }}"
-    #  tags: containers,test
+    # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
 
 
 #Install monitoring tools
