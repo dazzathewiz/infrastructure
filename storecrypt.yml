@@ -80,7 +80,7 @@
     - role: hddtemp 
       become: true
       hddtemp_run_daemon: yes
-      tags: [setup,test]
+      tags: [setup]
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
@@ -94,6 +94,12 @@
     # Deploy docker containers
     - { role: containers/portainer, tags: [containers] }
     - { role: containers/portainer_agent, tags: [containers] }
+    - role: containers/telegraf
+      vars:
+        telegraf_features:
+          hddtemp: yes
+          zfs: yes
+      tags: [containers]
     
     # machinaris containers
     # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git

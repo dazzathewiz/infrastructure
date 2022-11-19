@@ -1,0 +1,28 @@
+---
+
+- name: Enable ZFS monitoring
+  block:
+
+    - name: inputs.zfs
+      become: yes
+      lineinfile:
+        dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+        regexp: "inputs\\.zfs"
+        line: '[[inputs.zfs]]'
+
+    - name: poolMetrics
+      become: yes
+      lineinfile:
+        dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+        regexp: "poolMetrics = true"
+        line: '    poolMetrics = true'
+
+  when: telegraf_features['zfs'] is true
+
+- name: Enable hddtemp monitoring
+  become: yes
+  lineinfile:
+    dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+    regexp: "inputs.hddtemp"
+    line: '[[inputs.hddtemp]]'
+  when: telegraf_features['hddtemp'] is true
