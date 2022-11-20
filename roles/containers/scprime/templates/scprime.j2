@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   scprime:
-    container_name: scprime
+    container_name: {{ container_name }}
     image: scprime/scprime:latest
     environment:
       - TZ={{ timezone }}
@@ -14,6 +14,6 @@ services:
       - 4284:4284
       - 4285:4285
     volumes:
-      - ~/.scp-data:/scp-data
+      - {{ docker_dir }}/{{ container_name }}/data:/scp-data
       - /filsectors-1/scprime:/data
     restart: unless-stopped
