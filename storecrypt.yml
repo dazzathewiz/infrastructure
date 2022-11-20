@@ -22,6 +22,7 @@
     pip_package: python3-pip
     pip_install_packages:
       - name: docker
+      - name: docker-compose
 
   roles:
     - vmguest
@@ -104,18 +105,17 @@
     # machinaris containers
     # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
 
+    # scprime container
+    - { role: containers/scprime, tags: [containers] }
+
+    # Silicoin container
+
 
 #Install monitoring tools
 #- 45Drives Alert manager & Prometheus?? (from evernote notes)
 #- Monitor drive temps from passthrough PCIe (somehow)
 #- ZFS monitoring
 
-#Dockers:
-#- machinaris* #Docker compose?
-#- scprime
-#- silicoin
-#- telegraf
-
-# Managing docker
+# Managing docker (future TODO)
 # - How to manage container updates?
 # - How to add or change containers in code?

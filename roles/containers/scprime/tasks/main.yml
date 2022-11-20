@@ -1,0 +1,15 @@
+---
+
+- name: Create directory {{ ansible_env.HOME }}/scprime
+  file:
+    path: "{{ ansible_env.HOME }}/scprime"
+    state: directory
+    recurse: yes
+
+- name: Create docker-compose.yml
+  template: src=scprime.j2 dest={{ ansible_env.HOME }}/scprime/docker-compose.yml
+
+- name: Create and start services
+  community.docker.docker_compose:
+    project_src: "{{ ansible_env.HOME }}/scprime"
+  register: output
