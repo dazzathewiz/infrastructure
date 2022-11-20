@@ -1,0 +1,32 @@
+---
+
+- name: Manage the docker data
+  import_tasks: roles/containers/common/tasks/manage_data.yml
+
+- name: Make sure the {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "dazzathewiz/silicoin-docker"
+    pull: yes
+    state: 'started'
+    hostname: "{{ inventory_hostname }}"
+    env:
+      "TZ": "{{ timezone }}"
+      "keys": "copy"
+      "harvester": "true"
+      "farmer": "false"
+      "plots_dir": "/plots:/stor-pool-plots:/stor-plots:/stor-self-plots"
+      "farmer_address": "{{ hostvars['harvester1'].ansible_host }}"
+      "farmer_port": "11447"
+      "testnet": "false"
+      "full_node_port": "null"
+      "ca": "/root/.silicoin/ca_sit"
+      "log_level": "INFO"
+    volumes:
+      - "{{ docker_dir }}/{{ container_name }}/data:/root/.silicoin"
+      - "/filsectors-1/chia-pool:/plots"
+      - "/mnt/storage/plots:/stor-plots"
+      - "/mnt/storage/pool-plots:/stor-pool-plots"
+      - "/mnt/storage/self-plots:/stor-self-plots"
+    restart_policy: always

@@ -109,6 +109,7 @@
     - { role: containers/scprime, tags: [containers] }
 
     # Silicoin container
+    - { role: containers/silicoin, tags: [containers,test] }
 
 
 #Install monitoring tools
