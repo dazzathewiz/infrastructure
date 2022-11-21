@@ -1,5 +1,6 @@
 ---
 - name: Do system mount points
+  become: yes
   mount:
     name: "{{ item.path }}"
     src: "{{ item.src }}"

@@ -7,3 +7,4 @@ vm_name: "{{ lookup('community.general.random_string', upper=false, numbers=fals
 vm_disk_increase: 0     # Increase the vm disk by x GB
 vm_start: yes           # Start the VM after it's provisioned
 vm_enable_agent: yes    # Enable the proxmox qemu agent
+vm_disk_passthrough: [] # Disk ID's to pass through to VM. See: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)

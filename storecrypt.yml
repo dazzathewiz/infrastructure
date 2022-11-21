@@ -60,6 +60,7 @@
 
     # Setup ZFS
     - role: zfs
+      become: yes
       vars:
         zfs_pools:
         - name: filsectors-1

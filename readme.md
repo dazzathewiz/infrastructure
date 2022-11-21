@@ -88,4 +88,14 @@ To setup k3s infrastructure, use [dazzathewiz/ks3-ansible][k3s-ansible]
 ## Bootstrap QEMU VM
 ```ansible <host or host_group> -m include_role -a name=vmguest -K```
 
+## Storecrypt
+```ansible-playbook storecrypt.yml --ask-vault-password```
+```--tags``` Include: 
+- provision
+- 45drives
+- config
+- setup
+- zfs
+- containers
+
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
