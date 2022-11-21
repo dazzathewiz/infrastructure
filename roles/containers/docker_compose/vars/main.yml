@@ -1,0 +1,2 @@
+---
+container_scripts: "/home/{{ provisioning_user }}/.docker-compose"

@@ -1,0 +1,18 @@
+---
+
+- name: Copy docker-compose files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ contain_scripts }}/{{ item }}"
+  with_items: container_compose_file
+  register: _container_compose_files
+
+# TODO: interate over templates, select template defined in vars only
+- name: Do template
+  template:
+    src: scprime.j2
+    dest: "{{ contain_scripts }}/scprime-docker-compose.yml"
+
+- name: Set fact _compose_files
+  set_fact:
+    _compose_files: "{{ ( _container_compose_files | map(attribute='dest') )  }}"

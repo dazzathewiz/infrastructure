@@ -1,0 +1,12 @@
+---
+
+- name: Check {{ container_scripts }} directory
+  file:
+    path: "{{ container_scripts }}"
+    state: directory
+
+- import_tasks: composefiles.yml
+  when: not container_use_git
+
+- import_tasks: gitrepo.yml
+  when: container_use_git

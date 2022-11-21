@@ -1,0 +1,19 @@
+version: '3.7'
+services:
+  scprime:
+    container_name: scprime
+    image: scprime/scprime:latest
+    environment:
+      - TZ=Australia/Brisbane
+      - SCPRIME_WALLET_PASSWORD={{ scprime_wallet_password }}
+    ports:
+      - 127.0.0.1:4280:4280
+      - 4281:4281
+      - 4282:4282
+      - 4283:4283
+      - 4284:4284
+      - 4285:4285
+    volumes:
+      - ~/.scp-data:/scp-data
+      - /filsectors-1/scprime:/data
+    restart: unless-stopped

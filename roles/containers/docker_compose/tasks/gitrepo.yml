@@ -1,0 +1,21 @@
+---
+
+- name: Git clone {{ container_git['repo'] }}
+  git:
+    repo: "{{ container_git['repo'] }}"
+    version: "{{ container_git['version'] | default(omit) }}"
+    dest: "{{ container_scripts }}/{{ container_git['name'] }}"
+    accept_hostkey: yes
+
+- name: Register docker-compose file
+  find:
+    path: "{{ container_scripts }}/{{ container_git_repo }}{% if container_git['subpath'] is defined %}/{{ container_git['subpath'] }}{% endif %}"
+    patterns: '.*docker-compose\.yml|.*docker-compose.yaml'
+  register: _git_compose_files
+
+- name: Set fact _compose_files
+  set_fact:
+    _compose_files: "{{ ( _git_compose_files.files | map(attribute='path') )  }}"
+
+- debug:
+    msg: Compose files {{ _compose_files }}

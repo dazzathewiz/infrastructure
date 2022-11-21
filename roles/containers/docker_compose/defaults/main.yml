@@ -1,0 +1,7 @@
+---
+# options for using a GIT repo
+container_use_git: false
+container_git: {}
+
+# options when using local docker-compose yaml files
+container_compose_file: [default-compose.yml]
