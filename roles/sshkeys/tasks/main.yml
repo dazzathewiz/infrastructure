@@ -1,0 +1,12 @@
+---
+
+- name: Ensure authorized keys for "{{ anisble_user }}" user are copied
+  authorized_key:
+    user: "{{ ansible_user }}"
+    key: "{{ lookup('file', item) }}"
+  with_fileglob:
+    - "roles/controlhost/files/*.pub"
+
+# It's not simple to remove keys without disrupting keys that aren't managed by this repo
+# or without going over each pub key file and iterating them in a list against the authorized_keys
+# file on the host

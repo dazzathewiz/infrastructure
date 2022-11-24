@@ -1,2 +1,4 @@
 ---
-user: infadmin
+user: "{{ provisioning_user }}"
+disable_password_auth: true
+set_user_password: false

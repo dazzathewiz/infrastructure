@@ -1,0 +1,11 @@
+---
+- include_tasks: essential.yml
+  tags: packages
+
+- include_tasks: powersaving.yml
+  when: (enable_powersaving | default(False)) and inventory_hostname in groups["baremetal"]
+  tags: powersaving
+
+- include_tasks: mounts.yml
+  when: mounts is defined
+  tags: mounts

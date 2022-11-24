@@ -1,155 +1,32 @@
 ---
 
-# Adds packages for no-subscription model, as seen in: https://www.youtube.com/watch?v=GoZaMgEgrHw
-- name: Add "no-subscription" apt source
-  blockinfile:
-    path: /etc/apt/sources.list
-    block: |
-      # not for production user
-      deb http://download.proxmox.com/debian {{ ansible_distribution_release }} pve-no-subscription
-  register: update_apt_nosub
+# Check that all hosts are online and can get facts for clustering to prevent errors
+- name: Ensure that facts are present for all cluster hosts
+  assert:
+    that:
+      - "hostvars[item].ansible_facts"
+    msg: "Could not load facts for {{ item }}. Please run your playbook against all hosts in {{ pve_group }}."
+  with_items: "{{ groups[pve_group] }}"
+  when: "pve_cluster_enabled | bool"
+  tags: cluster
 
-- name: Remove "pve-enterprise" apt source
-  lineinfile:
-    dest: /etc/apt/sources.list.d/pve-enterprise.list
-    regexp: "^deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
-    line: "# deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
-  register: update_apt_enterprise
+- import_tasks: load_variables.yml
 
-- name: Update packages
-  apt:
-    update_cache: yes
-    upgrade: yes
-  when: update_apt_nosub.changed or update_apt_enterprise.changed
+- import_tasks: pve_setup_config.yml
+  tags: setup
 
-# from: https://forum.proxmox.com/threads/when-to-reboot.29230/
-- name: Check if reboot required
-  shell:  "[ `ls -tr /boot/initrd* | tail -1 | cut -d '-' -f 2-` != `uname -r` ]"
-  register: result
-  ignore_errors: true
-  failed_when: result == 2
-- debug: msg="{{ inventory_hostname }} needs reboot"
-  when: result.rc == 0
-- name: Reboot if required
-  reboot:
-  when: result.rc == 0
+- import_tasks: pve_download_images.yml
+  tags: update_images
 
+- import_tasks: ssh_cluster_config.yml
+  when:
+    - "pve_manage_ssh | bool and pve_cluster_enabled | bool"
+  tags: cluster
 
-# Identify the processor manufacturer by looking for "Intel" or "AMD"
-# in `/proc/cpuinfo`.
-- name: check if Intel processor
-  command: grep -q Intel /proc/cpuinfo
-  ignore_errors: true
-  register: is_intel
-  failed_when: is_intel == 2
+- import_tasks: pve_cluster_config.yml
+  when: "pve_cluster_enabled | bool"
+  tags: cluster
 
-- name: check if AMD processor
-  command: grep -q AMD /proc/cpuinfo
-  ignore_errors: true
-  register: is_amd
-  failed_when: is_amd == 2
-
-- name: Update GRUB to enable iommu at boot - Intel CPU
-  lineinfile:
-    dest: /etc/default/grub
-    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
-    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on i915.enable_gvt=1"'
-  when: is_intel.rc == 0
-  register: update_grub_intel
-
-- name: Update GRUB to enable iommu at boot - AMD CPU
-  lineinfile:
-    dest: /etc/default/grub
-    regexp: "^GRUB_CMDLINE_LINUX_DEFAULT"
-    line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on"'
-  when: is_amd.rc == 0
-  register: update_grub_amd
-
-- name: update-grub
-  shell: update-grub
-  when: update_grub_intel.changed or update_grub_amd.changed
-  register: update_grub
-
-- name: Register modules for vfio
-  lineinfile:
-    dest: /etc/modules
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-  loop:
-    - { regexp: '^vfio$', line: 'vfio' }
-    - { regexp: '^vfio_iommu_type1', line: 'vfio_iommu_type1' }
-    - { regexp: '^vfio_pci', line: 'vfio_pci' }
-    - { regexp: '^vfio_virqfd', line: 'vfio_virqfd' }
-  register: vfio
-
-- name: Register modules for Intel GPU passthrough (Intel GVT)
-  lineinfile:
-    dest: /etc/modules
-    regexp: "{{ item.regexp }}"
-    line: "{{ item.line }}"
-  loop:
-    - { regexp: '^kvmgt', line: 'kvmgt' }
-    - { regexp: '^exngt', line: 'exngt' }
-    - { regexp: '^vfio-mdev', line: 'vfio-mdev' }
-  when: is_intel.rc == 0
-  register: gvt
-
-- debug: msg="{{ inventory_hostname }} needs reboot"
-  when: update_grub.changed or vfio.changed or gvt.changed
-- name: Reboot to apply changes
-  reboot:
-  when: update_grub.changed or vfio.changed or gvt.changed
-
-# After reboot please verify:
-# IOMMU is enabled: `dmesg | grep -e DMAR -e IOMMU`
-
-- name: Enable VLAN aware nic on vmbr0
-  lineinfile:
-    dest: /etc/network/interfaces
-    insertafter: 'bridge-fd 0'
-    line: "        bridge-vlan-aware yes"
-
-- name: Set DNS servers in /etc/resolv.conf
-  lineinfile:
-    dest: /etc/resolv.conf
-    regexp: "^nameserver {{ item }}"
-    line: "nameserver {{ item }}"
-  with_items:
-    - "{{ dns }}"
-
-- name: Attach NFS shared storage
-  shell: |
-    pvesm add nfs {{ item['name'] }} \
-    --export {{ item['path'] }} \
-    --path /mnt/pve/{{ item['name'] }} \
-    --server {{ item['host'] }} \
-    --content images,iso \
-    --options vers=4.2 \
-    --prune-backups keep-all=1
-  with_items:
-    - "{{ nfs }}"
-  register: result
-  failed_when: result.rc not in [ 0, 255 ]
-  changed_when: result.rc == 0
-
-# Download latest ISOs into ISO path
-- name: Check the NFS ISO share is mounted
-  shell: df | grep /mnt/pve/ISO | wc -l
-  register: mounted
-- name: Check and download ISO images
-  get_url:
-    url: "{{ item }}"
-    tmp_dest: /mnt/pve/ISO/template/iso/
-    dest: /mnt/pve/ISO/template/iso/
-  with_items:
-    - "{{ images }}"
-  when: mounted.stdout  != "0"
-
-
-# TODO
-
-# Create VM Template
-# Setup NIC's, bonding, etc
-# Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
-#- name: Proxmox VE Ceph installation
-#  shell: pveceph install
+- import_tasks: pve_templates_config.yml
+  when: _node_storage_local is defined
+  tags: templates

@@ -1,0 +1,12 @@
+---
+- name: Do system mount points
+  become: yes
+  mount:
+    name: "{{ item.path }}"
+    src: "{{ item.src }}"
+    opts: "{{ item.opts | default(omit) }}"
+    fstype: "{{ item.fstype }}"
+    state: mounted
+    #passno: "2"
+  with_items: "{{ mounts }}"
+  

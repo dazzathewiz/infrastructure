@@ -12,6 +12,13 @@
     shell: /bin/bash
     home: "/home/{{ user }}"
 
+- name: Optionally set password for "{{ user }}"
+  user:
+    name: "{{ user }}"
+    state: present
+    password: "{{ infadmin_password|password_hash('sha512') }}"
+  when: set_user_password
+
 - name: Ensure authorized keys for "{{ user }}" user
   authorized_key:
     user: "{{ user }}"
@@ -32,13 +39,11 @@
     regexp: "^#PasswordAuthentication yes"
     line: "PasswordAuthentication no"
   register: sshd_config
+  when: disable_password_auth
 
 - name: Restart SSH Daemon
   service:
     name: sshd
     state: restarted
   when: sshd_config.changed
-
-- name: Set timezone to Australia/Brisbane
-  shell: timedatectl set-timezone Australia/Brisbane
   

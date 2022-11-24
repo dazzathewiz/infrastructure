@@ -1,29 +1,49 @@
-[maas]
-maas1 ansible_host=10.10.0.5 ansible_user=maasadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+#[maas]
+#maas1 ansible_host=10.10.0.5 ansible_user=maasadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+
+#miner ansible_host=192.168.15.11 ansible_user=fil ansible_connection=ssh
 
 [control]
 controlhost ansible_host=127.0.0.1 ansible_connection=local
 
 [proxmox]
 prox1 ansible_host=10.10.2.174 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-#prox-test ansible_host=10.10.2.158 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+prox2 ansible_host=10.10.2.23 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+prox3 ansible_host=10.10.2.61 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [unraid]
 unnas ansible_host=192.168.10.10 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
+[dietpi_ups]
+pi-ups ansible_host=192.168.10.79 ansible_user=dietpi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+
+[dietpi:children]
+dietpi_ups
+
+[otherbaremetal]
+harvester1 ansible_host=192.168.11.13 ansible_user=chia ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+
+# Bare metal infrastructure (IE: not VM's, k3s, or docker)
+[baremetal:children]
+dietpi_ups
+unraid
+proxmox
+otherbaremetal
+
 [k3s_master]
-mario ansible_host=10.10.2.63 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-luigi ansible_host=10.10.2.92 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-wario ansible_host=10.10.2.29 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+mario ansible_host=10.10.1.187 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+luigi ansible_host=10.10.1.18 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+wario ansible_host=10.10.1.52 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
-[k3s_worker]
-toad ansible_host=10.10.2.117 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-yoshi ansible_host=10.10.2.71 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-test-i915 ansible_host=10.10.2.21 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+[k3s_node]
+toad ansible_host=10.10.1.58 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+yoshi ansible_host=10.10.1.160 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+bowser ansible_host=10.10.1.165 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+donkeykong ansible_host=10.10.1.183 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
-[k3s:children]
+[k3s_cluster:children]
 k3s_master
-k3s_worker
+k3s_node
 
-[test]
-test ansible_host=10.10.2.64 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+[othervms]
+storecrypt ansible_host=192.168.15.11 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin

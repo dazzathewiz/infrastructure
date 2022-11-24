@@ -1,0 +1,111 @@
+---
+
+# Setup config vars
+- name: Setup config vars
+  block:
+    
+    # Find an interface as specified by pve_second_nic_regex variable, but not the NIC tied to default vmbr0 bridge
+    - name: Set fact when secondary NIC available for configuration
+      set_fact:
+        _pve_second_nic: '{{ item }}'
+      loop: "{{ ansible_interfaces }}"
+      when: >
+        hostvars[inventory_hostname]['ansible_vmbr0']['interfaces'][0] != item  and
+        item is regex(pve_second_nic_regex)
+
+    - name: Detect SYSTEMD bootloader
+      command: efibootmgr -v | grep -q systemd
+      ignore_errors: true
+      register: systemd
+      failed_when: systemd == 2
+
+    # Default to grub if no "systemd" found from out of `efibootmgr -v`
+    # Can detect grub specifically if ever required with `efibootmgr -v | grep -q grub`
+    - name: Set GRUB as default bootloader
+      set_fact:
+        _pve_bootloader: 'grub'
+      when: systemd.rc != 0
+    
+    - name: Set SYSTEMD as system bootloader
+      set_fact:
+        _pve_bootloader: 'systemd'
+      when: systemd.rc == 0
+
+  tags: setup
+
+# Image and ISO download vars
+- name: Cloud download urls for ISO's and image vars
+  block:
+
+    - name: Load iso_images variables
+      include_vars: "iso_images.yml"
+  
+  tags: update_images
+
+# Cluster config vars
+- name: Cluster config vars
+  block:
+
+    - name: Gather distribution specific variables
+      include_vars: "debian-{{ ansible_distribution_release }}.yml"
+
+    - name: Ensure pve_cluster_addr0 is in the host facts
+      set_fact:
+        pve_cluster_addr0: "{{ pve_cluster_addr0 }}"
+
+    - name: Calculate list of SSH addresses
+      set_fact:
+        pve_cluster_ssh_addrs: >-
+          ["{{ ansible_fqdn }}", "{{ ansible_hostname }}",
+          "{{ pve_cluster_addr0 }}",
+          {% if pve_cluster_addr1 is defined %}"{{ pve_cluster_addr1 }}"{% endif %}]
+  
+  tags: cluster
+
+# Template config vars
+- name: Template config vars
+  block:
+
+    - name: Import template vars
+      include_vars: "templates.yml"
+      when: "pve_create_templates | bool"
+
+    - name: Lookup local node storage information
+      proxmox_query:
+        query: "nodes/{{ ansible_hostname }}/storage"
+      register: _node_storage
+
+    - name: Set fact for multiple local storage in cluster
+      set_fact:
+        _node_storage_local: '{{ _node_storage | json_query(query) }}'
+      when: "_node_storage | json_query(query) | ternary(true, false)"
+      vars:
+        query: "response[?starts_with(storage,'local-')]"
+
+    - name: Set fact for enabled local storage
+      set_fact:
+        _node_storage_local: '{{ _node_storage_local | json_query(query) }}'
+      when: "_node_storage_local | json_query(query) | ternary(true, false)"
+      vars:
+        query: "[?enabled==`1`].storage | [0]"
+
+    - name: Lookup content in local-* storage
+      proxmox_query:
+        query: "nodes/{{ ansible_hostname }}/storage/{{ _node_storage_local }}/content"
+      when: _node_storage_local is defined
+      register: _pve_local_storage_content
+
+    - name: Set fact for local storage VM template image
+      set_fact:
+        _pve_template_image_disk: '{{ _pve_local_storage_content | json_query(query) }}'
+      when: "_pve_local_storage_content | json_query(query) | ternary(true, false)"
+      vars:
+        query: "response[?vmid==`{{pve_template_id}}`].volid"
+
+    #- name: Check if cloud init config image exists
+    #  set_fact:
+    #    _pve_template_cloudinit_image: yes
+    #  loop: "{{ _pve_template_image_disk }}"
+    #  when: _pve_template_image_disk is defined and item in _pve_template_image_disk
+  
+  tags: templates

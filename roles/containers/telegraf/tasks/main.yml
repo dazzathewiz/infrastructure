@@ -1,0 +1,57 @@
+---
+
+- name: Register the docker group id
+  shell: stat -c '%g' /var/run/docker.sock
+  register: docker_gid
+
+- name: Copy telegraf.conf
+  become: yes
+  copy:
+    src: telegraf.conf
+    dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: no
+
+- import_tasks: features.yml
+
+- name: Set InfluxDB
+  block:
+    - name: URL
+      become: yes
+      lineinfile:
+        dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+        regexp: "^  urls = "
+        line: "  urls = [\"{{ influx['url'] }}\"]"
+    - name: Database
+      become: yes
+      lineinfile:
+        dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+        regexp: "^  database = "
+        line: "  database = \"{{ influx['database_name'] }}\""
+
+- name: Make sure the {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "telegraf:latest"
+    pull: yes
+    state: 'started'
+    user: "telegraf:{{docker_gid.stdout}}"          # See: https://www.influxdata.com/blog/docker-run-telegraf-as-non-root/
+    hostname: "{{ inventory_hostname }}"
+    env:
+      "TZ": "{{ timezone }}"
+      "HOST_ETC": "/hostfs/etc"
+      "HOST_PROC": "/hostfs/proc"
+      "HOST_SYS": "/hostfs/sys"
+      "HOST_VAR": "/hostfs/var"
+      "HOST_RUN": "/hostfs/run"
+      "HOST_MOUNT_PREFIX": "/hostfs"
+    volumes:
+      - "{{ docker_dir }}/{{ container_name }}/telegraf.conf:/etc/telegraf/telegraf.conf"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/:/hostfs"
+    network_mode: host
+    restart_policy: always
+    

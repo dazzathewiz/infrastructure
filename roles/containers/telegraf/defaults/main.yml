@@ -1,0 +1,9 @@
+---
+container_name: telegraf
+telegraf_features:
+  hddtemp: no
+  zfs: no
+  sensors: no
+influx:
+  url: http://07468ff36b5b9df9da12c1ddcb36caf77b05120b.unraid.net:8086
+  database_name: filecoin

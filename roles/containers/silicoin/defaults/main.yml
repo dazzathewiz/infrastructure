@@ -1,0 +1,3 @@
+---
+container_name: silicoin
+container_data_backup: /filsectors-1/backup/silicoin_data
