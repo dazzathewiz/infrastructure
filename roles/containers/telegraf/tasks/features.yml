@@ -26,3 +26,11 @@
     regexp: "inputs.hddtemp"
     line: '[[inputs.hddtemp]]'
   when: telegraf_features['hddtemp'] is true
+
+- name: Enable inputs.sensors
+  become: yes
+  lineinfile:
+    dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+    regexp: "inputs.sensors"
+    line: '[[inputs.sensors]]'
+  when: telegraf_features['sensors'] is true
