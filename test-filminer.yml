@@ -1,0 +1,22 @@
+---
+- hosts: miner
+  roles:
+    # Setup ZFS
+    - role: zfs
+      become: true
+      vars:
+        zfs_pools:
+        - name: filsectors-1
+          vdev: >-
+            raidz2
+              wwn-0x5000c500db8d28a1
+              wwn-0x5000c50066727ccc
+              wwn-0x5000c5008715dc76
+              wwn-0x5000c5008715e269
+              wwn-0x5000c5006672ec28
+              wwn-0x5000c500e34a81c6
+          filesystem_properties:
+            mountpoint: /filsectors-1
+            acltype: posixacl
+            atime: true
+        zfs_zrepl_enabled: false
