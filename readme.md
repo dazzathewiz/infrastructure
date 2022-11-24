@@ -96,6 +96,13 @@ To setup k3s infrastructure, use [dazzathewiz/ks3-ansible][k3s-ansible]
 - config
 - setup
 - zfs
-- containers
+- containers*
+
+* Note that ZFS doesn't install automatically; It was much easier to use Houston to configure ZFS 
+import on storecrypt; see: https://miner.dazzathewiz.com:9090/
+
+### Manual post-install activities for storecrypt
+1. Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
+2. Fix telegraf hddtemp by running `sudo dpkg-reconfigure hddtemp` (see: https://github.com/dazzathewiz/infrastructure/issues/9)
 
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
