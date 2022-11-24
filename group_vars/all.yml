@@ -16,3 +16,6 @@ docker_dir: /opt/docker/data
 
 # Virtual Machine defaults
 provisioning_user: infadmin
+
+# System defaults
+enable_powersaving: true

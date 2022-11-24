@@ -7,3 +7,5 @@
     - role: proxmox
       #vars:
       #  pve_template_recreate: yes
+    - role: system
+      tags: setup

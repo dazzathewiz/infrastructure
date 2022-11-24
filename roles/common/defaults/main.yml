@@ -1,5 +1,4 @@
 ---
-user: infadmin
-timezone: Australia/Brisbane
+user: "{{ provisioning_user }}"
 disable_password_auth: true
 set_user_password: false

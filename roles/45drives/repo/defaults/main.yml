@@ -1,0 +1,3 @@
+---
+scripts: "/home/{{ provisioning_user }}/.45drives"
+repo_setup_script: https://repo.45drives.com/setup

@@ -1,0 +1,22 @@
+---
+- hosts: prox3
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        vm_name: storecrypt
+        vm_memory: 10240
+        vm_cpu: 2
+        vm_network_bridge: vmbr1
+        vm_network_vlan: 115
+        vm_network_mac: 26:0d:67:53:2d:2b
+        vm_disk_increase: 46
+        vm_pcie_device: "02:00.0"
+        vm_disk_passthrough:
+          - ata-ST16000NM000J-2TW103_ZR51RBDP
+          - ata-ST16000NM000J-2TW103_ZR51T3AQ
+          - ata-ST16000NM001G-2KK103_WL2094N3

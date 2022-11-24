@@ -1,12 +1,37 @@
 ---
-- name: Update packages
-  become: yes
-  apt:
-    update_cache: yes
-    upgrade: yes
 
-- name: Install packages
-  become: yes
-  package:
-    name: "{{ packages }}"
-    state: latest
+- name: VMGuest Tasks
+  block:
+    - name: Check/wait for cloud-init tasks to finish
+      shell: cloud-init status --wait
+      changed_when: false
+
+    - name: Set timezone to "{{ timezone }}"
+      become: yes
+      timezone:
+        name: "{{ timezone }}"
+      when: timezone is defined
+
+    - name: Update packages
+      become: yes
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install packages
+      become: yes
+      package:
+        name: "{{ packages }}"
+        state: latest
+
+    - name: Check if reboot required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+
+    - name: Reboot if required
+      become: yes
+      reboot:
+      when: reboot_required_file.stat.exists
+  
+  tags: vmguest,config

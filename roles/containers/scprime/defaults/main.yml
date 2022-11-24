@@ -1,0 +1,3 @@
+---
+container_name: scprime
+container_data_backup: /filsectors-1/backup/scprime_data

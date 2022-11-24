@@ -1,0 +1,108 @@
+---
+
+# Replaces fil-miner functions into proxmox VM
+
+# Create VM
+- import_playbook: vm_deploy_storecrypt.yml
+
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['storecrypt']['ansible_host'] }}"
+
+# Setup storecrypt server
+- hosts: storecrypt
+  vars_files: group_vars/secret.yml
+
+  vars:
+
+    # pip docker package is used for deploying docker containers
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+
+  roles:
+    - vmguest
+
+    - role: 45drives/repo
+      tags: 45drives
+    
+    # Install system packages, config, mount points
+    - role: system
+      vars:
+        packages:
+          - zfsutils-linux
+          - mergerfs
+          - samba
+          - cifs-utils
+          - 45drives-tools
+          - cockpit
+          - cockpit-file-sharing
+        mounts:
+
+          # Disk mounts
+          - { path: /mnt/disk1, src: UUID=6d1faaa6-3179-4218-b936-7639a2832b67, fstype: xfs }
+          - { path: /mnt/disk2, src: UUID=0d0fc5a5-0367-40f0-bb43-a6c0fd797b64, fstype: xfs }
+          - { path: /mnt/disk3, src: UUID=b664d8a4-9cad-4a7e-95c2-fbfd5ffbf70f, fstype: xfs }
+          - { path: /mnt/disk4, src: UUID=c2f06c17-a83a-4b3a-a087-89d03ec846a3, fstype: xfs }
+          - { path: /mnt/disk5, src: UUID=dee733f1-4935-4062-a47c-2f876143745e, fstype: xfs }
+
+          # MergerFS mount
+          - { path: /mnt/storage, src: /mnt/disk*, fstype: fuse.mergerfs, opts: 'allow_other,direct_io,use_ino,category.create=mfs,moveonenospc=true,minfreespace=2G,fsname=array' }
+
+      tags: setup
+
+    - role: 45drives/zfs-manager
+      tags: setup
+
+    # Setup ZFS
+    # For zfs role; see https://github.com/dazzathewiz/infrastructure/tree/role-zfs
+    # It was much easier to use Houston to configure ZFS import on storecrypt; see: https://miner.dazzathewiz.com:9090/
+
+    # Install hddtemp monitoring
+    # Still need to run manually: `sudo dpkg-reconfigure hddtemp`
+    - role: hddtemp 
+      become: true
+      hddtemp_run_daemon: yes
+      tags: [setup]
+
+    # Setup docker
+    - { role: geerlingguy.pip, become: true, tags: [setup] }
+    - role: geerlingguy.docker
+      become: true
+      vars:
+        docker_users:
+          - "{{ provisioning_user }}"
+      tags: setup
+    
+    # Deploy docker containers
+    - { role: containers/portainer, tags: [containers] }
+    - { role: containers/portainer_agent, tags: [containers] }
+    - role: containers/telegraf
+      vars:
+        telegraf_features:
+          hddtemp: yes
+          zfs: yes
+      tags: [containers]
+    
+    # machinaris containers
+    # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
+
+    # scprime container
+    - { role: containers/scprime, tags: [containers] }
+
+    # Silicoin container
+    - { role: containers/silicoin, tags: [containers,test] }
+
+
+#Install monitoring tools
+#- 45Drives Alert manager & Prometheus?? (from evernote notes)
+#- Monitor drive temps from passthrough PCIe (somehow)
+#- ZFS monitoring
+
+# Managing docker (future TODO)
+# - How to manage container updates?
+# - How to add or change containers in code?
