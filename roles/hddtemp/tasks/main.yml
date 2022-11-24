@@ -1,4 +1,6 @@
 ---
+# Have found still need to do `sudo dpkg-reconfigure hddtemp` to make the daemon work
+
 # tasks file for c1.hddtemp
 - name: install hddtemp
   apt: name=hddtemp state=present

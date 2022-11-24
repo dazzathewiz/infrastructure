@@ -63,6 +63,7 @@
     # It was much easier to use Houston to configure ZFS import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 
     # Install hddtemp monitoring
+    # Still need to run manually: `sudo dpkg-reconfigure hddtemp`
     - role: hddtemp 
       become: true
       hddtemp_run_daemon: yes
