@@ -52,5 +52,6 @@
       - "{{ docker_dir }}/{{ container_name }}/telegraf.conf:/etc/telegraf/telegraf.conf"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/:/hostfs"
+    network_mode: host
     restart_policy: always
     
