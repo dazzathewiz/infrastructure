@@ -1,0 +1,17 @@
+---
+
+- name: Attach NFS shared storage
+  shell: |
+    pvesm add nfs {{ item['name'] }} \
+    --export {{ item['path'] }} \
+    --path /mnt/pve/{{ item['name'] }} \
+    --server {{ item['host'] }} \
+    --content images,iso \
+    --options vers=4.2 \
+    --prune-backups keep-all=1
+  with_items:
+    - "{{ nfs }}"
+  register: result
+  failed_when: result.rc not in [ 0, 255 ]
+  changed_when: result.rc == 0
+  

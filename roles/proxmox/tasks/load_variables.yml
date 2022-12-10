@@ -74,6 +74,13 @@
       proxmox_query:
         query: "nodes/{{ ansible_hostname }}/storage"
       register: _node_storage
+      failed_when: false
+    # Report failure through "hack" that continues tasks
+    - name: Check for storage failure return
+      fail:
+        msg: '{{ _node_storage.msg }}'
+      ignore_errors: yes
+      when: _node_storage.status_code is defined
 
     - name: Set fact for multiple local storage in cluster
       set_fact:

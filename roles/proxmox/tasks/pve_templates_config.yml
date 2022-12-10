@@ -1,5 +1,12 @@
 ---
 
+- import_tasks: pve_nfs_isocheck.yml
+
+- name: Fail if the ISO share is unmounted
+  fail:
+    msg: "Template store: /mnt/pve/ISO is not mounted"
+  when: mounted.stdout == "0"
+
 - name: Delete old cloud image if re-creating
   shell: qm destroy "{{ pve_template_id }}"
   when: pve_template_recreate and _pve_template_image_disk is defined

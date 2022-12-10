@@ -1,0 +1,22 @@
+---
+
+# See: https://forums.engineerworkshop.com/t/fixing-nfs-smb-stale-file-handle-errors-in-proxmox-automatic-detection-script/213
+- name: Gather list of any stale mounts
+  shell: 
+    cmd: |
+         df 2>&1 | 
+         grep 'Stale file handle' | 
+         awk '{print ""$2"" }' | 
+         tr -d \:
+  register: stale_mounts
+
+- name: Remove stale file handles on any mounted filesystems (SMB/NFS)
+  shell: umount -l "{{ item }}"
+  with_items:
+    - "{{ stale_mounts.stdout_lines }}"
+
+- import_tasks: pve_nfs_attach.yml
+
+- name: Check again the NFS ISO share is mounted
+  shell: df | grep /mnt/pve/ISO | wc -l
+  register: mounted
