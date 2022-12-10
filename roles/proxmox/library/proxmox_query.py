@@ -45,6 +45,7 @@ response:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.pvesh import ProxmoxShellError
 import ansible.module_utils.pvesh as pvesh
+import json
 
 def main():
     module = AnsibleModule(
@@ -60,7 +61,7 @@ def main():
         result['response'] = pvesh.get(module.params['query'])
     except ProxmoxShellError as e:
         if e.data:
-            result["response"] = e.data
+            result['response'] = json.loads(e.data)
 
         module.fail_json(msg=e.message, status_code=e.status_code, **result)
 
