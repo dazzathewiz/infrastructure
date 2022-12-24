@@ -10,6 +10,7 @@
   package:
     name: "{{ packages }}"
     state: latest
+  when: packages | length > 0
 
 - name: Check if reboot required
   stat:
