@@ -1,0 +1,37 @@
+---
+- hosts: dietpi_four
+
+  vars_files: group_vars/secret.yml
+
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+
+    # Overwrite the docker directory to use USB attached storage
+    docker_dir: /mnt/3a535c19-aa87-4315-81ce-485651421360/docker/data
+
+  roles:
+    - dietpi
+
+    - role: system
+      vars:
+        mounts:
+          # Disk mounts
+          - { path: /mnt/3a535c19-aa87-4315-81ce-485651421360, src: UUID=3a535c19-aa87-4315-81ce-485651421360, fstype: ext4, opts: "noatime,lazytime,rw,nofail,noauto,x-systemd.automount" }
+      tags: setup
+    
+    - { role: geerlingguy.pip, become: true, tags: [setup] }
+    - role: geerlingguy.docker_arm
+      become: true
+      vars:
+        docker_users:
+          - dietpi
+      tags: setup
+
+    # Containers
+    - role: containers/shinobi
+      vars:
+        container_network_ip: 192.168.13.21
+      tags: containers
+
