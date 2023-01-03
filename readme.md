@@ -105,4 +105,14 @@ import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 1. Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
 2. Fix telegraf hddtemp by running `sudo dpkg-reconfigure hddtemp` (see: https://github.com/dazzathewiz/infrastructure/issues/9)
 
+## PiFour
+```ansible-playbook pifour.yml --ask-vault-password```
+```--tags``` Indclude:
+- setup
+- containers
+
+### Notes:
+1. For new Shinobi deployments, setup the users and consider copying existing cameras via [Export/Import][shinobi-monitor]
+
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
+[shinobi-monitor]: https://hub.shinobi.video/articles/view/QzWPj4vp8Y2k1R5
