@@ -1,0 +1,9 @@
+---
+container_name: shinobi
+
+# container network settings
+container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
+container_network_vlan: 113
+container_network_subnet: 192.168.13.0/24
+container_network_ip: 192.168.13.6
+container_network_gateway: 192.168.13.1

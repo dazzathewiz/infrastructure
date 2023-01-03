@@ -1,0 +1,29 @@
+---
+
+- name: Setup container network
+  import_tasks: roles/containers/common/tasks/docker-network.yml
+
+- name: Make sure the {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "icebrian/shinobi-image:cd10e634"
+    pull: yes
+    state: 'started'
+    ports:
+      - 8080:8080
+    networks:
+      - name: "vlan{{ container_network_vlan }}"
+        ipv4_address: "{{ container_network_ip }}"
+    env:
+      "TZ": "{{ timezone }}"
+      "PLUGIN_KEYS": "{}"
+      "SSL_ENABLED": "false"
+    volumes:
+      - "{{ docker_dir }}/{{ container_name }}/cctv:/home/Shinobi/videos"
+      - "{{ docker_dir }}/{{ container_name }}/config:/config"
+      - "{{ docker_dir }}/{{ container_name }}/database:/var/lib/mysql"
+      - "{{ docker_dir }}/{{ container_name }}/customautoload:/home/Shinobi/libs/customAutoLoad"
+      - "{{ docker_dir }}/{{ container_name }}/plugins:/home/Shinobi/plugins"
+      - "/dev/shm/shinobi:/dev/shm/streams"
+    restart_policy: always

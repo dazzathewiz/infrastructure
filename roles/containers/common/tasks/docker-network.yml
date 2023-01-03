@@ -1,0 +1,17 @@
+---
+
+# Refer:
+# https://docs.ansible.com/ansible/latest/collections/community/docker/docker_network_module.html#ansible-collections-community-docker-docker-network-module
+# https://docs.docker.com/engine/reference/commandline/network_create/
+# https://hicu.be/docker-networking-macvlan-vlan-configuration
+
+- name: Create VLAN {{ container_network_vlan }} network
+  docker_network:
+    name: "vlan{{ container_network_vlan }}"
+    ipam_config:
+      - subnet: "{{ container_network_subnet }}"
+        gateway: "{{ container_network_gateway }}"
+    driver: macvlan
+    driver_options:
+      parent: "{{ container_network_interface }}.{{ container_network_vlan }}"
+  become: true
