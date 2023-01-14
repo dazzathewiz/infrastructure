@@ -68,6 +68,8 @@ vars:
       # use when need to update an existing metric server token:
       #updatetoken: yes
 ```
+All variables can be seen in [pve_metrics_server.yml][metrics-yaml], or lookup the [Proxmox API][proxmox-api-metrics]
+
 Further reading can be found:
 - [Proxmox External Metric Server][metrics-doc2]
 - [Proxmox Admin Guide: Metric Server][metrics-doc1]
@@ -94,3 +96,5 @@ the other node due to quorum configuration. If only 1 node in the cluster is onl
 [metrics-doc1]: https://pve.proxmox.com/pve-docs/pve-admin-guide.html#external_metric_server
 [metrics-doc2]: https://pve.proxmox.com/wiki/External_Metric_Server
 [metrics-guide]: https://www.youtube.com/watch?v=f2eyVfCTLi0
+[proxmox-api-metrics]: https://pve.proxmox.com/pve-docs/api-viewer/#/cluster/metrics/server/{id}
+[metrics-yaml]: https://github.com/dazzathewiz/infrastructure/blob/994457c505061ee0aae937d260deac0e005878ee/roles/proxmox/tasks/pve_metrics_server.yml
