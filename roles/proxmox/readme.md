@@ -26,6 +26,7 @@ The playbook performs all of these by default (or independantly with tags):
 2. Downloading of cloud images and ISO's to configured NFS ISO share ```ansible-playbook proxmox.yml --tags update_images```
 3. Clusters together all proxmox nodes in the playbook ```ansible-playbook proxmox.yml --tags cluster```
 4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
+5. Setup Metric Server to ship metrics to InfluxDB ```ansible-playbook proxmox.yml --tags metrics --ask-vault-password```
 
 ### 1. Setup
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources
@@ -50,6 +51,28 @@ The playbook performs all of these by default (or independantly with tags):
      ```provisioning_user:``` which will be the default user account in the cloudimage template configuration
      ```search_domain:```     default DNS search domain for cloud image VM's deployed
 
+### 5. Metrics Server
+- adds metrics servers to proxmox (works with clusters). Proxmox uses Graphite or InfluxDB integrations. 
+  These variables can be referenced for this role. Example using a v2 InfluxDB:
+```
+vars:
+  pve_metrics_servers:
+    - name: InfluxDB
+      port: 8089
+      server: 172.23.0.1
+      type: influxdb
+      bucket: proxmox
+      influxdbproto: http
+      organization: homelab
+      token: "{{ your_token_var }}"
+      # use when need to update an existing metric server token:
+      #updatetoken: yes
+```
+Further reading can be found:
+- [Proxmox External Metric Server][metrics-doc2]
+- [Proxmox Admin Guide: Metric Server][metrics-doc1]
+- [Youtube guide][metrics-guide]
+
 
 ## Clustering
 
@@ -68,3 +91,6 @@ the other node due to quorum configuration. If only 1 node in the cluster is onl
 ```pvecm expected 1```
 
 [ha-group]: https://pve.proxmox.com/wiki/High_Availability#ha_manager_groups
+[metrics-doc1]: https://pve.proxmox.com/pve-docs/pve-admin-guide.html#external_metric_server
+[metrics-doc2]: https://pve.proxmox.com/wiki/External_Metric_Server
+[metrics-guide]: https://www.youtube.com/watch?v=f2eyVfCTLi0

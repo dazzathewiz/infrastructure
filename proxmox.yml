@@ -7,5 +7,16 @@
     - role: proxmox
       vars:
         pve_template_recreate: yes
+        pve_metrics_servers:
+          - name: InfluxDB
+            port: "{{ influx_port }}"
+            server: "{{ influx_server }}"
+            type: influxdb
+            bucket: proxmox
+            influxdbproto: http
+            organization: homelab.local
+            token: "{{ influx_proxmox_token }}"
+            # use when need to update an existing metric server token:
+            #updatetoken: yes
     - role: system
       tags: setup

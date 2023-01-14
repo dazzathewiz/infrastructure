@@ -11,6 +11,10 @@ dns:
 timezone: Australia/Brisbane
 search_domain: dazzathewiz.com
 
+# Logging and Metrics
+influx_server: 192.168.10.10
+influx_port: 8089
+
 # Container defaults
 docker_dir: /opt/docker/data
 

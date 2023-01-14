@@ -1,0 +1,23 @@
+---
+
+- name: Set Datacentre -> Metrics Server
+  proxmox_metrics:
+    name: "{{ item.name }}"
+    port: "{{ item.port }}"
+    server: "{{ item.server }}"
+    type: "{{ item.type }}"
+    state: "{{ item.state | default('present') }}"
+    disable: "{{ item.disable | default(False) }}"
+    bucket: "{{ item.bucket | default(omit) }}"
+    influxdbproto: "{{ item.influxdbproto | default(omit) }}"
+    maxbodysize: "{{ item.maxbodysize | default(omit) }}"
+    mtu: "{{ item.mtu | default(omit) }}"
+    organization: "{{ item.organization | default(omit) }}"
+    path: "{{ item.path | default(omit) }}"
+    proto: "{{ item.proto | default(omit) }}"
+    timeout: "{{ item.timeout | default(omit) }}"
+    token: "{{ item.token | default(omit) }}"
+    verifycertificate: "{{ item.verifycertificate | default(omit) }}"
+    updatetoken: "{{ item.updatetoken | default(omit) }}"
+  with_items: "{{ pve_metrics_servers }}"
+  when: "not pve_cluster_enabled | bool or (pve_cluster_enabled | bool and inventory_hostname == groups[pve_group][0])"

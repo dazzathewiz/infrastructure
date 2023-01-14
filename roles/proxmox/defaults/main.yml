@@ -21,3 +21,6 @@ pve_template_recreate: false   # deletes and re-creates the template
 # SSH configuration
 pve_manage_ssh: true
 pve_ssh_port: 22
+
+# Metrics server
+pve_mertrics_servers: []

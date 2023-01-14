@@ -30,3 +30,6 @@
 - import_tasks: pve_templates_config.yml
   when: _node_storage_local is defined
   tags: templates
+
+- import_tasks: pve_metrics_server.yml
+  tags: setup, metrics
