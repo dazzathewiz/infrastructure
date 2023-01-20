@@ -16,11 +16,32 @@
     line: "# deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
   register: update_apt_enterprise
 
+- name: Add Proxmox Ceph repository
+  apt_repository:
+    repo: '{{ pve_ceph_repository_line }}'
+    filename: ceph
+    state: present
+  register: _pve_ceph_repo
+  when: "pve_ceph_enabled | bool"
+
 - name: Update packages
   apt:
     update_cache: yes
+    cache_valid_time: 3600
     upgrade: yes
-  when: update_apt_nosub.changed or update_apt_enterprise.changed
+  when: update_apt_nosub.changed or update_apt_enterprise.changed or _pve_ceph_repo.changed
+
+- import_tasks: identify_needed_packages.yml
+
+- name: Install related packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    name: "{{ _pve_install_packages }}"
+    state: "{{ 'latest' if pve_run_proxmox_upgrades else 'present' }}"
+  retries: 2
+  register: _proxmox_install
+  until: _proxmox_install is succeeded
 
 # from: https://forum.proxmox.com/threads/when-to-reboot.29230/
 - name: Check if reboot required
