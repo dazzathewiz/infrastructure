@@ -1,0 +1,10 @@
+---
+
+# Gravity install script; see https://github.com/vmstan/gravity-sync/wiki/Installing
+GS_INSTALL: https://raw.githubusercontent.com/vmstan/gs-install/main/gs-install.sh
+
+# Gravity Sync vars; derived from https://github.com/vmstan/gravity-sync/blob/master/gravity-sync
+GS_FILEPATH: '/usr/local/bin/gravity-sync'
+GS_ETC_PATH: '/etc/gravity-sync'
+GS_CONFIG_FILE: 'gravity-sync.conf'
+GS_SSH_PKIF: "{{ GS_ETC_PATH }}/gravity-sync.rsa"

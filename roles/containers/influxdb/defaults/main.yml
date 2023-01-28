@@ -1,0 +1,4 @@
+---
+
+container_name: influxdb
+container_image: "influxdb:1.8"   # For future, change to v2 requires different container volume mount '/var/lib/influxdb2'

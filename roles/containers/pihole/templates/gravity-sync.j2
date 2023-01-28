@@ -1,0 +1,64 @@
+# REQUIRED SETTINGS ######################
+
+# Primary Pi-hole host (in IP or DNS name)
+REMOTE_HOST='{{ hostvars[pihole_gravity_master_host].ansible_host }}'
+
+# User account on primary with SUDO rights
+REMOTE_USER='{{ hostvars[pihole_gravity_master_host].ansible_user }}'
+
+# STANDARD VARIABLES #########################
+
+### Installation Types
+PH_IN_TYPE='docker'
+RH_IN_TYPE='docker'
+
+### Pi-hole Folder/File Customization
+PIHOLE_DIR='{{ docker_dir }}/{{ container_name }}/data/pihole'
+RIHOLE_DIR='{{ _remote_pihole_dir }}'
+DNSMAQ_DIR='{{ docker_dir }}/{{ container_name }}/data/dnsmasq.d'
+RNSMAQ_DIR='{{ _remote_dnsmasq_dir }}'
+# PIHOLE_BIN='' 			# default Pi-hole binary directory (local)
+# RIHOLE_BIN='' 			# default Pi-hole binary directory (remote)
+# DOCKER_BIN=''				# default Docker binary directory (local)
+# ROCKER_BIN=''				# default Docker binary directory (remote)
+# PODMAN_BIN=''             # default Podman binary directory (local)
+# RODMAN_BIN=''             # default Podman binary directory (remote)
+FILE_OWNER='999:999'
+RILE_OWNER='999:999'
+# DOCKER_CON=''				# default Pi-hole container name (local)
+ROCKER_CON='{{ _remote_container_name }}'
+# CONTAIMAGE=''             # official Pi-hole container image
+
+# GRAVITY_FI='' 			# default Pi-hole database file
+# CUSTOM_DNS=''				# default Pi-hole local DNS lookups
+# CNAME_CONF=''             # default DNSMASQ CNAME alias file
+# GSLAN_CONF=''             # default DNSMASQ GS managed file
+
+### Interaction Customization
+# VERIFY_PASS=''			# replace in gravity-sync.conf to overwrite
+# SKIP_CUSTOM=''			# replace in gravity-sync.conf to overwrite
+INCLUDE_CNAME='1'
+# DATE_OUTPUT=''			# replace in gravity-sync.conf to overwrite
+# PING_AVOID=''				# replace in gravity-sync.conf to overwrite
+# ROOT_CHECK_AVOID=''		# replace in gravity-sync.conf to overwrite
+
+### Backup Customization
+# BACKUP_RETAIN=''			# replace in gravity-sync.conf to overwrite
+# BACKUP_TIMEOUT=''			# replace in gravity-sync.conf to overwrite
+# BACKUP_INTEGRITY_WAIT=''  # time to wait after backup for integrity check
+
+### SSH Customization
+# SSH_PORT='' 				# default SSH port
+# SSH_PKIF=''				# default local SSH key
+
+### GS Folder/File Locations
+# CONFIG_FILE='' 			# must exist with primary host/user configured
+# GS_FILENAME=''			# must exist because it's this script
+# BACKUP_FOLD='' 			# must exist as subdirectory in LOCAL_FOLDR
+# LOG_PATH=''				# replace in gravity-sync.conf to overwrite
+# SYNCING_LOG='' 			# replace in gravity-sync.conf to overwrite
+# CRONJOB_LOG='' 			# replace in gravity-sync.conf to overwrite
+# HISTORY_MD5=''			# replace in gravity-sync.conf to overwrite
+
+### OS Settings
+# BASH_PATH=''				# default OS bash pathroot@pifour:~/gravity-sync/settings

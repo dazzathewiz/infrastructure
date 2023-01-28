@@ -1,0 +1,24 @@
+---
+
+- name: Check schedule variables compatible
+  fail:
+    msg: "Variables update_schedule and update_interval are not compatible when specified together. See: https://containrrr.dev/watchtower/arguments/#scheduling"
+  when: update_schedule is defined and update_interval is defined
+
+- name: Make sure the {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "containrrr/watchtower"
+    pull: yes
+    state: 'started'
+    env:
+      "TZ": "{{ timezone }}"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    command: >
+        {% if update_schedule is defined %}--schedule {{ update_schedule }}{% endif %}
+        {% if update_interval is defined %}--interval {{ update_interval }}{% endif %}
+        {% if cleanup_images %}--cleanup{% endif %}
+        --debug
+    restart_policy: always

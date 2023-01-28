@@ -1,0 +1,75 @@
+---
+
+# Gather docker volume paths from master Pihole host
+
+- name: Get any pihole container id from {{ pihole_gravity_master_host }}
+  shell: docker container ls | grep 'pihole/pihole' | awk '{print $1}'
+  register: container_id
+  delegate_to: "{{ hostvars[pihole_gravity_master_host].ansible_host }}"
+  
+- name: Check a container was found
+  fail:
+    msg: No pihole container was found with image pihole/pihole
+  when: container_id.stdout == ""
+  
+# Unraid requires the following NerdPack packages to be installed:
+#   - python3-*
+#   - python-pip-*
+# AND to have pip packages installed to run docker_container_info
+#   - pip install docker
+- name: Inspect docker container id {{ container_id.stdout }} on {{ pihole_gravity_master_host }}
+  docker_container_info:
+    name: "{{ container_id.stdout }}"
+  register: pihole
+  delegate_to: "{{ hostvars[pihole_gravity_master_host].ansible_host }}"
+
+- name: Set fact _remote_pihole_dir
+  set_fact:
+    _remote_pihole_dir: '{{ item.Source }}'
+  loop: "{{ pihole.container.Mounts }}"
+  when: item.Destination == "/etc/pihole"
+
+- name: Set fact _remote_dnsmasq_dir
+  set_fact:
+    _remote_dnsmasq_dir: '{{ item.Source }}'
+  loop: "{{ pihole.container.Mounts }}"
+  when: item.Destination == "/etc/dnsmasq.d"
+
+- name: Set fact _remote_container_name
+  set_fact:
+    _remote_container_name: "{{ pihole.container.Name | replace('/','') }}"
+
+- name: Create Gravity-Sync directory {{ GS_ETC_PATH }}
+  become: yes
+  file:
+    path: "{{ GS_ETC_PATH }}"
+    state: directory
+    mode: '0775'
+    recurse: yes
+
+- name: Copy {{ GS_CONFIG_FILE }} to {{ GS_ETC_PATH }}
+  become: yes
+  template: src=gravity-sync.j2 dest={{ GS_ETC_PATH }}/{{ GS_CONFIG_FILE }}
+
+- name: Run gravity install/upgrade gs-install.sh
+  shell: curl -sSL {{ GS_INSTALL }} | sudo bash -
+  args:
+    warn: no
+
+- name: Create SSH keys {{ GS_SSH_PKIF }}
+  openssh_keypair:
+    path: "{{ GS_SSH_PKIF }}"
+    type: rsa
+    state: present
+
+- name: Fetch {{ hostvars[pihole_gravity_master_host].ansible_user }} SSH public key from {{ pihole_gravity_master_host }}
+  slurp:
+    src: "{{ GS_SSH_PKIF }}.pub"
+  register: id_rsa_pub
+
+- name: Copy SSH key to host {{ pihole_gravity_master_host }}
+  authorized_key:
+    user: "{{ hostvars[pihole_gravity_master_host].ansible_user }}"
+    key: "{{ hostvars[item].id_rsa_pub.content | b64decode }}"
+  with_items: "{{ ansible_play_hosts }}"
+  delegate_to: "{{ hostvars[pihole_gravity_master_host].ansible_host }}"
