@@ -7,7 +7,7 @@
 - name: Copy telegraf.conf
   become: yes
   copy:
-    src: telegraf.conf
+    src: "{{ telegraf_config_file }}"
     dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
     owner: root
     group: root

@@ -1,9 +1,10 @@
 ---
 container_name: telegraf
+telegraf_config_file: telegraf.conf
 telegraf_features:
   hddtemp: no
   zfs: no
   sensors: no
 influx:
-  url: http://07468ff36b5b9df9da12c1ddcb36caf77b05120b.unraid.net:8086
+  url: "http://{{ influx_v1_server }}:{{ influx_v1_port }}"
   database_name: filecoin
