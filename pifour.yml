@@ -27,11 +27,46 @@
       vars:
         docker_users:
           - dietpi
+        docker_install_compose: no    # Remove later, there was a dep problem at install with bcrypt
       tags: setup
 
     # Containers
+    - { role: containers/portainer, tags: [containers] }
+    - { role: containers/portainer_agent, tags: [containers] }
+
+    # Monitoring TIG stack
+    - { role: containers/influxdb, tags: [containers] }
+    - role: containers/telegraf
+      vars:
+        influx:
+          url: "http://localhost:8086"
+          database_name: rpi_monitoring
+        telegraf_config_file: rpi-telegraf.conf
+      tags: containers
+
+    # PiHole
+    - role: containers/pihole
+      vars:
+        container_network_ip: "{{ dns[1] }}"
+        #pihole_gravity_sync: yes
+      tags: containers
+
+    # Cyber Power UPS
+    - role: containers/upsd
+      vars:
+        ups_description: "CyberPower 1300VA PFC Sinewave"
+      tags:
+        - containers
+    
+    # Shinobi
     - role: containers/shinobi
       vars:
         container_network_ip: 192.168.13.21
+      tags: containers
+    
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: "0 30 11 * * *"    # Run at 11:30am daily
       tags: containers
 
