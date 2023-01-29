@@ -6,3 +6,9 @@ dependencies:
       user: dietpi
       disable_password_auth: false
       set_user_password: true
+  
+  - role: system
+    vars:
+      mounts: "{{ dietpi_mounts | default(omit) }}"
+      manage_packages: no
+    when: dietpi_mounts is defined

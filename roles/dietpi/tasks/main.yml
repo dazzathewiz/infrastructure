@@ -30,7 +30,10 @@
   notify:
   - Update timezone
 
-- name: Set hostname {{ inventory_hostname }}
-  become: yes
-  shell: "{{ change_hostname }} {{ inventory_hostname }}"
+# Dietpi scripted functions:
+
+- import_tasks: change_hostname.yml
   when: ansible_hostname != inventory_hostname
+
+- import_tasks: dietpi-set_userdata.yml
+  when: dietpi_change_hostname != ""

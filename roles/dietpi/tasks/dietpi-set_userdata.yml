@@ -1,0 +1,10 @@
+---
+
+- name: Get current dietpi_userdata location
+  become: yes
+  shell: readlink -f /mnt/dietpi_userdata
+  register: userdata_current
+
+- name: Set dietpi_userdata location to {{ dietpi_userdata }}
+  become: yes
+  shell: "{{ dietpi_set_userdata }} {{ userdata_current.stdout }} {{ dietpi_userdata }}"

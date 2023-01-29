@@ -1,4 +1,3 @@
 ---
 
-# https://github.com/MichaIng/DietPi/blob/dev/dietpi/func/change_hostname
-change_hostname: /boot/dietpi/func/change_hostname
+dietpi_userdata: ""       # Optional, specify path to change dietpi_userdata to (EG: second drive/external drive), default is /mnt/dietpi_userdata
