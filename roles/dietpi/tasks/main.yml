@@ -18,6 +18,7 @@
 - name: Check timezone
   shell: cat /etc/timezone
   register: current_timezone
+  changed_when: "timezone not in current_timezone.stdout"
 
 - name: Set timezone {{ timezone }}
   copy: content={{ timezone }}
