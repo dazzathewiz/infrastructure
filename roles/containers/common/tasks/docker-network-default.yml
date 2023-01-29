@@ -1,0 +1,14 @@
+---
+
+# Used to attach containers to the host network on different IP
+
+- name: Create host {{ container_network_interface }} network
+  docker_network:
+    name: "{{ container_network_interface }}"
+    ipam_config:
+      - subnet: "{{ container_network_subnet }}"
+        gateway: "{{ container_network_gateway }}"
+    driver: macvlan
+    driver_options:
+      parent: "{{ container_network_interface }}"
+  become: true
