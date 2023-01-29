@@ -81,7 +81,7 @@
   changed_when: "'No replication is required at this time' not in sync_result.stdout"
   failed_when: "'✗' in sync_result.stdout"
 
-- name: Automate Gracity-Sync
+- name: Automate Gravity-Sync
   become: yes
   shell: "{{ GS_FILEPATH }} auto"
   failed_when: "'✗' in sync_result.stdout"
