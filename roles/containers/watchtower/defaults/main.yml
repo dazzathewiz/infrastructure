@@ -3,6 +3,6 @@
 container_name: watchtower
 
 cleanup_images: yes                     # https://containrrr.dev/watchtower/arguments/#cleanup
-update_schedule: "{{ default(omit) }}"  # https://containrrr.dev/watchtower/arguments/#scheduling
-update_interval: "{{ default(omit) }}"  # https://containrrr.dev/watchtower/arguments/#poll_interval
+#update_schedule: "{{ omit }}"          # https://containrrr.dev/watchtower/arguments/#scheduling
+#update_interval: "{{ omit }}"          # https://containrrr.dev/watchtower/arguments/#poll_interval
 include_stopped: no                     # https://containrrr.dev/watchtower/arguments/#include_stopped
