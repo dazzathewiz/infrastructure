@@ -12,6 +12,7 @@
     image: "containrrr/watchtower"
     pull: yes
     state: 'started'
+    hostname: "{{ inventory_hostname }}"
     env:
       "TZ": "{{ timezone }}"
       "WATCHTOWER_NOTIFICATIONS": slack
