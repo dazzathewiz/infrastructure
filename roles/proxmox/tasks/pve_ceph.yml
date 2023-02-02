@@ -1,0 +1,59 @@
+---
+
+# 1. Create new "Linux VLAN" on each host;
+#   name: vlan1011
+#   CIDR: 10.10.10.18-20/28
+#   comment: "Ceph Network"
+#
+# Note: https://forum.proxmox.com/threads/tagged-vlan-does-not-work-on-a-linux-bridge-if-exist-another-linux-bridge-in-the-pve-containing-a-linux-vlan-with-the-same-tag.95728/
+#   A problem occurs if you want to use a guest VM on the Ceph Network (say to access cephfs for file storage). In future, make a Linux VLAN but without IP,
+#   then create a bridge (vmbrX) referencing the vlan interface. This will allow a bridge for VM's specifically on the VLAN.
+
+# 2. Datacentre -> Ceph -> setup Ceph with network 10.10.10.18/28
+
+# 3. Create additional monitors under node -> ceph -> monitor
+# 4. Delete the "mon.localhost" monitor created by default on prox1 and re-create it "mon.prox1"
+
+# 5. Install the Ceph Manager Dashboard on Prox1:
+#   apt-get install ceph-mgr-dashboard -> This should be installed on all nodes to support failover of the dashboard which needs to run on the active ceph manager instance
+#   ceph mgr module enable dashboard
+#   ceph dashboard create-self-signed-cert
+#   ceph dashboard ac-user-create infadmin -i ceph-password administrator
+#   ceph mgr module disable dashboard
+#   ceph mgr module enable dashboard
+
+# 6. Add redundant manager nodes on prox2, prox3
+#   pveceph mgr create
+
+# 7. Create OSD's in each node Ceph -> OSD
+#   Create 1 for each 16TB disk, enable encrption, no other settings
+#   Run for nvme: `ceph-volume lvm batch --osds-per-device 4 --crush-device-class nvme /dev/nvme1n1` (https://forum.proxmox.com/threads/recommended-way-of-creating-multiple-osds-per-nvme-disk.52252/)
+
+# 8. Create the Pools in the Ceph manager
+#   https://10.10.10.18:8443/#/pool
+#   Create a replicated pool and an ErasureCoded (EC) pool. Ensure the EC pool has "EC Overwrite" enabled
+
+# 9. Add the ceph replicated pool to proxmox Datacentre -> Storage -> add RBD
+
+# 10. Change the data-pool for the ceph replica pool in /etc/pve/storage.cfg:
+#rbd: ceph-vm
+#        content images,rootdir
+#        krbd 0
+#        pool Ceph_Prox_MetaDataREP
+#        data-pool Ceph_NVME_EC3
+
+# 11. Creating cephfs; Ref: https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster#_footnote_16
+#   Create a _metadata pool with a replica set (required for metadata)
+#   Create a _data pool with erasurecode as desired
+#   Go to node -> Ceph -> CephFS -> Create Meta Data servers
+#   ceph fs new cephfs_plexdata cephfs_plexdata_metadata cephfs_plexdata_data --force
+#   ceph fs set cephfs_plexdata max_mds 2
+#   (Optional) Can mount the filesystem: Datacentre -> Storage -> Add -> CephFS
+# Note: https://pve.proxmox.com/wiki/Storage:_CephFS
+
+# To manage a ceph host reboot
+#   To perform maintenance without CRUSH auto rebalancing the cluster:
+#     - ceph mds fail {{ host }}
+#     - ceph osd set-group noout {{ host }}  # https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/
+#   When complete:
+#     - ceph osd unset-group noout {{ host }}
