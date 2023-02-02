@@ -97,6 +97,12 @@
     # Silicoin container
     - { role: containers/silicoin, tags: [containers,test] }
 
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
+      tags: containers, watchtower
+
 
 #Install monitoring tools
 #- 45Drives Alert manager & Prometheus?? (from evernote notes)
