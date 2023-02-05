@@ -132,4 +132,4 @@
         _ceph_network_frontend_ip: "{{ pve_ceph_net_front_base | ansible.utils.ipmath(inventory_hostname[-1]) }}"
     
   when: "pve_ceph_enabled | bool"
-  tags: ceph
+  tags: ceph, setup
