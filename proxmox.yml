@@ -22,4 +22,6 @@
         pve_extra_packages:
           - iperf3
     - role: system
+      vars:
+        upgrade_packages: no
       tags: setup
