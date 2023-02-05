@@ -12,6 +12,11 @@
     - restart network
 
 # Add all sub interfaces for _pve_second_nic, including ceph interfaces if configured
+#
+# Note on Ceph network config decision: 
+# https://forum.proxmox.com/threads/tagged-vlan-does-not-work-on-a-linux-bridge-if-exist-another-linux-bridge-in-the-pve-containing-a-linux-vlan-with-the-same-tag.95728/
+#   A problem occurs if you want to use a guest VM on the Ceph Network (say to access cephfs for file storage). 
+#   This is resolved by creating frontend VLAN without IP, then using vmbr2 as the sub interface which can also be used for guest VM's
 - name: Add configuration to /etc/network/interfaces for PVE second NIC
   blockinfile:
     path: /etc/network/interfaces

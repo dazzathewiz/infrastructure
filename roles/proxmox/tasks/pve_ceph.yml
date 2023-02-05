@@ -1,15 +1,5 @@
 ---
 
-# 1. Create new "Linux VLAN" on each host;
-#   name: vlan1011
-#   CIDR: 10.10.10.18-20/28
-#   comment: "Ceph Network"
-#- import_tasks: pve_network_ceph.yml
-# - import_tasks: pve_network.yml now handles this from main.yml
-
-# Note: https://forum.proxmox.com/threads/tagged-vlan-does-not-work-on-a-linux-bridge-if-exist-another-linux-bridge-in-the-pve-containing-a-linux-vlan-with-the-same-tag.95728/
-#   A problem occurs if you want to use a guest VM on the Ceph Network (say to access cephfs for file storage). In future, make a Linux VLAN but without IP,
-#   then create a bridge (vmbrX) referencing the vlan interface. This will allow a bridge for VM's specifically on the VLAN.
 
 # 2. Datacentre -> Ceph -> setup Ceph with network 10.10.10.18/28
 
