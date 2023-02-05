@@ -23,6 +23,8 @@ See ../proxmox.yml
 
 The playbook performs all of these by default (or independantly with tags):
 1. Setup of a proxmox host ```ansible-playbook proxmox.yml --tags setup```
+  - Network in /etc/network/interfaces can be setup with ```--tags network```
+  - NFS mount point can be set with ```--tags nfs```
 2. Downloading of cloud images and ISO's to configured NFS ISO share ```ansible-playbook proxmox.yml --tags update_images```
 3. Clusters together all proxmox nodes in the playbook ```ansible-playbook proxmox.yml --tags cluster```
 4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
@@ -32,10 +34,9 @@ The playbook performs all of these by default (or independantly with tags):
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources
 - sets "iommu=on" for either Intel or AMD based CPU's in Grub config
 - sets the hostname of the proxmox host to be the same as configured in ansible hosts file
-- ensures vmbr0 (nic) is "VLAN aware" - sets `bridge-vlan-aware yes` in nic interfaces file
-- setup vmbr1 (nic) when there is a second nic found matching ```pve_second_nic_regex``` variable
 - sets DNS servers in /etc/resolv.conf as defined in global group_vars -> all.yml -> dns
-- attaches NFS storage defined in vars -> main.yml -> nfs
+- manages the network setup in /etc/network/interfaces, depending on config for ```pve_second_nic_regex``` and ```pve_ceph_enabled```
+- attaches NFS storage defined in vars -> main.yml -> nfs (use: ```--tags nfs|mounts```)
 
 ### 2. Download of cloud images
 - ensures the latest ISO versions are available on the NFS share, which are defined in vars -> main.yml -> images

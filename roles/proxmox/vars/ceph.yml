@@ -1,0 +1,6 @@
+---
+
+pve_ceph_net_front_base: "{{ pve_ceph_network_frontend['subnet'] | regex_replace('/[0-9]{2}','') }}"
+pve_ceph_net_front_cidr: "{{ pve_ceph_network_frontend['subnet'] | regex_replace('^(.*)/','') }}"
+pve_ceph_net_back_base: "{{ pve_ceph_network_backend['subnet'] | regex_replace('/[0-9]{2}','') }}"
+pve_ceph_net_back_cidr: "{{ pve_ceph_network_backend['subnet'] | regex_replace('^(.*)/','') }}"

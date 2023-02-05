@@ -1,0 +1,56 @@
+---
+# Manage /etc/network/interfaces
+
+# Enable VLAN aware NIC only when there isn't a second NIC specified
+- name: Enable VLAN aware nic on vmbr0
+  lineinfile:
+    dest: /etc/network/interfaces
+    insertafter: 'bridge-fd 0'
+    line: "	bridge-vlan-aware yes"
+  when: _pve_second_nic is not defined
+  notify:
+    - restart network
+
+# Add all sub interfaces for _pve_second_nic, including ceph interfaces if configured
+- name: Add configuration to /etc/network/interfaces for PVE second NIC
+  blockinfile:
+    path: /etc/network/interfaces
+    block: |
+      {% if _pve_second_nic is defined %}
+      iface {{ _pve_second_nic }} inet manual
+
+      auto vmbr1
+      iface vmbr1 inet static
+      	address {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | ansible.utils.ipmath(1) }}/24
+      	bridge-ports {{ _pve_second_nic }}
+      	bridge-stp off
+      	bridge-fd 0
+      	bridge-vlan-aware yes
+      	bridge-vids 2-4094
+      {% endif %}
+
+      {% if _pve_second_nic is defined and pve_ceph_enabled | bool %}
+      auto vlan{{ pve_ceph_network_backend['vlan'] }}
+      iface vlan{{ pve_ceph_network_backend['vlan'] }} inet static
+        address {{ _ceph_network_backend_ip }}/{{ pve_ceph_net_back_cidr }}
+        vlan-raw-device {{ _pve_second_nic }}
+      # Ceph Backend Network
+
+      auto vlan{{ pve_ceph_network_frontend['vlan'] }}
+      iface vlan{{ pve_ceph_network_frontend['vlan'] }} inet static
+        vlan-raw-device {{ _pve_second_nic }}
+      # Ceph Frontend Network VLAN
+
+      auto vmbr2
+      iface vmbr2 inet static
+      	address {{ _ceph_network_frontend_ip }}/{{ pve_ceph_net_front_cidr }}
+        gateway {{ pve_ceph_net_front_base }}
+      	bridge-ports vlan{{ pve_ceph_network_frontend['vlan'] }}
+      	bridge-stp off
+      	bridge-fd 0
+      # Ceph Frontend Network Bridge
+      {% endif %}
+      
+  when: _pve_second_nic is defined
+  notify:
+    - restart network

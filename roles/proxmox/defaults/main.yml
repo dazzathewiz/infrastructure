@@ -33,3 +33,5 @@ pve_mertrics_servers: []
 # Ceph configuration
 pve_ceph_enabled: false
 pve_ceph_repository_line: "deb http://download.proxmox.com/debian/{% if ansible_distribution_release == 'buster' %}ceph-nautilus buster{% else %}ceph-pacific bullseye{% endif %} main"
+pve_ceph_network_backend: {subnet: 10.10.10.17/28, vlan: 1011}
+pve_ceph_network_frontend: {subnet: 10.10.10.33/27, vlan: 1012}

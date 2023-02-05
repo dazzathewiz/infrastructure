@@ -4,7 +4,9 @@
 #   name: vlan1011
 #   CIDR: 10.10.10.18-20/28
 #   comment: "Ceph Network"
-#
+#- import_tasks: pve_network_ceph.yml
+# - import_tasks: pve_network.yml now handles this from main.yml
+
 # Note: https://forum.proxmox.com/threads/tagged-vlan-does-not-work-on-a-linux-bridge-if-exist-another-linux-bridge-in-the-pve-containing-a-linux-vlan-with-the-same-tag.95728/
 #   A problem occurs if you want to use a guest VM on the Ceph Network (say to access cephfs for file storage). In future, make a Linux VLAN but without IP,
 #   then create a bridge (vmbrX) referencing the vlan interface. This will allow a bridge for VM's specifically on the VLAN.
@@ -57,3 +59,15 @@
 #     - ceph osd set-group noout {{ host }}  # https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/
 #   When complete:
 #     - ceph osd unset-group noout {{ host }}
+
+# To Remove/Destroy Ceph pools
+#   1. Unmount any of the RBD/CephFS from clients inlucuding proxmox (Datacentre -> Storage -> Remove)
+#   2. For CephFS:
+#       a) stop (and destroy) all mds under proxmox node -> Ceph -> CephFS
+#       b) disable the CephFS filesystem `ceph fs rm cephfs_plexdata --yes-i-really-mean-it`
+#   3. Remove Ceph pools from proxmox (cannot be done from Ceph dashboard); Ceph -> Pools -> Destroy
+#
+# Other undo steps:
+#   1. Remove mgr's: `pveceph mgr destroy localhost|prox2|prox3` - run on individual host
+#   2. Uninstall "ceph-mgr-dashboard" on all hosts `apt remove ceph-mgr-dashboard`
+#   3. Delete Mons under node -> ceph -> monitor
