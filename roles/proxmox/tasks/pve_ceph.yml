@@ -1,21 +1,47 @@
 ---
 
+# 1. Initalise Ceph (Datacentre -> Ceph -> setup Ceph)
+# See: https://github.com/lae/ansible-role-proxmox/blob/main/tasks/ceph.yml
+- block:
+  - name: Create initial Ceph config
+    command: "pveceph init --network {{ _ceph_network_frontend_ip }}/{{ pve_ceph_net_front_cidr }}  \
+    {% if pve_ceph_network_backend is defined  %} \
+                --cluster-network {{ _ceph_network_backend_ip }}/{{ pve_ceph_net_back_cidr }}
+    {% endif %}"
+    args:
+      creates: /etc/ceph/ceph.conf
 
-# 2. Datacentre -> Ceph -> setup Ceph with network 10.10.10.18/28
+  - name: Create initial Ceph monitor
+    command: 'pveceph mon create'
+    args:
+      creates: '/var/lib/ceph/mon/ceph-{{ ansible_hostname }}/'
+    register: _ceph_initial_mon
 
-# 3. Create additional monitors under node -> ceph -> monitor
-# 4. Delete the "mon.localhost" monitor created by default on prox1 and re-create it "mon.prox1"
+  - name: Fail if initial monitor creation failed
+    fail:
+      msg: 'Ceph intial monitor creation failed.'
+    when: _ceph_initial_mon is failed
+  when: "inventory_hostname == groups[pve_ceph_mon_group][0]"
 
-# 5. Install the Ceph Manager Dashboard on Prox1:
-#   apt-get install ceph-mgr-dashboard -> This should be installed on all nodes to support failover of the dashboard which needs to run on the active ceph manager instance
-#   ceph mgr module enable dashboard
-#   ceph dashboard create-self-signed-cert
-#   ceph dashboard ac-user-create infadmin -i ceph-password administrator
-#   ceph mgr module disable dashboard
-#   ceph mgr module enable dashboard
+# 2. Create additional monitors for other nodes under node -> ceph -> monitor
+- name: Create additional Ceph monitors
+  command: 'pveceph mon create'
+  args:
+    creates: '/var/lib/ceph/mon/ceph-{{ ansible_hostname }}/'
+  when: 
+  - "inventory_hostname != groups[pve_ceph_mon_group][0]"
+  - "inventory_hostname in groups[pve_ceph_mon_group]"
 
-# 6. Add redundant manager nodes on prox2, prox3
-#   pveceph mgr create
+# 3. Install the Ceph Manager Dashboard on node 1
+- import_tasks: pve_ceph_mgr_dashboard.yml
+  when: "inventory_hostname == groups[pve_ceph_mon_group][0]"
+
+# 4. Add redundant manager nodes on remaining nodes
+- name: Add ceph-mgr on remaining nodes
+  command: 'pveceph mgr create'
+  args:
+    creates: '/var/lib/ceph/mgr/ceph-{{ ansible_hostname }}/'
+  when: "inventory_hostname in groups[pve_ceph_mgr_group]"
 
 # 7. Create OSD's in each node Ceph -> OSD
 #   Create 1 for each 16TB disk, enable encrption, no other settings
@@ -61,3 +87,5 @@
 #   1. Remove mgr's: `pveceph mgr destroy localhost|prox2|prox3` - run on individual host
 #   2. Uninstall "ceph-mgr-dashboard" on all hosts `apt remove ceph-mgr-dashboard`
 #   3. Delete Mons under node -> ceph -> monitor
+#   4. `pveceph purge`
+#   5. `rm /etc/ceph/ceph.conf /etc/pve/ceph.conf`
