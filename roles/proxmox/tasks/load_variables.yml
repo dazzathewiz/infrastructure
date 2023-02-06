@@ -17,6 +17,7 @@
       command: efibootmgr -v | grep -q systemd
       ignore_errors: true
       register: systemd
+      changed_when: false
       failed_when: systemd == 2
 
     # Default to grub if no "systemd" found from out of `efibootmgr -v`
