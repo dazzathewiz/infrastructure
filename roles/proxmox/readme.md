@@ -29,6 +29,7 @@ The playbook performs all of these by default (or independantly with tags):
 3. Clusters together all proxmox nodes in the playbook ```ansible-playbook proxmox.yml --tags cluster```
 4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
 5. Setup Metric Server to ship metrics to InfluxDB ```ansible-playbook proxmox.yml --tags metrics --ask-vault-password```
+6. Setup and initalise Ceph ```ansible-playbook proxmox.yml --tags ceph --ask-vault-password```
 
 ### 1. Setup
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources
@@ -76,6 +77,39 @@ Further reading can be found:
 - [Proxmox Admin Guide: Metric Server][metrics-doc1]
 - [Youtube guide][metrics-guide]
 
+### 6. Ceph
+This will setup Ceph by performing:
+- Package install and initalisation of ceph
+- Mon and Mgr deployments on all nodes
+- [Dashboard][ceph-dashboard] setup and configuration
+
+Required to enable Ceph configuration:
+```
+vars:
+  pve_ceph_enabled: yes
+```
+
+
+## Ceph Management
+I don't automate all of Ceph configuration because this is a homelab environment and I prefer to do these tasks
+manually due to situational dynamics and avoiding automation hazards that lead to data loss:
+- OSD Setup and configuration
+- Pool configuration
+- CephFS (metadata)
+
+### OSD Management
+OSD commands I've used are captured in [OSD Create Script][osd-script], but this script is not used by Ansible automation
+Consideration for OSD's:
+- Encryption via ```--encrypted 1``` or ```--dmcrypt``` flags, for ```pve-ceph``` and ```ceph-volume``` respectively
+- [Multiple OSD's for single NVME devices][osd-nvme]
+- WAL/DB disk - I have chosen not to have separate WAL/DB in my environment at this time as I don't expect large writes to be an issue for write performance. I don't perfectly understand the DB metadata location and whether in my pool implementation where metadata is on NVME crush device class pools.
+
+### Pools
+Metadata
+Erasurecode (2+1) and EC Overwrites
+
+### CephFS
+For clients to connect to - plex
 
 ## Clustering
 
@@ -99,3 +133,6 @@ the other node due to quorum configuration. If only 1 node in the cluster is onl
 [metrics-guide]: https://www.youtube.com/watch?v=f2eyVfCTLi0
 [proxmox-api-metrics]: https://pve.proxmox.com/pve-docs/api-viewer/#/cluster/metrics/server/{id}
 [metrics-yaml]: https://github.com/dazzathewiz/infrastructure/blob/994457c505061ee0aae937d260deac0e005878ee/roles/proxmox/tasks/pve_metrics_server.yml
+[ceph-dashboard]: https://docs.ceph.com/en/quincy/mgr/dashboard/#:~:text=The%20Ceph%20Dashboard%20is%20a,a%20Ceph%20Manager%20Daemon%20module.
+[osd-script]: files/create_osds.sh
+[osd-nvme]: https://forum.proxmox.com/threads/recommended-way-of-creating-multiple-osds-per-nvme-disk.52252/
