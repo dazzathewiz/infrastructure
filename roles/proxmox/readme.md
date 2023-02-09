@@ -116,6 +116,7 @@ Includes:
 ![Ceph Crush Rule 1](files/crush_rule_1.png)
 ![Ceph Pool 1](files/pool_1.png)
 - Ceph_NVME-EC3: The Erasure-Coded pool for Proxmox (k=2, m=1). Note that [EC Overwrites][ceph-erasure-ecoverwrite] are required for VM storage to work in Proxmox
+
 ![Ceph Crush Rule 2](files/crush_rule_2.png)
 ![Ceph Pool 2](files/pool_2.png)
 
@@ -135,6 +136,7 @@ rbd: ceph-vm
 Referring to [Proxmox CephFS documentation][ceph-fs] for the setup of Metadata Server (MDS)
 1. Create a _metadata pool with a replica set (required for metadata)
 - cephfs_plexdata_metadata: Holds the metadata for the CephFS system
+
 ![Ceph Pool 3](files/pool_3.png)
 2. Create a _data pool with erasurecode as desired
 - cephfs_plexdata_data: the Erasure Coded pool for CephFS
