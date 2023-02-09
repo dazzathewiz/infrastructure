@@ -106,7 +106,7 @@ Consideration for OSD's:
 
 ### Pools
 I create Pools manually, managed using the Dashboard: ```https://{{ pve_ceph_net_front_base }}:8443/#/pool```
-[ceph-pools]
+![Ceph Pools]([ceph-pools])
 
 ### VM Storage Pool 
 I want to use an Erasure Coded pool for Proxmox on NVME disk. Some manual steps are required to set this up in Proxmox, including creating a separate MetaData pool (Proxmox expects the MetaData pool to be a replicated pool, not EC)
@@ -134,7 +134,7 @@ rbd: ceph-vm
 Referring to [Proxmox CephFS documentation][ceph-fs] for the setup of Metadata Server (MDS)
 1. Create a _metadata pool with a replica set (required for metadata)
 - cephfs_plexdata_metadata: Holds the metadata for the CephFS system
-[ceph-pool-3]
+![ceph-pool-3]
 2. Create a _data pool with erasurecode as desired
 - cephfs_plexdata_data: the Erasure Coded pool for CephFS
 [ceph-crush-3]
