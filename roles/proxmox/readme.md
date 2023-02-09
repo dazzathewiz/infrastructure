@@ -106,7 +106,7 @@ Consideration for OSD's:
 
 ### Pools
 I create Pools manually, managed using the Dashboard: ```https://{{ pve_ceph_net_front_base }}:8443/#/pool```
-![Ceph Pools]([ceph-pools])
+![Ceph Pools](files/ceph_pools.png)
 
 ### VM Storage Pool 
 I want to use an Erasure Coded pool for Proxmox on NVME disk. Some manual steps are required to set this up in Proxmox, including creating a separate MetaData pool (Proxmox expects the MetaData pool to be a replicated pool, not EC)
@@ -205,7 +205,7 @@ the other node due to quorum configuration. If only 1 node in the cluster is onl
 [ceph-fs]: https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster#pveceph_fs
 [ceph-tune]: https://ceph.io/en/news/blog/2022/autoscaler_tuning/
 [ceph-osd-maintain]: https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/
-[ceph-pools]: files/ceph_pools.png
+[ceph-pools]: 
 [ceph-crush-1]: files/crush_rule_1.png
 [ceph-pool-1]: files/ceph_pools.png
 [ceph-crush-2]: files/crush_rule_2.png
