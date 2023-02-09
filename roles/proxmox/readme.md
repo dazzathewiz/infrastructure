@@ -105,11 +105,76 @@ Consideration for OSD's:
 - WAL/DB disk - I have chosen not to have separate WAL/DB in my environment at this time as I don't expect large writes to be an issue for write performance. I don't perfectly understand the DB metadata location and whether in my pool implementation where metadata is on NVME crush device class pools.
 
 ### Pools
-Metadata
-Erasurecode (2+1) and EC Overwrites
+I create Pools manually, managed using the Dashboard: ```https://{{ pve_ceph_net_front_base }}:8443/#/pool```
+[ceph-pools]
 
-### CephFS
-For clients to connect to - plex
+### VM Storage Pool 
+I want to use an Erasure Coded pool for Proxmox on NVME disk. Some manual steps are required to set this up in Proxmox, including creating a separate MetaData pool (Proxmox expects the MetaData pool to be a replicated pool, not EC)
+Includes:
+- Ceph_Prox_MetaDataREP: MetaData Pool for Proxmox VM's
+[ceph-crush-1]
+[ceph-pool-1]
+- Ceph_NVME-EC3: The Erasure-Coded pool for Proxmox (k=2, m=1). Note that [EC Overwrites][ceph-erasure-ecoverwrite] are required for VM storage to work in Proxmox
+[ceph-crush-2]
+[ceph-pool-2]
+
+Adding the Pool into Proxmox:
+Browsing to Datacentre -> Storage -> add RBD -> Ceph_Prox_MetaDataREP; This will add the REP pool, but you need to configure VM "data" to be stored on the Erasure Coded pool.
+
+Change the data-pool for the ceph replica pool in /etc/pve/storage.cfg:
+```
+rbd: ceph-vm
+       content images,rootdir
+       krbd 0
+       pool Ceph_Prox_MetaDataREP
+       data-pool Ceph_NVME_EC3
+```
+
+### CephFS Pools
+Referring to [Proxmox CephFS documentation][ceph-fs] for the setup of Metadata Server (MDS)
+1. Create a _metadata pool with a replica set (required for metadata)
+- cephfs_plexdata_metadata: Holds the metadata for the CephFS system
+[ceph-pool-3]
+2. Create a _data pool with erasurecode as desired
+- cephfs_plexdata_data: the Erasure Coded pool for CephFS
+[ceph-crush-3]
+[ceph-pool-4]
+3. Set the ```--bulk``` flag on the _data pool: ```ceph osd pool set ceph_plexdata_data bulk true```; See: [ceph-tune][Ceph Tuning]
+4. Go to node -> Ceph -> CephFS -> Create Meta Data servers x3 (for each host)
+5. Create CephFS (note the ```--force``` required for the EC pool as the default data pool) 
+- ```ceph fs new cephfs_plexdata cephfs_plexdata_metadata ceph_plexdata_data --force```
+6. Change the MDS to have 2 active metadata servers, I think this is better fault tolerance from my research
+- ```ceph fs set cephfs_plexdata max_mds 2```
+
+7. (Optional) Can mount the filesystem: Datacentre -> Storage -> Add -> CephFS
+
+### Managing ceph host reboots
+To manage a ceph host reboot in a fault tolerant manner;
+- Ensure the host is not running an active Metadata Server (MDS) ```ceph mds fail {{ host }}```
+- Prevent the CRUSH rule from rebalancing when a host goes offline: ```ceph osd set-group noout {{ host }}```
+When complete:
+- Re-enable CRUSH reblancing for OSD's ```ceph osd unset-group noout {{ host }}```
+
+See more information about [troubleshooting and maintenance of OSDs][ceph-ods-maintain]
+
+### Removing/Destroying Ceph Pools
+To Remove/Destroy Ceph pools
+1. Unmount any of the RBD/CephFS from clients inlucuding proxmox (Datacentre -> Storage -> Remove)
+2. For CephFS:
+  a) stop (and destroy) all mds under proxmox node -> Ceph -> CephFS
+  b) disable the CephFS filesystem ```ceph fs rm cephfs_plexdata --yes-i-really-mean-it```
+3. Remove Ceph pools from proxmox (cannot be done from Ceph dashboard); Ceph -> Pools -> Destroy
+
+Other undo steps:
+1. Remove mgr's: ```pveceph mgr destroy localhost|prox2|prox3``` - run on individual host
+2. Uninstall "ceph-mgr-dashboard" on all hosts ```apt remove ceph-mgr-dashboard```
+3. Delete Mons under node -> ceph -> monitor
+4. ```pveceph purge```
+5. ```rm /etc/ceph/ceph.conf /etc/pve/ceph.conf```
+6. Cleanup the OSD disks. Note that ceph holds the OSD information in /var/lib/...etc. This is purged
+ and as a result OSD cannot be "re-imported". They need to be destroyed:
+  a) remove LVM volumes in node -> Disks -> LVM -> disk -> more -> Destroy
+
 
 ## Clustering
 
@@ -136,3 +201,15 @@ the other node due to quorum configuration. If only 1 node in the cluster is onl
 [ceph-dashboard]: https://docs.ceph.com/en/quincy/mgr/dashboard/#:~:text=The%20Ceph%20Dashboard%20is%20a,a%20Ceph%20Manager%20Daemon%20module.
 [osd-script]: files/create_osds.sh
 [osd-nvme]: https://forum.proxmox.com/threads/recommended-way-of-creating-multiple-osds-per-nvme-disk.52252/
+[ceph-erasure-ecoverwrite]: https://docs.ceph.com/en/latest/rados/operations/erasure-code/#erasure-coding-with-overwrites
+[ceph-fs]: https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster#pveceph_fs
+[ceph-tune]: https://ceph.io/en/news/blog/2022/autoscaler_tuning/
+[ceph-osd-maintain]: https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/
+[ceph-pools]: files/ceph_pools.png
+[ceph-crush-1]: files/crush_rule_1.png
+[ceph-pool-1]: files/ceph_pools.png
+[ceph-crush-2]: files/crush_rule_2.png
+[ceph-pool-2]: files/pool_2.png
+[ceph-pool-3]: files/pool_3.png
+[ceph-crush-3]: files/crush_rule_3.png
+[ceph-pool-4]: files/pool_4.png
