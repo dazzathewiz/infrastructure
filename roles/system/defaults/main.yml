@@ -1,3 +1,4 @@
 ---
 packages: []
-upgrade_packages: yes
+upgrade_packages: yes   # Upgrade install packages
+auto_reboot: yes        # Reboot when /var/run/reboot-required exists
