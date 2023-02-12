@@ -119,7 +119,7 @@
   tags: templates
 
 # Ceph config vars
-- name: Cep config vars
+- name: Ceph config vars
   block:
     - name: Import Ceph vars
       include_vars: "ceph.yml"
