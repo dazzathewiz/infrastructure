@@ -115,7 +115,7 @@ Includes:
 - Ceph_Prox_MetaDataREP: MetaData Pool for Proxmox VM's
 ![Ceph Crush Rule 1](files/crush_rule_1.png)
 ![Ceph Pool 1](files/pool_1.png)
-- Ceph_NVME-EC3: The Erasure-Coded pool for Proxmox (k=2, m=1). Note that [EC Overwrites][ceph-erasure-ecoverwrite] are required for VM storage to work in Proxmox
+- Ceph_NVME-EC3: The Erasure-Coded pool for Proxmox (k=2, m=1). Note that [EC Overwrites][ceph-erasure-ecoverwrite] are required for VM storage to work in Proxmox. See also: [EC Pool in Proxmox][ceph-erasure-ecoverwrite2]
 
 ![Ceph Crush Rule 2](files/crush_rule_2.png)
 ![Ceph Pool 2](files/pool_2.png)
@@ -153,8 +153,13 @@ Referring to [Proxmox CephFS documentation][ceph-fs] for the setup of Metadata S
 
 ### Managing ceph host reboots
 To manage a ceph host reboot in a fault tolerant manner;
+
+*** Note: This can be achieved programatically by modifying `proxmox-reboot.yml` then running `ansible-playbook proxmox-reboot.yml`
+
+Manual Process:
 - Ensure the host is not running an active Metadata Server (MDS) ```ceph mds fail {{ host }}```
 - Prevent the CRUSH rule from rebalancing when a host goes offline: ```ceph osd set-group noout {{ host }}```
+- You can autofail the manager daemon too, though not essential as it runs administrative functions like the dashboard and telegraf/prometheus plugins: ```ceph mgr fail {{ host }}```
 When complete:
 - Re-enable CRUSH reblancing for OSD's ```ceph osd unset-group noout {{ host }}```
 
@@ -205,6 +210,7 @@ the other node due to quorum configuration. If only 1 node in the cluster is onl
 [osd-script]: files/create_osds.sh
 [osd-nvme]: https://forum.proxmox.com/threads/recommended-way-of-creating-multiple-osds-per-nvme-disk.52252/
 [ceph-erasure-ecoverwrite]: https://docs.ceph.com/en/latest/rados/operations/erasure-code/#erasure-coding-with-overwrites
+[ceph-erasure-ecoverwrite2]: https://forum.proxmox.com/threads/created-an-erasure-code-pool-in-ceph-but-cannot-work-with-it-in-proxmox.45099/
 [ceph-fs]: https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster#pveceph_fs
 [ceph-tune]: https://ceph.io/en/news/blog/2022/autoscaler_tuning/
 [ceph-osd-maintain]: https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/

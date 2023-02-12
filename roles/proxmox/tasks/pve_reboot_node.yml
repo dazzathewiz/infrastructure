@@ -1,0 +1,89 @@
+---
+
+- debug: msg="{{ inventory_hostname }} will reboot now"
+
+# Perform graceful Ceph failovers if enabled
+- block:
+  - name: Get Ceph cluster health
+    proxmox_query:
+      query: "nodes/{{ ansible_hostname }}/ceph/status"
+    register: _node_ceph_status
+    changed_when: false
+  
+  - name: Check Ceph cluster is OK before proceeding...
+    fail:
+      msg: "Ceph Cluster Status is not healthy: {{ _node_ceph_status.response.health.status }}"
+    when: _node_ceph_status.response.health.status != "HEALTH_OK"
+
+  - name: Get system service facts
+    service_facts:
+    register: services_state
+
+  - name: Set Ceph Service facts
+    set_fact: _pve_ceph_service="ceph-{{ item }}@{{ inventory_hostname }}.service"
+    with_items: "{{ pve_ceph_daemons_fail }}"
+    register: _pve_ceph_service_result
+
+  # Do a graceful fail of Ceph services
+  - name: Fail ceph services {{ pve_ceph_daemons_fail }} on {{ inventory_hostname }}
+    shell: ceph {{ pve_ceph_daemons_fail[idx] }} fail {{ inventory_hostname }}
+    loop: "{{ _pve_ceph_service_result.results | map(attribute='ansible_facts._pve_ceph_service') | list }}"
+    loop_control:
+      index_var: idx
+    when: "item in services_state.ansible_facts.services and services_state.ansible_facts.services[item].status == 'active'"
+
+  # "noout" the osds on the host - https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/#stopping-w-out-rebalancing
+  - name: Perform `ceph osd set-group noout {{ inventory_hostname }}`
+    shell: ceph osd set-group noout {{ inventory_hostname }}
+
+  when: "pve_ceph_enabled | bool"
+
+
+# Safe to reboot now
+- name: Reboot server {{ inventory_hostname }}
+  reboot:
+
+
+# Re-enable and check ceph health
+- block:
+  - name: Perform `ceph osd unset-group noout {{ inventory_hostname }}`
+    shell: ceph osd unset-group noout {{ inventory_hostname }}
+
+  # Wait for HEALTH_OK status in Ceph, fail if 
+  - name: Wait for cluster health
+    proxmox_query:
+      query: "nodes/{{ ansible_hostname }}/ceph/status"
+    register: _node_ceph_status
+    until: "_node_ceph_status.response.health.status is defined and _node_ceph_status.response.health.status == 'HEALTH_OK'"
+    retries: 10
+    delay: 15
+    
+  - debug: msg="Ceph Cluster Status {{_node_ceph_status.response.health.status}}"
+
+  when: "pve_ceph_enabled | bool"
+
+
+# Do not handle VM HA, this is left to the proxmox implementation. Note that a reboot handles VM's differently to shutdown.
+# For more information, see: https://pve.proxmox.com/pve-docs/chapter-ha-manager.html#ha_manager_shutdown_policy
+# The follow is commented out for posterity
+
+# - name: Lookup local node storage information
+#   proxmox_query:
+#     query: "nodes/{{ ansible_hostname }}/qemu"
+#   register: _node_qemu
+#   failed_when: false
+
+# - name: Register auto-boot VM's
+#   proxmox_query:
+#     query: "nodes/{{ ansible_hostname }}/qemu/{{ item.vmid }}/config"
+#   with_items: "{{ _node_qemu.response }}"
+#   loop_control:
+#     label: "vmid {{ item.vmid }}, name {{ item.name }}"
+#   register: _pve_vms
+#   failed_when: false
+
+# - debug: msg="VM's {{ item.response.name }}"
+#   with_items: "{{ _pve_vms.results }}"
+#   when: "item.response.onboot is defined and item.response.onboot == 1"
+#   loop_control:
+#     label: "name {{ item.response.name }}"

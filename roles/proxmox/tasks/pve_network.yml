@@ -59,3 +59,6 @@
   when: _pve_second_nic is defined
   notify:
     - restart network
+
+- name: Restart network after any /etc/network/interfaces changes
+  meta: flush_handlers

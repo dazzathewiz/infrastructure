@@ -1,0 +1,8 @@
+---
+
+- debug: msg="{{ inventory_hostname }} will reboot now"
+
+- name: Reboot host {{ inventory_hostname }}
+  reboot:
+  when: pve_reboot_gracefully is false
+  

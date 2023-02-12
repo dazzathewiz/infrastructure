@@ -56,6 +56,8 @@ ansible-playbook proxmox.yml --ask-vault-password
 ### Ceph Management
 Refer to: [Proxmox Readme][proxmox-readme]
 
+*** NOTE: Modify `proxmox-reboot.yml` and run `ansible-playbook proxmox-reboot.yml` for handling Ceph failovers/tolerance
+
 ## Dietpi Configuration Management
 Ensure you have group_vars/secret.yml setup with variables for the environment. The dietpi's use the 'common' role to reset the password of 'dietpi' user to that specified in group_vars/secret.yml -> infadmin_password
 

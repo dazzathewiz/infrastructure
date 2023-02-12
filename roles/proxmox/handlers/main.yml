@@ -38,4 +38,6 @@
   shell: pvesh set /nodes/{{ inventory_hostname }}/network
 
 - name: restart pve node
-  reboot:
+  # Not tested: how the graceful reboot functions when setting up a fresh node from scratch. May require ability
+  #   to detect a first run install of ceph is complete.
+  import_tasks: "{{ 'pve_reboot_graceful.yml' if pve_graceful_reboot | bool else 'pve_reboot_simple.yml' }}"

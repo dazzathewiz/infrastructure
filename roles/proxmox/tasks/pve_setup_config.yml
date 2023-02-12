@@ -49,11 +49,8 @@
   register: result
   ignore_errors: true
   failed_when: result == 2
-- debug: msg="{{ inventory_hostname }} needs reboot"
-  when: result.rc == 0
-- name: Reboot if required
-  reboot:
-  when: result.rc == 0
+  changed_when: result.rc == 0
+  notify: restart pve node
 
 
 # Identify the processor manufacturer by looking for "Intel" or "AMD"
@@ -63,12 +60,14 @@
   ignore_errors: true
   register: is_intel
   failed_when: is_intel == 2
+  changed_when: false
 
 - name: check if AMD processor
   command: grep -q AMD /proc/cpuinfo
   ignore_errors: true
   register: is_amd
   failed_when: is_amd == 2
+  changed_when: false
 
 # IOMMU needs to be enabled but note Linux enables differently between Bootmanagers
 # GRUB and SYSTEMD and depends on the AMD or Intel CPU. 
@@ -102,6 +101,7 @@
   ignore_errors: true
   register: systemd_iommu_configured
   failed_when: systemd == 2
+  changed_when: false
 
 - name: Update /etc/kernel/cmdline to enable iommu - Intel CPU
   lineinfile:
@@ -150,10 +150,9 @@
   when: is_intel.rc == 0
   register: gvt
 
-- debug: msg="{{ inventory_hostname }} needs reboot"
-  when: update_grub.changed or vfio.changed or gvt.changed or update_proxboot.changed
-- name: Reboot to apply changes
-  reboot:
+- debug: msg="{{ inventory_hostname }} needs reboot after grub or vfio/iommu changes"
+  changed_when: true
+  notify: restart pve node
   when: update_grub.changed or vfio.changed or gvt.changed or update_proxboot.changed
 
 # After reboot please verify:
@@ -176,9 +175,8 @@
   register: update_hostname2
 
 - debug: msg="{{ inventory_hostname }} needs reboot after hostname changes"
-  when: update_hostname1.changed or update_hostname2.changed
-- name: Reboot
-  reboot:
+  changed_when: true
+  notify: restart pve node
   when: update_hostname1.changed or update_hostname2.changed
 
 - name: Set DNS servers in /etc/resolv.conf
@@ -188,3 +186,6 @@
     line: "nameserver {{ item }}"
   with_items:
     - "{{ dns }}"
+
+- name: Trigger node reboots for updated config settings
+  meta: flush_handlers
