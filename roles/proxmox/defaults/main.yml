@@ -3,6 +3,7 @@
 # Hosts configuration
 pve_group: proxmox
 pve_system_role: True # Includes the roles/system role as a dependancy
+pve_remove_subscription_warning: yes
 
 # apt management
 #pve_run_system_upgrades: false  # Run `apt-get dist-upgrade`

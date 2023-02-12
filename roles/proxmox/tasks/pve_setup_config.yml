@@ -187,5 +187,9 @@
   with_items:
     - "{{ dns }}"
 
+- import_tasks: pve_disable_subscription_nag.yml
+  when:
+    - "pve_remove_subscription_warning | bool"
+
 - name: Trigger node reboots for updated config settings
   meta: flush_handlers
