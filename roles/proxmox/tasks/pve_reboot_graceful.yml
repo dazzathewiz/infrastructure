@@ -1,0 +1,9 @@
+---
+
+# Prevent parallel execution, see: https://github.com/ansible/ansible/issues/12170
+- name: Reboot nodes 1 by 1
+  include_tasks: pve_reboot_node.yml
+  with_items: "{{ play_hosts }}"
+  when: "hostvars[host_item].inventory_hostname == inventory_hostname"
+  loop_control:
+      loop_var: host_item

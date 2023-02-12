@@ -2,6 +2,13 @@
 
 # Hosts configuration
 pve_group: proxmox
+pve_system_role: True # Includes the roles/system role as a dependancy
+pve_remove_subscription_warning: yes
+
+# apt management
+#pve_run_system_upgrades: false  # Run `apt-get dist-upgrade`
+pve_extra_packages: []          # apt packages to install
+pve_run_proxmox_upgrades: true  # upgrade packages to "latest"
 
 # REGEX to identify interface of second nic to setup with vmbr1 bridge
 # See how proxmox calculates Network Inface Names: https://pve.proxmox.com/wiki/Network_Configuration#_naming_conventions
@@ -24,3 +31,14 @@ pve_ssh_port: 22
 
 # Metrics server
 pve_mertrics_servers: []
+
+# Ceph configuration
+pve_ceph_enabled: false
+pve_ceph_repository_line: "deb http://download.proxmox.com/debian/{% if ansible_distribution_release == 'buster' %}ceph-nautilus buster{% else %}ceph-pacific bullseye{% endif %} main"
+pve_ceph_network_backend: {subnet: 10.10.10.17/28, vlan: 1011}
+pve_ceph_network_frontend: {subnet: 10.10.10.33/27, vlan: 1012}
+pve_ceph_mon_group: "{{ pve_group }}"
+pve_ceph_mgr_group: "{{ pve_ceph_mon_group }}"
+
+# Perform cluster aware reboots which gracefully fail fault tolerant/HA capable config
+pve_graceful_reboot: "{{ pve_cluster_enabled or pve_ceph_enabled }}"

@@ -15,6 +15,12 @@
 - import_tasks: pve_setup_config.yml
   tags: setup
 
+- import_tasks: pve_network.yml
+  tags: setup, network, ceph
+
+- import_tasks: pve_nfs_attach.yml
+  tags: setup, nfs, mounts
+
 - import_tasks: pve_download_images.yml
   tags: update_images
 
@@ -33,3 +39,7 @@
 
 - import_tasks: pve_metrics_server.yml
   tags: setup, metrics
+
+- import_tasks: pve_ceph.yml
+  when: "pve_ceph_enabled | bool"
+  tags: ceph, setup

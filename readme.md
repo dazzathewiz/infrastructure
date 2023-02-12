@@ -53,6 +53,11 @@ ansible-playbook proxmox.yml --ask-vault-password
     b) If you are clustering, install from ISO by selecting ZFS - this will allow local storage replication to other nodes
 4. DNS servers defined in group_vars/all.yml
 
+### Ceph Management
+Refer to: [Proxmox Readme][proxmox-readme]
+
+*** NOTE: Modify `proxmox-reboot.yml` and run `ansible-playbook proxmox-reboot.yml` for handling Ceph failovers/tolerance
+
 ## Dietpi Configuration Management
 Ensure you have group_vars/secret.yml setup with variables for the environment. The dietpi's use the 'common' role to reset the password of 'dietpi' user to that specified in group_vars/secret.yml -> infadmin_password
 
@@ -116,3 +121,4 @@ import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
 [shinobi-monitor]: https://hub.shinobi.video/articles/view/QzWPj4vp8Y2k1R5
+[proxmox-readme]: roles/proxmox/readme.md

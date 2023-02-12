@@ -16,11 +16,32 @@
     line: "# deb https://enterprise.proxmox.com/debian/pve {{ ansible_distribution_release }} pve-enterprise"
   register: update_apt_enterprise
 
+- name: Add Proxmox Ceph repository
+  apt_repository:
+    repo: '{{ pve_ceph_repository_line }}'
+    filename: ceph
+    state: present
+  register: _pve_ceph_repo
+  when: "pve_ceph_enabled | bool"
+
 - name: Update packages
   apt:
     update_cache: yes
+    cache_valid_time: 3600
     upgrade: yes
-  when: update_apt_nosub.changed or update_apt_enterprise.changed
+  when: update_apt_nosub.changed or update_apt_enterprise.changed or _pve_ceph_repo.changed
+
+- import_tasks: identify_needed_packages.yml
+
+- name: Install related packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    name: "{{ _pve_install_packages }}"
+    state: "{{ 'latest' if pve_run_proxmox_upgrades else 'present' }}"
+  retries: 2
+  register: _proxmox_install
+  until: _proxmox_install is succeeded
 
 # from: https://forum.proxmox.com/threads/when-to-reboot.29230/
 - name: Check if reboot required
@@ -28,11 +49,8 @@
   register: result
   ignore_errors: true
   failed_when: result == 2
-- debug: msg="{{ inventory_hostname }} needs reboot"
-  when: result.rc == 0
-- name: Reboot if required
-  reboot:
-  when: result.rc == 0
+  changed_when: result.rc == 0
+  notify: restart pve node
 
 
 # Identify the processor manufacturer by looking for "Intel" or "AMD"
@@ -42,12 +60,14 @@
   ignore_errors: true
   register: is_intel
   failed_when: is_intel == 2
+  changed_when: false
 
 - name: check if AMD processor
   command: grep -q AMD /proc/cpuinfo
   ignore_errors: true
   register: is_amd
   failed_when: is_amd == 2
+  changed_when: false
 
 # IOMMU needs to be enabled but note Linux enables differently between Bootmanagers
 # GRUB and SYSTEMD and depends on the AMD or Intel CPU. 
@@ -81,6 +101,7 @@
   ignore_errors: true
   register: systemd_iommu_configured
   failed_when: systemd == 2
+  changed_when: false
 
 - name: Update /etc/kernel/cmdline to enable iommu - Intel CPU
   lineinfile:
@@ -129,10 +150,9 @@
   when: is_intel.rc == 0
   register: gvt
 
-- debug: msg="{{ inventory_hostname }} needs reboot"
-  when: update_grub.changed or vfio.changed or gvt.changed or update_proxboot.changed
-- name: Reboot to apply changes
-  reboot:
+- debug: msg="{{ inventory_hostname }} needs reboot after grub or vfio/iommu changes"
+  changed_when: true
+  notify: restart pve node
   when: update_grub.changed or vfio.changed or gvt.changed or update_proxboot.changed
 
 # After reboot please verify:
@@ -155,36 +175,9 @@
   register: update_hostname2
 
 - debug: msg="{{ inventory_hostname }} needs reboot after hostname changes"
+  changed_when: true
+  notify: restart pve node
   when: update_hostname1.changed or update_hostname2.changed
-- name: Reboot
-  reboot:
-  when: update_hostname1.changed or update_hostname2.changed
-
-- name: Enable VLAN aware nic on vmbr0
-  lineinfile:
-    dest: /etc/network/interfaces
-    insertafter: 'bridge-fd 0'
-    line: "	bridge-vlan-aware yes"
-  notify:
-    - restart pve node
-
-- name: Add vmbr1 configuration to /etc/network/interfaces when a second nic is identified
-  blockinfile:
-    path: /etc/network/interfaces
-    block: |
-      iface {{ _pve_second_nic }} inet manual
-
-      auto vmbr1
-      iface vmbr1 inet static
-      	address {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | ipmath(1) }}/24
-      	bridge-ports {{ _pve_second_nic }}
-      	bridge-stp off
-      	bridge-fd 0
-      	bridge-vlan-aware yes
-      	bridge-vids 2-4094
-  when: _pve_second_nic is defined
-  notify:
-    - restart pve node
 
 - name: Set DNS servers in /etc/resolv.conf
   lineinfile:
@@ -194,11 +187,9 @@
   with_items:
     - "{{ dns }}"
 
-- import_tasks: pve_nfs_attach.yml
+- import_tasks: pve_disable_subscription_nag.yml
+  when:
+    - "pve_remove_subscription_warning | bool"
 
-
-# For future, perhaps
-
-# Install ceph packages for pve - https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster
-#- name: Proxmox VE Ceph installation
-#  shell: pveceph install
+- name: Trigger node reboots for updated config settings
+  meta: flush_handlers

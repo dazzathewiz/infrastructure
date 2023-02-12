@@ -18,5 +18,6 @@
             token: "{{ influx_proxmox_token }}"
             # use when need to update an existing metric server token:
             #updatetoken: yes
-    - role: system
-      tags: setup
+        pve_ceph_enabled: yes
+        pve_extra_packages:
+          - iperf3

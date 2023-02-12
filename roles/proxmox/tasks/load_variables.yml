@@ -17,6 +17,7 @@
       command: efibootmgr -v | grep -q systemd
       ignore_errors: true
       register: systemd
+      changed_when: false
       failed_when: systemd == 2
 
     # Default to grub if no "systemd" found from out of `efibootmgr -v`
@@ -31,7 +32,7 @@
         _pve_bootloader: 'systemd'
       when: systemd.rc == 0
 
-  tags: setup
+  tags: setup, ceph
 
 # Image and ISO download vars
 - name: Cloud download urls for ISO's and image vars
@@ -116,3 +117,20 @@
     #  when: _pve_template_image_disk is defined and item in _pve_template_image_disk
   
   tags: templates
+
+# Ceph config vars
+- name: Ceph config vars
+  block:
+    - name: Import Ceph vars
+      include_vars: "ceph.yml"
+
+    - name: Set ceph backend network IP
+      set_fact:
+        _ceph_network_backend_ip: "{{ pve_ceph_net_back_base | ansible.utils.ipmath(inventory_hostname[-1]) }}"
+    
+    - name: Set ceph frontend network IP
+      set_fact:
+        _ceph_network_frontend_ip: "{{ pve_ceph_net_front_base | ansible.utils.ipmath(inventory_hostname[-1]) }}"
+    
+  when: "pve_ceph_enabled | bool"
+  tags: ceph, setup
