@@ -1,0 +1,9 @@
+---
+- name: Remove subscription check wrapper function in web UI
+  ansible.builtin.lineinfile:
+    path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+    line: '        orig_cmd(); return;'
+    insertafter: '^\s+checked_command: function\(orig_cmd\) {$'
+    firstmatch: yes
+    backup: yes
+    

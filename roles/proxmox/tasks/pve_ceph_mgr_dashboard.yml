@@ -1,0 +1,86 @@
+---
+# See: https://www.youtube.com/watch?v=Vd8GG9twjRU
+# mgr ansible tasks derived from: https://github.com/ceph/ceph-ansible/tree/main/roles/ceph-mgr/tasks
+# Only run this on first host in Ceph cluster
+
+- name: wait for all mgr to be up
+  command: ceph  mgr dump -f json
+  register: mgr_dump
+  retries: 30
+  delay: 5
+  changed_when: false
+  until:
+    - mgr_dump.rc == 0
+    - (mgr_dump.stdout | from_json).available | bool
+
+- name: get enabled modules from ceph-mgr
+  command: ceph --format json mgr module ls
+  check_mode: no
+  changed_when: false
+  register: _ceph_mgr_modules
+
+- name: set _ceph_mgr_modules fact (convert _ceph_mgr_modules.stdout to a dict)
+  set_fact:
+    _ceph_mgr_modules: "{{ _ceph_mgr_modules.get('stdout', '{}') | from_json }}"
+
+- name: set _disabled_ceph_mgr_modules fact
+  set_fact:
+    _disabled_ceph_mgr_modules: "{% if _ceph_mgr_modules.disabled_modules | length == 0 %}[]{% elif _ceph_mgr_modules.disabled_modules[0] | type_debug != 'dict' %}{{ _ceph_mgr_modules['disabled_modules'] }}{% else %}{{ _ceph_mgr_modules['disabled_modules'] | map(attribute='name') | list }}{% endif %}"
+
+- name: Enable Ceph Manager Dashboard
+  shell: ceph mgr module enable dashboard
+  when: '"dashboard" in _disabled_ceph_mgr_modules'
+
+- name: Check if SSL/TLS is enabled
+  shell: ceph config get mgr mgr/dashboard/ssl
+  register: _pve_dashboard_ssl
+  changed_when: false
+
+# Create self-signed cert when TLS enabled and no cert recorded
+- block:
+  - name: Check for cert configured
+    shell: ceph config-key get mgr/dashboard/crt
+    register: _pve_dashboard_cert
+    changed_when: false
+    failed_when: _pve_dashboard_cert.rc > 2
+  
+  - name: Create self-signed certificate
+    shell: ceph dashboard create-self-signed-cert
+    register: _pve_dashboard_changed_cert
+    when: _pve_dashboard_cert.rc == 2
+  when: "_pve_dashboard_ssl.stdout | bool"
+
+- name: Check if {{ provisioning_user }} user exists
+  shell: ceph dashboard ac-user-show {{ provisioning_user }}
+  register: _pve_dashboard_user
+  changed_when: false
+  failed_when: _pve_dashboard_user.rc > 2
+
+# Create Ceph Dashboard {{ provisioning_user }} if not already created
+- block:
+  - name: Create temporary passwordfile for ceph dashboard user {{ provisioning_user }}
+    file:
+      path: "~/ceph-password"
+      mode: '0600'
+      state: touch
+
+  - name: Store password in passwordfile
+    shell: echo -n {{ ceph_dashboard_password }} > ~/ceph-password
+  
+  - name: Create ceph dashboard user {{ provisioning_user }}
+    shell: ceph dashboard ac-user-create {{ provisioning_user }} -i ~/ceph-password administrator
+    register: _pve_dashboard_changed_user
+
+  - name: Delete passwordfile
+    file:
+      path: "~/ceph-password"
+      state: absent
+  when: _pve_dashboard_user.rc == 2
+
+# Restart the dashboard when changes made
+- block:
+  - name: Disable dashboard
+    shell: ceph mgr module disable dashboard
+  - name: Re-enable dashboard
+    shell: ceph mgr module enable dashboard
+  when: (_pve_dashboard_changed_cert is defined and _pve_dashboard_changed_cert.changed) or (_pve_dashboard_changed_user is defined and _pve_dashboard_changed_user.changed)

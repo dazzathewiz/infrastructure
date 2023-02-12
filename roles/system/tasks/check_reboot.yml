@@ -1,0 +1,8 @@
+---
+
+- name: Check if reboot required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+  changed_when: reboot_required_file.stat.exists
+  notify: reboot

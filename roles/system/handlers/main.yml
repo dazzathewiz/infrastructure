@@ -9,3 +9,8 @@
     - powertop.timer
     #- cpupower-min
     #- cpupower-min.timer
+
+- name: reboot
+  become: yes
+  reboot:
+  when: "auto_reboot | bool"

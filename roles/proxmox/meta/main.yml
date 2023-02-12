@@ -1,0 +1,9 @@
+---
+
+dependencies:
+  - role: system
+    vars:
+      upgrade_packages: no
+      auto_reboot: no
+    tags: setup
+    when: "pve_system_role | bool"

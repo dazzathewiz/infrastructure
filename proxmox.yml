@@ -19,5 +19,5 @@
             # use when need to update an existing metric server token:
             #updatetoken: yes
         pve_ceph_enabled: yes
-    - role: system
-      tags: setup
+        pve_extra_packages:
+          - iperf3
