@@ -37,4 +37,4 @@
   when: ansible_hostname != inventory_hostname
 
 - import_tasks: dietpi-set_userdata.yml
-  when: dietpi_change_hostname != ""
+  when: dietpi_userdata != ""
