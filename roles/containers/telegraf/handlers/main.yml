@@ -1,0 +1,6 @@
+---
+- name: restart container
+  docker_container:
+    name: "{{ container_name }}"
+    restart: True
+  ignore_errors: "{{ ansible_check_mode }}"

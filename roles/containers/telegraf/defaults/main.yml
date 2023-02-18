@@ -1,10 +1,56 @@
 ---
 container_name: telegraf
-telegraf_config_file: telegraf.conf
+
 telegraf_features:
   hddtemp: no
   zfs: no
   sensors: no
-influx:
-  url: "http://{{ influx_v1_server }}:{{ influx_v1_port }}"
-  database_name: filecoin
+# influx:
+#   url: "http://{{ influx_v1_server }}:{{ influx_v1_port }}"
+#   database_name: filecoin
+
+# telegraf.conf features. Refer https://github.com/dj-wasabi/ansible-telegraf
+
+# Pre-defined profiles for specific functions; requires <name>.yml file in defaults
+profile: ""
+
+#[global_tags]
+telegraf_global_tags: []
+
+#[agent]
+telegraf_agent_hostname: ""
+telegraf_agent_interval: 10
+telegraf_agent_debug: False
+telegraf_agent_round_interval: True
+telegraf_agent_flush_interval: 10
+telegraf_agent_flush_jitter: 0
+telegraf_agent_collection_jitter: 0
+telegraf_agent_metric_batch_size: 1000
+telegraf_agent_metric_buffer_limit: 10000
+telegraf_agent_quiet: False
+telegraf_agent_logfile: ""
+telegraf_agent_precision: ""
+telegraf_agent_omit_hostname: False
+
+#[outputs.*]
+telegraf_agent_output:
+  - type: influxdb
+    config:
+      - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
+      - database = "filecoin"
+
+#[inputs.*]
+# defaults - /etc/telegraf/telegraf.conf
+telegraf_plugins_default:
+  - plugin: cpu
+    config:
+      - percpu = true
+  - plugin: disk
+  # - plugin: io  # DeprecationWarning: Plugin "inputs.io" deprecated since version 0.10.0 and will be removed in 2.0.0: use 'inputs.diskio' instead
+  - plugin: mem
+  - plugin: net
+  - plugin: system
+  - plugin: swap
+  - plugin: netstat
+  - plugin: processes
+  - plugin: kernel

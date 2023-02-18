@@ -40,10 +40,13 @@
     - { role: containers/influxdb, tags: [containers, influxdb] }
     - role: containers/telegraf
       vars:
-        influx:
-          url: "http://localhost:8086"
-          database_name: rpi_monitoring
-        telegraf_config_file: rpi-telegraf.conf
+        telegraf_agent_output:
+          - type: influxdb
+            config:
+              - urls = ["http://localhost:8086"]
+              - database = "rpi_monitoring"
+              - password = "{{ pifour_influxdb_demo_password }}"
+        profile: "rpi"
       tags: containers, telegraf
 
     # PiHole

@@ -3,35 +3,62 @@
 - name: Register the docker group id
   shell: stat -c '%g' /var/run/docker.sock
   register: docker_gid
+  changed_when: false
 
-- name: Copy telegraf.conf
-  become: yes
-  copy:
-    src: "{{ telegraf_config_file }}"
-    dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
-    owner: root
-    group: root
-    mode: 0644
-    force: no
+# Old way of doing the telegraf.conf; here for compatibility with older configs only
+- block:
+  - name: Copy telegraf.conf
+    become: yes
+    copy:
+      src: "{{ telegraf_config_file }}"
+      dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+      owner: root
+      group: root
+      mode: 0644
+      force: no
 
-- import_tasks: features.yml
-  when: telegraf_config_file == 'telegraf.conf'
+  - import_tasks: features.yml
+    when: telegraf_config_file == 'telegraf.conf'
 
-- name: Set InfluxDB
-  block:
-    - name: URL
-      become: yes
-      lineinfile:
-        dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
-        regexp: "^  urls = "
-        line: "  urls = [\"{{ influx['url'] }}\"]"
-    - name: Database
-      become: yes
-      lineinfile:
-        dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
-        regexp: "^  database = "
-        line: "  database = \"{{ influx['database_name'] }}\""
-  when: telegraf_config_file == 'telegraf.conf'
+  - name: Set InfluxDB
+    block:
+      - name: URL
+        become: yes
+        lineinfile:
+          dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+          regexp: "^  urls = "
+          line: "  urls = [\"{{ influx['url'] }}\"]"
+      - name: Database
+        become: yes
+        lineinfile:
+          dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+          regexp: "^  database = "
+          line: "  database = \"{{ influx['database_name'] }}\""
+    when: telegraf_config_file == 'telegraf.conf'
+  
+  when: telegraf_config_file is defined
+
+# New way of doing telegraf.conf
+- block:
+  - name: Apply specific profile {{ profile }}
+    block:
+      - name: Import vars for {{ profile }}.yml
+        include_vars: "{{ profile }}.yml"
+      - name: Update inputs defaults
+        set_fact:
+          telegraf_plugins_default: "{{ lookup('vars', 'telegraf_plugins_' + profile) }}" 
+    when: profile != ""
+
+  - name: Copy telegraf.conf
+    become: yes
+    template:
+      src: "telegraf.conf.j2"
+      dest: "{{ docker_dir }}/{{ container_name }}/telegraf.conf"
+      owner: root
+      group: root
+      mode: 0644
+    notify: restart container
+  when: telegraf_config_file is not defined
 
 - name: Make sure the {{ container_name }} container is created and running
   become: yes
