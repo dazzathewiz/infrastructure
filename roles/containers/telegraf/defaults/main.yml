@@ -1,14 +1,6 @@
 ---
 container_name: telegraf
 
-telegraf_features:
-  hddtemp: no
-  zfs: no
-  sensors: no
-# influx:
-#   url: "http://{{ influx_v1_server }}:{{ influx_v1_port }}"
-#   database_name: filecoin
-
 # telegraf.conf features. Refer https://github.com/dj-wasabi/ansible-telegraf
 
 # Pre-defined profiles for specific functions; requires <name>.yml file in defaults
