@@ -18,6 +18,7 @@
 - name: Check timezone
   shell: cat /etc/timezone
   register: current_timezone
+  changed_when: "timezone not in current_timezone.stdout"
 
 - name: Set timezone {{ timezone }}
   copy: content={{ timezone }}
@@ -30,7 +31,10 @@
   notify:
   - Update timezone
 
-- name: Set hostname {{ inventory_hostname }}
-  become: yes
-  shell: "{{ change_hostname }} {{ inventory_hostname }}"
+# Dietpi scripted functions:
+
+- import_tasks: change_hostname.yml
   when: ansible_hostname != inventory_hostname
+
+- import_tasks: dietpi-set_userdata.yml
+  when: dietpi_userdata != ""

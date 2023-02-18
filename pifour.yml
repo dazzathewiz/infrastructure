@@ -8,30 +8,69 @@
     pip_install_packages:
       - name: docker
 
+    # USB SATA drive UUID - changes when re-formatting the drive
+    sata_uuid: f4a635f0-5c75-4cbd-910f-bbef857c89b2
+
     # Overwrite the docker directory to use USB attached storage
-    docker_dir: /mnt/3a535c19-aa87-4315-81ce-485651421360/docker/data
+    docker_dir: /mnt/{{ sata_uuid }}/docker/data
 
   roles:
-    - dietpi
-
-    - role: system
+    - role: dietpi
       vars:
-        mounts:
+        dietpi_mounts:
           # Disk mounts
-          - { path: /mnt/3a535c19-aa87-4315-81ce-485651421360, src: UUID=3a535c19-aa87-4315-81ce-485651421360, fstype: ext4, opts: "noatime,lazytime,rw,nofail,noauto,x-systemd.automount" }
-      tags: setup
+          - { path: "/mnt/{{ sata_uuid }}", src: "UUID={{ sata_uuid }}", fstype: ext4, opts: "noatime,lazytime,rw,nofail,noauto,x-systemd.automount" }
+        dietpi_userdata: "/mnt/{{ sata_uuid }}/dietpi_userdata"
+      tags: setup, dietpi
     
-    - { role: geerlingguy.pip, become: true, tags: [setup] }
+    - { role: geerlingguy.pip, become: true, tags: [setup, docker] }
     - role: geerlingguy.docker_arm
       become: true
       vars:
         docker_users:
           - dietpi
-      tags: setup
+        #docker_install_compose: no    # Remove later, there was a dep problem at install with bcrypt
+      tags: setup, docker
 
     # Containers
+    - { role: containers/portainer, tags: [containers, portainer] }
+    - { role: containers/portainer_agent, tags: [containers, portainer] }
+
+    # Monitoring TIG stack
+    - { role: containers/influxdb, tags: [containers, influxdb] }
+    - role: containers/telegraf
+      vars:
+        telegraf_agent_output:
+          - type: influxdb
+            config:
+              - urls = ["http://localhost:8086"]
+              - database = "rpi_monitoring"
+              - password = "{{ pifour_influxdb_demo_password }}"
+        profile: "rpi"
+      tags: containers, telegraf
+
+    # PiHole
+    - role: containers/pihole
+      vars:
+        container_network_ip: "{{ dns[1] }}"
+        pihole_gravity_sync: yes
+      tags: containers, pihole
+
+    # Cyber Power UPS
+    - role: containers/upsd
+      vars:
+        ups_description: "CyberPower 1300VA PFC Sinewave"
+      tags: containers, upsd
+    
+    # Shinobi
     - role: containers/shinobi
       vars:
         container_network_ip: 192.168.13.21
-      tags: containers
+      tags: containers, shinobi
+    
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 30 11 * * *"'   # Run at 11:30am daily
+      tags: containers, watchtower
 

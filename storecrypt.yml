@@ -83,10 +83,36 @@
     - { role: containers/portainer_agent, tags: [containers] }
     - role: containers/telegraf
       vars:
-        telegraf_features:
-          hddtemp: yes
-          zfs: yes
-      tags: [containers]
+        telegraf_agent_output:
+          - type: influxdb
+            config:
+              - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
+              - database = "filecoin"
+        telegraf_plugins_default:
+          - plugin: cpu
+            config:
+              - percpu = true
+              - totalcpu = true
+              - collect_cpu_time = false
+              - report_active = false
+          - plugin: disk
+            config:
+              - ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+          - plugin: diskio
+          - plugin: kernel
+          - plugin: mem
+          - plugin: swap
+          - plugin: system
+          - plugin: docker
+            config:
+              - endpoint = "unix:///var/run/docker.sock"
+          - plugin: hddtemp
+          - plugin: net
+          - plugin: netstat
+          - plugin: zfs
+            config:
+              - poolMetrics = true
+      tags: containers, telegraf
     
     # machinaris containers
     # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
@@ -96,6 +122,12 @@
 
     # Silicoin container
     - { role: containers/silicoin, tags: [containers,test] }
+
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
+      tags: containers, watchtower
 
 
 #Install monitoring tools

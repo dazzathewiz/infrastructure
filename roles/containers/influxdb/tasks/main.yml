@@ -1,0 +1,17 @@
+---
+
+- name: Make sure {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    pull: yes
+    state: 'started'
+    ports:
+      - 8086:8086
+    env:
+      "TZ": "{{ timezone }}"
+    volumes:
+      - "{{ docker_dir }}/{{ container_name }}/data:/var/lib/influxdb"
+    network_mode: bridge
+    restart_policy: always

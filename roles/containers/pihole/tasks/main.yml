@@ -1,0 +1,36 @@
+---
+
+- name: Setup container network
+  import_tasks: roles/containers/common/tasks/docker-network-default.yml
+
+- name: Make sure {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "pihole/pihole:latest"
+    pull: yes
+    state: 'started'
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - 80:80/tcp
+      - 443:443/tcp
+    env:
+      "TZ": "{{ timezone }}"
+      "DNS1": "{{ pihole_upstream_dns1 }}"
+      "DNS2": "{{ pihole_upstream_dns2 }}"
+      "WEBPASSWORD": "{{ pihole_webpassword }}"
+    volumes:
+      - "{{ docker_dir }}/{{ container_name }}/data/pihole:/etc/pihole"
+      - "{{ docker_dir }}/{{ container_name }}/data/dnsmasq.d:/etc/dnsmasq.d"
+    networks:
+      - name: "{{ container_network_interface }}"
+        aliases: "{{ pihole_hostname }}"
+        ipv4_address: "{{ container_network_ip }}"
+    restart_policy: always
+    hostname: "{{ pihole_hostname }}"
+
+# Install and setup gravity-sync
+- import_tasks: gravity-sync.yml
+  when: "pihole_gravity_sync | bool"

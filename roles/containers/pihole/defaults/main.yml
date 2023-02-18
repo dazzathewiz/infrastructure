@@ -1,0 +1,18 @@
+---
+
+container_name: pihole
+container_network_ip: ""                # Must be provided
+container_network_subnet: 192.168.10.0/24
+container_network_gateway: 192.168.10.1
+container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
+
+# Pihole docker settings
+pihole_hostname: pihole2
+pihole_upstream_dns1: 192.168.10.1
+pihole_upstream_dns2: 8.8.4.4
+pihole_webpassword: "{{ infadmin_password }}"
+
+# Pihole gravity sync
+pihole_gravity_sync: no
+pihole_gravity_sync_direction: "pull"
+pihole_gravity_master_host: 'unnas'       # Name of the host in hosts.ini for master PiHole instance

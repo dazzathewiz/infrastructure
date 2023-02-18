@@ -1,0 +1,49 @@
+---
+
+# [input] plugins used on raspberry pi
+telegraf_plugins_rpi:
+  - plugin: cpu
+    config:
+      - percpu = true
+      - totalcpu = true
+      - collect_cpu_time = false
+      - report_active = false
+  - plugin: disk
+    config:
+      - ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+  - plugin: mem
+  - plugin: swap
+  - plugin: file
+    config:
+      - files = ["/hostfs/sys/class/thermal/thermal_zone0/temp"]
+      - name_override = "cpu_temperature"
+      - data_format = "value"
+      - data_type = "integer"
+  - plugin: exec
+    config:
+      - commands = [ "/hostfs/opt/vc/bin/vcgencmd measure_temp" ]
+      - name_override = "gpu_temperature"
+      - data_format = "grok"
+      - grok_patterns = ["%{NUMBER:value:float}"]
+  - plugin: net
+  - plugin: netstat
+  - plugin: ping
+    config:
+      - urls = ["www.google.com"]
+      - count = 4
+      - interface = "eth0"
+      - name_override = "google_ping"
+  - plugin: docker
+    config:
+      - endpoint = "unix:///var/run/docker.sock"
+  - plugin: dns_query
+    config:
+      - servers = ["8.8.8.8"]
+      - domains = ["."]
+      - record_type = "A"
+      - timeout = 10
+      - name_override = "google_dns"
+  - plugin: kernel
+  - plugin: system
+  - plugin: processes
+  - plugin: diskio

@@ -70,6 +70,7 @@ Note:
 Base bootstrap: ```ansible-playbook dietpi-default.yml -k --ask-vault-password```
 
 pi-ups (manages UPS stats in the homelab): ```ansible-playbook pi-ups.yml -k --ask-vault-password```
+pifour: ```ansible-playbook pifour.yml -k --ask-vault-password```
 
 ## Kubernetes cluster with k3s
 

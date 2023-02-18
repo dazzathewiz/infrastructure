@@ -1,0 +1,10 @@
+---
+
+# dietpi specifications
+
+# https://github.com/MichaIng/DietPi/blob/master/dietpi/func/dietpi-set_userdata
+# Used to move the location of dietpi_userdata, which is called by `dietpi-drive_manager`
+dietpi_set_userdata: /boot/dietpi/func/dietpi-set_userdata
+
+# https://github.com/MichaIng/DietPi/blob/dev/dietpi/func/change_hostname
+dietpi_change_hostname: /boot/dietpi/func/change_hostname

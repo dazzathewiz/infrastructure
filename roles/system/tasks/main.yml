@@ -1,5 +1,6 @@
 ---
 - include_tasks: essential.yml
+  when: "manage_packages | bool"
   tags: packages
 
 - include_tasks: powersaving.yml

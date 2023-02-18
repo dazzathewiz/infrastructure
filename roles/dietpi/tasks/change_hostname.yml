@@ -1,0 +1,5 @@
+---
+
+- name: Set hostname {{ inventory_hostname }}
+  become: yes
+  shell: "{{ dietpi_change_hostname }} {{ inventory_hostname }}"
