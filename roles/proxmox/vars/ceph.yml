@@ -10,3 +10,6 @@ pve_ceph_net_back_cidr: "{{ pve_ceph_network_backend['subnet'] | regex_replace('
 pve_ceph_daemons_fail:
   - mgr
   - mds
+
+# Ceph packages to be installed
+pve_ceph_packages: ['ceph', 'ceph-common', 'ceph-mds', 'ceph-fuse', 'ceph-mgr-dashboard', 'gdisk']
