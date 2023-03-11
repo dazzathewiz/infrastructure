@@ -12,4 +12,4 @@ pve_ceph_daemons_fail:
   - mds
 
 # Ceph packages to be installed
-pve_ceph_packages: ['ceph', 'ceph-common', 'ceph-mds', 'ceph-fuse', 'ceph-mgr-dashboard', 'gdisk']
+pve_ceph_packages: ['ceph', 'ceph-common', 'ceph-mds', 'ceph-fuse', 'ceph-mgr-dashboard', 'gdisk', 'ceph-mgr-diskprediction-local']
