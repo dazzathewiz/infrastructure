@@ -16,6 +16,8 @@
     vmid: "{{ pve_template_id }}"
     full: yes
     timeout: 300
+    storage: "{{ vm_storage|default(omit) }}"
+  throttle: 1   # Prevents VMID conflict when cloning from multiple hosts simultaneously
   register: vm
   tags: provision
 
@@ -45,7 +47,10 @@
   tags: provision
 
 - name: Set a PCIe device passthrough to the VM if required
-  shell: qm set {{ vm.vmid }} -hostpci0 {{ vm_pcie_device }}
+  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {{ item }}
+  loop: "{{ vm_pcie_device }}"
+  loop_control:
+    index_var: my_idx
   when: vm.changed and vm_pcie_device is defined
   tags: provision
 
