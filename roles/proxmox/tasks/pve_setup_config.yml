@@ -97,7 +97,7 @@
   register: update_grub
 
 - name: Check presence of iommu in /etc/kernel/cmdline
-  command: grep -q 'quiet intel_iommu=on' /etc/kernel/cmdline
+  command: grep -q 'quiet intel_iommu=on i915.enable_gvt=1' /etc/kernel/cmdline
   ignore_errors: true
   register: systemd_iommu_configured
   failed_when: systemd == 2
@@ -108,7 +108,7 @@
     path: /etc/kernel/cmdline
     backrefs: yes
     regexp: "^(.*boot=.*)$"
-    line: '\1 quiet intel_iommu=on'
+    line: '\1 quiet intel_iommu=on i915.enable_gvt=1'
   when: is_intel.rc == 0 and _pve_bootloader == 'systemd' and systemd_iommu_configured.rc != 0
   register: update_cmdline_intel
 
