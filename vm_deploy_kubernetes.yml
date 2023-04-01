@@ -1,0 +1,9 @@
+---
+- hosts: proxmox
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create k3s master node
+    - role: k3s_provision

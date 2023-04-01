@@ -1,0 +1,24 @@
+---
+# All Nodes configuration
+all_node_network_bridge: vmbr1
+all_node_network_vlan: 901
+
+# Master Nodes
+master_node_name: "k3smaster"
+master_node_memory: 4096
+master_node_cpu: 2
+master_node_disk_increase: 16
+master_node_storage: "ceph-vm"
+
+# Worker Nodes
+worker_node_name: "k3sworker"
+worker_node_disk_increase: 46
+
+# `lspci` to identify devices to pass through, then specify in host_vars for each host:
+# k3s_worker_pcie:
+#   - "02:00.0"   # Typically NVME storage
+#   - "00:02.0"   # Typically the built in Intel UHD Graphics
+
+# These variables are specified per proxmox host in the host_vars:
+# worker_node_memory: 36864
+# worker_node_cpu: 6
