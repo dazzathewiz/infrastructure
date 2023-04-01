@@ -1,0 +1,10 @@
+---
+- hosts: proxmox
+
+  tasks:
+    - include_role:
+        name: proxmox
+        tasks_from: pve_nfs_isocheck
+        vars_from: main.yml
+      vars:
+        pve_system_role: no

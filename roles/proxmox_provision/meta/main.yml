@@ -6,3 +6,5 @@ dependencies:
       pip_install_packages:
         - name: proxmoxer
     tags: provision,test
+
+allow_duplicates: true

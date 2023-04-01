@@ -15,8 +15,7 @@
         vm_network_vlan: 115
         vm_network_mac: 26:0d:67:53:2d:2b
         vm_disk_increase: 46
-        #vm_pcie_device: "02:00.0"
-        #vm_pcie_device: "01:00.0"
+        #vm_pcie_device: ["02:00.0", "01:00.0"]
         vm_disk_passthrough:
           # Chia Disks
           - ata-ST16000NM000J-2TW103_ZR51RBDP
