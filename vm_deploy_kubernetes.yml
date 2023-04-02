@@ -4,6 +4,4 @@
   vars_files: group_vars/secret.yml
 
   roles:
-
-    # Create k3s master node
-    - role: k3s_provision
+    - role: k3s_provision   # Create k3s nodes
