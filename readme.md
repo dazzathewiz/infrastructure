@@ -95,6 +95,11 @@ Deploy the k3s nodes:
 Add the new nodes to the `hosts` file, then finalise basic configuration:
 ```ansible-playbook k3s.yml```
 
+HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
+1. Datacenter -> HA -> Groups
+[Proxmox HA Groups][proxmox-hagroups]
+2. With the k3smaster# node selected, go to More -> HA and configure with the desired group
+
 ### First time setup
 1. ```git clone https://github.com/dazzathewiz/k3s-ansible```
 2. ```cd k3s-ansible/inventory/<env>/group_vars```
@@ -142,3 +147,4 @@ import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
 [shinobi-monitor]: https://hub.shinobi.video/articles/view/QzWPj4vp8Y2k1R5
 [proxmox-readme]: roles/proxmox/readme.md
+[proxmox-hagroups]: images/HA%20Groups.png
