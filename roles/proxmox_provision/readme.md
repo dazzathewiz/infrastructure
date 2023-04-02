@@ -23,7 +23,10 @@ All vars are optional depending on your configuration.
             vm_network_vlan: 901                # VLAN
             vm_network_mac: 06:FF:DB:D0:60:B2   # MAC address to assign VM NIC
             vm_disk_increase: 46                # Increase template disk by #GB
-            vm_pcie_device: ["03:00.0"]         # Include listed PCIe devices
+            vm_pcie_device: ["03:00.0"]         # Include listed PCIe devices, alternatively:
+            vm_pcie_device:                     # Specify options for PCIe devices: https://pve.proxmox.com/pve-docs/qm.1.html
+                - id: "03:00.0"
+                  mdev: "i915-GVTg_V5_4"
             vm_storage: "ceph-vm"               # The target storage location
 
             vm_start: yes                       # Auto start the VM after provision

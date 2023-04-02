@@ -1,0 +1,8 @@
+---
+k3s_worker_pcie:
+  - "0e:00.0"       # 1TB Samsung 970 EVO NVMe - Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+  - id: "00:02.0"   # Intel Corporation HD Graphics 530 (rev 06)
+    mdev: "i915-GVTg_V5_4"
+
+k3s_worker_node_memory: 8192
+k3s_worker_node_cpu: 4

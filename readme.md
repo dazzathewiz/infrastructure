@@ -76,6 +76,23 @@ pifour: ```ansible-playbook pifour.yml -k --ask-vault-password```
 
 To setup k3s infrastructure, use [dazzathewiz/ks3-ansible][k3s-ansible]
 
+### Deploy k3s nodes on proxmox
+Requirements:
+1. Ensure proxmox nodes are configured in `hosts`
+2. Define the work node settings in `host_vars/<nodename>.yml` Example:
+    ```
+    k3s_worker_pcie:
+    - "02:00.0"       # 1TB Samsung 970 EVO NVMe - Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+    - id: "00:02.0"   # Intel Corporation CometLake-S GT2 [UHD Graphics 630]
+        mdev: "i915-GVTg_V5_4"
+
+    k3s_worker_node_memory: 36864
+    k3s_worker_node_cpu: 6
+    ```
+
+Deploy the k3s nodes:
+```ansible-playbook vm_deploy_kubernetes.yml --ask-vault-password```
+
 ### First time setup
 1. ```git clone https://github.com/dazzathewiz/k3s-ansible```
 2. ```cd k3s-ansible/inventory/<env>/group_vars```

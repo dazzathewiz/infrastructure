@@ -1,0 +1,28 @@
+---
+
+# Create k3s master node
+- name: provision k3s master nodes
+  include_role: 
+    name: proxmox_provision
+  vars:
+    vm_name: "{{ master_node_name }}{{ inventory_hostname[-1] }}"
+    vm_memory: "{{ master_node_memory }}"
+    vm_cpu: "{{ master_node_cpu }}"
+    vm_network_bridge: "{{ all_node_network_bridge }}"
+    vm_network_vlan: "{{ all_node_network_vlan }}"
+    vm_disk_increase: "{{ master_node_disk_increase }}"
+    vm_storage: "{{ master_node_storage }}"
+  when: inventory_hostname[-1] | int <= master_node_max
+
+# Create k3s Worker + Storage node
+- name: povision k3s worker node
+  include_role: 
+    name: proxmox_provision
+  vars:
+    vm_name: "{{ worker_node_name }}{{ inventory_hostname[-1] }}"
+    vm_memory: "{{ k3s_worker_node_memory }}"
+    vm_cpu: "{{ k3s_worker_node_cpu }}"
+    vm_network_bridge: "{{ all_node_network_bridge }}"
+    vm_network_vlan: "{{ all_node_network_vlan }}"
+    vm_disk_increase: "{{ worker_node_disk_increase }}"
+    vm_pcie_device: "{{ k3s_worker_pcie|default(omit) }}"
