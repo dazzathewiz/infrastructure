@@ -1,0 +1,25 @@
+---
+- hosts: k3s_cluster
+
+  #vars_files: group_vars/secret.yml
+
+  roles:
+    - vmguest
+
+- hosts: k3s_node
+
+  # Install apt linix-geneic on workers using intel iGPU. i915 module not available in the cloud image (linux-virtual). 
+  # Reboot after install and /dev/dri will be present
+  # See https://askubuntu.com/questions/1248870/ubuntu-20-04-i915-passthrough-with-libvirt-kvm
+  roles:
+    - role: system
+      vars:
+        packages:
+          - linux-generic
+      tags: setup
+
+- hosts: k3s_master
+  roles:
+    - role: system
+      tags: setup
+

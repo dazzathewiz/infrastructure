@@ -92,6 +92,8 @@ Requirements:
 
 Deploy the k3s nodes:
 ```ansible-playbook vm_deploy_kubernetes.yml --ask-vault-password```
+Add the new nodes to the `hosts` file, then finalise basic configuration:
+```ansible-playbook k3s.yml```
 
 ### First time setup
 1. ```git clone https://github.com/dazzathewiz/k3s-ansible```
