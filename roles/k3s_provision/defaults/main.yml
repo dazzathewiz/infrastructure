@@ -9,6 +9,7 @@ master_node_memory: 4096
 master_node_cpu: 2
 master_node_disk_increase: 16
 master_node_storage: "ceph-vm"
+master_node_max: 3
 
 # Worker Nodes
 worker_node_name: "k3sworker"

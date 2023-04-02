@@ -12,6 +12,7 @@
     vm_network_vlan: "{{ all_node_network_vlan }}"
     vm_disk_increase: "{{ master_node_disk_increase }}"
     vm_storage: "{{ master_node_storage }}"
+  when: inventory_hostname[-1] | int <= master_node_max
 
 # Create k3s Worker + Storage node
 - name: povision k3s worker node
