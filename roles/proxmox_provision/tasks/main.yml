@@ -47,7 +47,7 @@
   tags: provision
 
 - name: Set a PCIe device passthrough to the VM if required
-  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {{ item }}
+  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}
   loop: "{{ vm_pcie_device }}"
   loop_control:
     index_var: my_idx
