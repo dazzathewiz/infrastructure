@@ -35,15 +35,14 @@ proxmox
 otherbaremetal
 
 [k3s_master]
-mario ansible_host=10.10.1.187 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-luigi ansible_host=10.10.1.18 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-wario ansible_host=10.10.1.52 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3smaster1 ansible_host=10.10.1.11 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3smaster2 ansible_host=10.10.1.96 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3smaster3 ansible_host=10.10.1.36 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [k3s_node]
-toad ansible_host=10.10.1.58 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-yoshi ansible_host=10.10.1.160 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-bowser ansible_host=10.10.1.165 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-donkeykong ansible_host=10.10.1.183 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker1 ansible_host=10.10.1.79 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker2 ansible_host=10.10.1.89 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker3 ansible_host=10.10.1.73 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [k3s_cluster:children]
 k3s_master
@@ -51,3 +50,4 @@ k3s_node
 
 [othervms]
 storecrypt ansible_host=192.168.15.11 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
