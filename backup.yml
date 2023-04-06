@@ -1,0 +1,39 @@
+---
+
+- hosts: backup
+  vars_files: group_vars/secret.yml
+
+  roles:
+    - vmguest
+    - role: system
+      vars:
+        packages:
+          - ceph-fuse
+          - ceph-common
+        #mounts:
+        #  - { path: /mnt/storage, src: /mnt/disk*, fstype: fuse.mergerfs, opts: 'allow_other,direct_io,use_ino,category.create=mfs,moveonenospc=true,minfreespace=2G,fsname=array' }
+
+# Mouting CephFS
+#   - https://www.server-world.info/en/note?os=Ubuntu_20.04&p=ceph15&f=4
+#   - https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/2/html/ceph_file_system_guide_technology_preview/mounting_and_unmounting_ceph_file_systems
+#   - https://docs.ceph.com/en/quincy/cephfs/mount-using-kernel-driver/
+#
+# Mount Unraid Shares in a VM:
+#   - https://gist.github.com/helinwang/727c1d0fc94fd9e87b19142610fd6881
+#   - https://wiki.qemu.org/Documentation/9psetup#Mounting_the_shared_path
+#   - Note:
+#     1. that /etc/fstab is difficult to setup. It's easier to run cat /proc/mounts after manually mounting to see the correct fstab options
+#     2. the -m option is important for transfer speeds: use -m option for 9p FS type
+#
+# mkdir:
+#   - /mnt/cephfs-plex
+#   - /mnt/'DVD Rips'   
+#   - /mnt/Movies  
+#   - /mnt/'TV Shows'
+#
+# ~/mount.sh
+#   sudo mount -t 9p -o trans=virtio -om=106954752 tv_shows /mnt/TV\ Shows/ -oversion=9p2000.L
+#   sudo mount -t 9p -o trans=virtio -om=106954752 dvd_rips /mnt/DVD\ Rips/ -oversion=9p2000.L
+#   sudo mount -t 9p -o trans=virtio -om=106954752 movies /mnt/Movies/ -oversion=9p2000.L
+#   sudo mount -t ceph 10.10.10.18:6789,10.10.10.19:6789,10.10.10.20:6789:/ /mnt/cephfs-plex/ -o name=admin,secretfile=/home/infadmin/admin.key
+#

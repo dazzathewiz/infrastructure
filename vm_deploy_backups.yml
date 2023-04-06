@@ -1,0 +1,16 @@
+---
+- hosts: prox1
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        vm_name: backup
+        #vm_memory: 4096
+        vm_cpu: 2
+        vm_network_bridge: vmbr1
+        vm_network_vlan: 1
+        vm_disk_increase: 4
