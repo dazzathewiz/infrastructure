@@ -107,6 +107,7 @@ HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
     - k3s_token                 -> k3s node token
     - github_token              -> github token to maintain fluxcd repo
     - onepassword_credentials   -> 1password-credentials.json file contents (See: [Secrets Automation Workflow][opautomation])
+    - onepassword_vaulttoken_k3s -> Secrets Automation integration access token
 
 ### Run k3s cluster setup
 1. ```ansible-playbook ./site.yml -i ./inventory/prod/hosts.ini -K -e @inventory/prod/group_vars/secret.yml --ask-vault-password```
