@@ -103,7 +103,10 @@ HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
 ### First time setup
 1. ```git clone https://github.com/dazzathewiz/k3s-ansible```
 2. ```cd k3s-ansible/inventory/<env>/group_vars```
-3. Create secrets variable "k3s_token" ```ansible-vault create secret.yml```
+3. Create ansible vault ```ansible-vault create inventory/prod/group_vars/secret.yml``` containing:
+    - k3s_token                 -> k3s node token
+    - github_token              -> github token to maintain fluxcd repo
+    - onepassword_credentials   -> 1password-credentials.json file contents (See: [Secrets Automation Workflow][opautomation])
 
 ### Run k3s cluster setup
 1. ```ansible-playbook ./site.yml -i ./inventory/prod/hosts.ini -K -e @inventory/prod/group_vars/secret.yml --ask-vault-password```
@@ -147,3 +150,4 @@ import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 [k3s-ansible]: https://github.com/dazzathewiz/k3s-ansible
 [shinobi-monitor]: https://hub.shinobi.video/articles/view/QzWPj4vp8Y2k1R5
 [proxmox-readme]: roles/proxmox/readme.md
+[opautomation]: https://developer.1password.com/docs/connect/get-started/#step-1-set-up-a-secrets-automation-workflow
