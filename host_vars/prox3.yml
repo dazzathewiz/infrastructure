@@ -5,4 +5,5 @@ k3s_worker_pcie:
     mdev: "i915-GVTg_V5_4"
 
 k3s_worker_node_memory: 8192
+k3s_worker_node_memory_min: 2048
 k3s_worker_node_cpu: 4

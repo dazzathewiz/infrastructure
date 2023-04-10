@@ -18,6 +18,7 @@ All vars are optional depending on your configuration.
         vars:
             vm_name: my_vm                      # VM Name, otherwise random
             vm_memory: 10240                    # Memory MB to assign VM
+            vm_memory_min: 6114                 # Sets the minimum memory assigned to VM ballon
             vm_cpu: 4                           # vCPU's to assign VM
             vm_network_bridge: vmbr1            # Proxmox bridge interface
             vm_network_vlan: 901                # VLAN

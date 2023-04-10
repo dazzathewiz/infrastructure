@@ -27,7 +27,7 @@
   tags: provision
 
 - name: Change VM memory if defined
-  shell: qm set {{ vm.vmid }} --memory {{ vm_memory }}
+  shell: qm set {{ vm.vmid }} --memory {{ vm_memory }}{% if vm_memory_min is defined %} --balloon {{ vm_memory_min }}{% endif %}
   when: vm_memory is defined and vm.changed
   tags: provision
 
