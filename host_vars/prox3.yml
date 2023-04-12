@@ -4,6 +4,6 @@ k3s_worker_pcie:
   - id: "00:02.0"   # Intel Corporation HD Graphics 530 (rev 06)
     mdev: "i915-GVTg_V5_4"
 
-k3s_worker_node_memory: 8192
+k3s_worker_node_memory: 4096
 k3s_worker_node_memory_min: 2048
 k3s_worker_node_cpu: 4

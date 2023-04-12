@@ -10,7 +10,7 @@
       vars:
         vm_name: storecrypt
         vm_memory: 10240
-        vm_memory_min: 6114
+        vm_memory_min: 8192
         vm_cpu: 2
         vm_network_bridge: vmbr1
         vm_network_vlan: 115
