@@ -48,6 +48,11 @@ k3sworker3 ansible_host=10.10.1.73 ansible_user=infadmin ansible_connection=ssh 
 k3s_master
 k3s_node
 
+[k3s_longhorn_storage]
+k3sworker1
+k3sworker2
+k3sworker3
+
 [othervms]
 storecrypt ansible_host=192.168.15.11 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin

@@ -23,3 +23,25 @@
     - role: system
       tags: setup
 
+# Ensure Longhorn hosts have package dependancies installed, and NVME disk initatlised and mounted
+- hosts: k3s_longhorn_storage
+  roles:
+    - role: system
+      vars:
+        packages:
+          - nfs-common
+          - open-iscsi
+        partition_devices:
+          - "/dev/nvme0n1"
+        mounts:
+          - { path: /mnt/nvme0, src: /dev/nvme0n1p1, fstype: ext4 }
+      tags: longhorn,setup
+  
+  tasks:
+    - name: Start the systemd service for iscsid if it is not started
+      become: yes
+      systemd:
+        name: iscsid
+        enabled: yes
+        state: started
+      tags: longhorn,setup
