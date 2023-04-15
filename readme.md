@@ -79,6 +79,14 @@ To setup k3s infrastructure, use [dazzathewiz/ks3-ansible][k3s-ansible]
 ### Deploy k3s nodes on proxmox
 Requirements:
 1. Ensure proxmox nodes are configured in `hosts`
+    ```
+    [k3s_master]
+    <masters>               -> Cluster etc/master nodes
+    [k3s_node]
+    <nodes>                 -> Cluster workload nodes
+    [k3s_longhorn_storage]
+    <storage_nodes>         -> These nodes expect to have a /dev/nvme0 device for Longhorn storage
+    ```
 2. Define the work node settings in `host_vars/<nodename>.yml` Example:
     ```
     k3s_worker_pcie:

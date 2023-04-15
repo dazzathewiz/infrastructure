@@ -24,6 +24,7 @@
       tags: setup
 
 # Ensure Longhorn hosts have package dependancies installed, and NVME disk initatlised and mounted
+# See: https://fredrickb.com/2022/07/24/introducing-longhorn-to-the-homelab/
 - hosts: k3s_longhorn_storage
   roles:
     - role: system
@@ -36,7 +37,6 @@
         mounts:
           - { path: /mnt/nvme0, src: /dev/nvme0n1p1, fstype: ext4 }
       tags: longhorn,setup
-  
   tasks:
     - name: Start the systemd service for iscsid if it is not started
       become: yes
