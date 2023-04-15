@@ -8,5 +8,11 @@
     part_start: "0%"
     part_end: "100%"
     unit: GB
-    fs_type: "{{ fstype }}"
+  with_items: "{{ partition_devices }}"
+
+- name: Create filesystem on new partition
+  become: yes
+  filesystem:
+    fstype: "{{ fstype }}"
+    dev: "{{ item }}{% if 'nvme' in item %}p{% endif %}1"
   with_items: "{{ partition_devices }}"
