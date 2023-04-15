@@ -7,6 +7,10 @@
   when: (enable_powersaving | default(False)) and inventory_hostname in groups["baremetal"]
   tags: powersaving
 
+- include_tasks: partition_disk.yaml
+  when: partition_devices is defined
+  tags: partition
+
 - include_tasks: mounts.yml
   when: mounts is defined
   tags: mounts

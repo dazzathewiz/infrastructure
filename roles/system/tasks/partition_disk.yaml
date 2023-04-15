@@ -1,0 +1,12 @@
+---
+- name: Partition the disk into a single large partition filling the disk
+  become: yes
+  parted:
+    device: "{{ item }}"
+    number: 1
+    state: present
+    part_start: "0%"
+    part_end: "100%"
+    unit: GB
+    fs_type: "{{ fstype }}"
+  with_items: "{{ partition_devices }}"
