@@ -36,7 +36,11 @@
 - import_tasks: pve_ceph_mgr_dashboard.yml
   when: "inventory_hostname == groups[pve_ceph_mon_group][0]"
 
-# 4. Add redundant manager nodes on remaining nodes
+# 4. Install Ceph prometheus endpoint module on node 1
+- import_tasks: pve_ceph_mgr_prometheus.yaml
+  when: "inventory_hostname == groups[pve_ceph_mon_group][0]"
+
+# 5. Add redundant manager nodes on remaining nodes
 - name: Add ceph-mgr on remaining nodes
   command: 'pveceph mgr create'
   args:

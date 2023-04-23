@@ -1,0 +1,4 @@
+---
+- name: Enable Ceph prometheus endpoint
+  shell: ceph mgr module enable prometheus
+  when: '"prometheus" in _disabled_ceph_mgr_modules'

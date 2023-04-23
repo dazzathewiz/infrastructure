@@ -82,6 +82,7 @@ This will setup Ceph by performing:
 - Package install and initalisation of ceph
 - Mon and Mgr deployments on all nodes
 - [Dashboard][ceph-dashboard] setup and configuration
+- Prometheus endpoint setup with ceph-mgr
 
 Required to enable Ceph configuration:
 ```
