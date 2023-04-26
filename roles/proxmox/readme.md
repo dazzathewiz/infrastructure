@@ -105,10 +105,27 @@ Consideration for OSD's:
 - [Multiple OSD's for single NVME devices][osd-nvme]
 - WAL/DB disk - I have chosen not to have separate WAL/DB in my environment at this time as I don't expect large writes to be an issue for write performance. I don't perfectly understand the DB metadata location and whether in my pool implementation where metadata is on NVME crush device class pools.
 
+  #### OSD's and memory management
+  Ceph will consume a lot of RAM, particularly duing times of heavy cluster operations or during recovery.
+  * Visit this section if you run Ceph and notice VM's going 'poof' thanks to oom-kill.
+
+  A few considerations:
+  * The more OSD's, the more RAM. Note that splitting up NVME devices into multiple OSD's increases the memory overhead.
+  * OSD memory usage is targeted by the setting [`osd_memory_target`](https://docs.ceph.com/en/latest/rados/configuration/bluestore-config-ref/#confval-osd_memory_target), which defaults to 4Gi (`4294967296`) per OSD. This means that, for example, a Ceph host with 2 HDD's of 1 OSD each, and 1 1TB NVME split into 4 OSD's results in a total of 6 OSD's and therefore a memory requirement of 6 * 4Gi = 24Gi.
+  * Ceph provides guidance on [memory settings for OSD's](https://docs.ceph.com/en/quincy/start/hardware-recommendations/#memory), which should typically not be less than 2Gi.
+  * A minimum size for OSD memory is specified by [`osd_memory_cache_min`](https://docs.ceph.com/en/latest/rados/configuration/bluestore-config-ref/#confval-osd_memory_cache_min)
+  * [`bluestore_cache_autotune`](https://docs.ceph.com/en/quincy/rados/configuration/bluestore-config-ref/#confval-bluestore_cache_autotune) will manage ceph OSD memory usage to try and keep it in range of `osd_memory_target`
+  * This [YouTube video](https://www.youtube.com/watch?v=aaMaMMqOk1o) quickly describes the `osd_memory_target` settings. 
+  * Cephadm can perform [Automatic tuning of OSD memory](https://docs.ceph.com/en/quincy/cephadm/services/osd/?highlight=osd_memory_target_autotune#automatically-tuning-osd-memory) since Quincy (v17), however Proxmox installs don't use Cephadm. Furthermore, Ceph recommends disabling `osd_memory_target_autotune` on hyperconverged infrastructures such as Proxmox.
+  * Ceph recommended in their [Quincy release](https://ceph.io/en/news/blog/2022/v17-2-0-quincy-released/) that `mgr/cephadm/autotune_memory_target_ratio` should default to `0.2` or 20% of available system RAM. This is to run ALL OSD's and that 20% memory should be devided up between OSD's.
+
 ### Pools
 I create Pools manually, managed using the Dashboard: ```https://{{ pve_ceph_net_front_base }}:8443/#/pool```
 
 ![Ceph Pools](files/ceph_pools.png)
+
+  #### Place Group Autoscaling
+  PG Autoscale (`pg_autoscale_mode`) should be enabled. However I noticed in a fresh Ceph cluster PG's were not automatically changing. This was because in my environment I had mixed OSD types (HDD and NVME), and by default the pool `device_health_metrics` (Ceph-Pacific, changes to `.mgr` in Ceph-Quincy) had a Crush Ruleset which replicated onto all OSD's, preventing the PG autoscaler from functioning. The PG autoscaler needs pools to be placed on specific OSD types to function. Therefore, I simply updated the Crush Ruleset to a custom crush rule (NVME_Only) and PG's autoscaled immediately. This was really important to know before transferring a significant amount of data to new Ceph Pools as otherwise Pools will not scale to the size of all OSD's, and it will take a long time to recover significant changes in `pg_num` for large/bulk pools.
 
 ### VM Storage Pool 
 I want to use an Erasure Coded pool for Proxmox on NVME disk. Some manual steps are required to set this up in Proxmox, including creating a separate MetaData pool (Proxmox expects the MetaData pool to be a replicated pool, not EC)
@@ -200,6 +217,15 @@ You can also configure [HA manager groups][ha-group]
 If creating a 2 node cluster (less than 3 nodes), this works fine however when 1 node is down you won't be able to log into
 the other node due to quorum configuration. If only 1 node in the cluster is online, ssh to the node and run command:
 ```pvecm expected 1```
+
+## Node Sizing and Tweaking for clusters
+When adding new nodes or sizing a cluster, consider:
+  ### If using Ceph
+  * Disks; what types and how many?
+  * Erasure code profile and failure domain (k2 m1 is popular in homelab to allow high availability between 3 nodes, but is more prone to failure than a 2x replica set because possible failure occurs when 2/3 disks fail as opposed to 1/2)
+  * [Memory constraints](#osds-and-memory-management) of number of OSD's required in contention with memory to run VM's in hyperconverged infrastructure
+  ### Nodes less than 3
+  * Consider if a quorum device is required and how you will operate proxmox when [1 node is down causing an inaccessible cluster](#a-note-on-clustering)
 
 [ha-group]: https://pve.proxmox.com/wiki/High_Availability#ha_manager_groups
 [metrics-doc1]: https://pve.proxmox.com/pve-docs/pve-admin-guide.html#external_metric_server
