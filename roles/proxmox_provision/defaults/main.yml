@@ -3,8 +3,26 @@
 
 # Generates random name, but note evertime the variable is called the name is different
 vm_name: "{{ lookup('community.general.random_string', upper=false, numbers=false, special=false) }}"
+lxc_name: "{{ vm_name }}"
 
+provision_type: "vm"    # Options: [ vm | lxc ]
+
+# VM options
 vm_disk_increase: 0     # Increase the vm disk by x GB
 vm_start: yes           # Start the VM after it's provisioned
 vm_enable_agent: yes    # Enable the proxmox qemu agent
 vm_disk_passthrough: [] # Disk ID's to pass through to VM. See: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
+
+# LXC options
+lxc_root_password: "{{ infadmin_password }}"
+lxc_ostemplate_name: ubuntu-20.04-standard_20.04-1_amd64.tar.gz   # should be defined in container-images.yaml of proxmox role so it is present
+lxc_root_authorized_pubkey: "{{ lookup('file', public_key) }}"    # uses the public_key on the control host machine, see role `controlhost`
+lxc_storage: local-zfs                                            # will depend on your configured storage
+lxc_mounts: []
+lxc_net_interfaces: []
+
+# Proxmox options
+pve_api_user: root@pam
+pve_api_password: "{{ infadmin_password }}"
+pve_host: "{{ inventory_hostname }}"
+pve_api_host: "{{ pve_host }}"

@@ -2,16 +2,15 @@
 
 - name: include template variables from proxmox role
   include_vars: ../proxmox/vars/templates.yml
-  tags: provision
 
 # Clone VM from template
 - name: Cloning virtual machine from "{{ pve_template_name }}" with name "{{ vm_name }}" 
   proxmox_kvm:
-    api_user : root@pam
-    api_password: "{{ infadmin_password }}"
-    api_host : "{{ inventory_hostname }}"
+    api_user : "{{ pve_api_user }}"
+    api_password: "{{ pve_api_password }}"
+    api_host : "{{ pve_api_host }}"
     name : "{{ vm_name }}"
-    node : "{{ inventory_hostname }}"
+    node : "{{ pve_host }}"
     clone: "{{ pve_template_name }}"
     vmid: "{{ pve_template_id }}"
     full: yes
@@ -19,32 +18,26 @@
     storage: "{{ vm_storage|default(omit) }}"
   throttle: 1   # Prevents VMID conflict when cloning from multiple hosts simultaneously
   register: vm
-  tags: provision
 
 - debug: 
     msg: '{{ vm }}'
   when: vm is defined
-  tags: provision
 
 - name: Change VM memory if defined
   shell: qm set {{ vm.vmid }} --memory {{ vm_memory }}{% if vm_memory_min is defined %} --balloon {{ vm_memory_min }}{% endif %}
   when: vm_memory is defined and vm.changed
-  tags: provision
 
 - name: Change VM CPU number if defined
   shell: qm set {{ vm.vmid }} --cores {{ vm_cpu }}
   when: vm_cpu is defined and vm.changed
-  tags: provision
 
 - name: Increasing disk if it is necessary
   shell: qm resize {{ vm.vmid }} scsi0 +{{ vm_disk_increase }}G
   when: vm_disk_increase != 0 and vm.changed
-  tags: provision
 
 - name: Apply correct network interface settings
   shell: qm set {{ vm.vmid }} --net0 virtio{% if vm_network_bridge is defined %},bridge={{ vm_network_bridge }}{% else %},bridge=vmbr0{% endif %}{% if vm_network_vlan is defined %},tag={{ vm_network_vlan }}{% endif %}{% if vm_network_mac is defined %},macaddr={{ vm_network_mac }}{% endif %}
   when: vm.changed and vm_network_bridge is defined or vm_network_vlan is defined or vm_network_mac is defined
-  tags: provision
 
 - name: Set a PCIe device passthrough to the VM if required
   shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}
@@ -52,7 +45,6 @@
   loop_control:
     index_var: my_idx
   when: vm.changed and vm_pcie_device is defined
-  tags: provision
 
 - name: Setup phyiscal disk passthough
   shell: qm set {{ vm.vmid }} -scsi{{ my_idx + 2 }} /dev/disk/by-id/{{ item }}
@@ -60,21 +52,18 @@
   loop_control:
     index_var: my_idx
   when: (vm_disk_passthrough | length > 0) and vm.changed
-  tags: provision
 
 - name: Enable qemu agent
   shell: qm set {{ vm.vmid }} --agent 1
   when: vm_enable_agent and vm.changed
-  tags: provision
 
 - name: starting new Virtual Machine ID {{ vm.vmid }}
   proxmox_kvm:
-    api_user : root@pam
-    api_password: "{{ infadmin_password }}"
-    api_host : "{{ inventory_hostname }}"
+    api_user : "{{ pve_api_user }}"
+    api_password: "{{ pve_api_password }}"
+    api_host : "{{ pve_api_host }}"
     vmid: "{{ vm.vmid }}"
-    node : "{{ inventory_hostname }}"
+    node : "{{ pve_host }}"
     state : started
     timeout: 300
   when: vm is defined and vm_start
-  tags: provision

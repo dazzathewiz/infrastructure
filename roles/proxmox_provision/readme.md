@@ -1,5 +1,5 @@
 # Proxmox Provision
-A provisioning role to deploy VM's in proxmox from template.
+A provisioning role to deploy VM's and LXC containers in proxmox from template.
 
 ## Requirements
 See: requirements.yml
@@ -9,9 +9,11 @@ Note: this role uses template variables from the "proxmox" role in this repo
 
 ## Useage
 All vars are optional depending on your configuration.
-* If no ```vm_name``` is defined, a random 8-char string will be chosen as VM name
-* All other VM configuration will use the template defaults unless otherwise specifed
+* If no `vm_name` or `lxc_name` is defined, a random 8-char string will be chosen as VM/LXC name
+* A VM will be created unless otherwise specified `provision_type:`. Valid options are `vm` or `lxc`
+* All other VM/container configuration will use the template defaults unless otherwise specifed
 
+### Example VM Deployment
 ```
     roles:
         - role: proxmox_provision
@@ -34,7 +36,32 @@ All vars are optional depending on your configuration.
             vm_enable_agent: yes                # Enable the qemu agent
 ```
 
+### Example LXC Deployment
+See [provision_lxc.yaml](tasks/provision_lxc.yaml) for more
+```
+    roles:
+        - role: proxmox_provision
+        vars:
+            provision_type: lxc                 # Required for containers, otherwise defaults to 'vm'
+            lxc_name: my_container              # Container Name, otherwise random
+            lxc_ostemplate_name: <name>.tar.gz  # Must be a template available on the host
+            lxc_storage: local-lvm              # PVE storage where the container will be stored/run from
+            pve_lxc_ostemplate_storage: local   # PVE storage name where templates are stored
+            pve_lxc_vmid: 100                   # PVE instance ID (VMID)
+            pve_lxc_description: Ansible.       # LXC description
+            lxc_root_password: foobar           # Root password inside container
+            lxc_root_authorized_pubkey: xyz     # Public Key for ssh key access
+            pve_onboot: yes                     # Start container on pve host boot
+            lxc_net_interfaces:
+                - id: net0                      # Identifier
+                    name: eth0                  # Instance interface
+                    ip4: dhcp                   # Can be IP or 'dhcp'
+                    bridge: vmbr1               # Promox host bridge
+                    netmask4: 24                # Subnet mask in CIDR. Required when specifying ip4 IP (not DHCP)
+```
+
 ## Sources
 
 Guide used to create this role: https://vectops.com/2020/01/provision-proxmox-vms-with-ansible-quick-and-easy/
 Role uses module: https://docs.ansible.com/ansible/2.9/modules/proxmox_kvm_module.html
+LXC creation adapted from [UdelaRInterior/ansible-role-proxmox-create-lxc](https://github.com/UdelaRInterior/ansible-role-proxmox-create-lxc)

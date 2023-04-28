@@ -1,0 +1,3 @@
+---
+- import_tasks: "provision_{{ provision_type }}.yaml"
+  tags: provision
