@@ -41,7 +41,13 @@
     - name: Load iso_images variables
       include_vars: "iso_images.yml"
   
-  tags: update_images
+  tags: update_images, update_iso_images
+
+- name: Cloud download urls for CT Templates
+  block:
+    - name: Get CT Template images
+      include_vars: "container-images.yaml"
+  tags: update_images, update_container_images
 
 # Cluster config vars
 - name: Cluster config vars

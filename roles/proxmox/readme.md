@@ -25,7 +25,9 @@ The playbook performs all of these by default (or independantly with tags):
 1. Setup of a proxmox host ```ansible-playbook proxmox.yml --tags setup```
   - Network in /etc/network/interfaces can be setup with ```--tags network```
   - NFS mount point can be set with ```--tags nfs```
-2. Downloading of cloud images and ISO's to configured NFS ISO share ```ansible-playbook proxmox.yml --tags update_images```
+2. Downloading of cloud images/ISO's and container templates ```ansible-playbook proxmox.yml --tags update_images```
+  * (Optional Tagging) `--tags update_iso_images` will ONLY re-download VM Cloud image/ISO's to storage `local-zfs` or `local` if local-zfs not configured.
+  * (Optional Tagging) `--tags update_container_images` will download CT Templates to storage `local` (Note local-zfs doesn't hold CT Templates)
 3. Clusters together all proxmox nodes in the playbook ```ansible-playbook proxmox.yml --tags cluster```
 4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
 5. Setup Metric Server to ship metrics to InfluxDB ```ansible-playbook proxmox.yml --tags metrics --ask-vault-password```

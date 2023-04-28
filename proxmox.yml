@@ -6,6 +6,7 @@
   roles:
     - role: proxmox
       vars:
+        pve_create_container_templates: yes
         pve_template_recreate: yes
         pve_metrics_servers:
           - name: InfluxDB

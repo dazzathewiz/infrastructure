@@ -1,0 +1,10 @@
+---
+
+# Use `pveam` command
+
+- name: Download container templates
+  command: 'pveam download {{ pve_container_template_storage }} {{ item }}'
+  with_items:
+    - "{{ pve_container_images }}"
+  register: download_result
+  changed_when: "'got correct file already, no need to download' not in download_result.stdout"

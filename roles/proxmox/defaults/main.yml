@@ -23,7 +23,9 @@ pve_cluster_addr0: "{{ ansible_default_ipv4.address if ansible_default_ipv4.addr
 
 # Template configuration
 pve_create_templates: true
-pve_template_recreate: false   # deletes and re-creates the template
+pve_create_container_templates: false
+pve_container_template_storage: 'local'   # Where the templates are stored
+pve_template_recreate: false              # deletes and re-creates the VM/ISO template
 
 # SSH configuration
 pve_manage_ssh: true

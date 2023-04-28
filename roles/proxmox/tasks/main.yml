@@ -21,8 +21,12 @@
 - import_tasks: pve_nfs_attach.yml
   tags: setup, nfs, mounts
 
-- import_tasks: pve_download_images.yml
-  tags: update_images
+- import_tasks: pve_download_iso_images.yml
+  tags: update_images, update_iso_images
+
+- import_tasks: pve_download_container_images.yaml
+  when: "pve_create_container_templates | bool"
+  tags: update_images, update_container_images
 
 - import_tasks: ssh_cluster_config.yml
   when:
