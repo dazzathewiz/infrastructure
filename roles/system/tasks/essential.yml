@@ -1,4 +1,20 @@
 ---
+- name: Prepare apt-repositories
+  block:
+    - name: Install dep package for managing gnupg
+      become: yes
+      package:
+        name: software-properties-common
+        state: latest
+
+    - name: Add apt-repository's
+      apt_repository:
+        repo: "{{ item }}"
+      with_items:
+        - "{{ add_apt_repository }}"
+    
+  when: add_apt_repository is defined
+
 - name: Update packages
   become: yes
   apt:

@@ -2,5 +2,6 @@
 packages: []
 manage_packages: yes
 upgrade_packages: yes   # Upgrade install packages
+#add_apt_repository: [] # Define a list of repositories to add EG: ppa:nfs-ganesha/nfs-ganesha-4
 auto_reboot: yes        # Reboot when /var/run/reboot-required exists
 fstype: ext4            # Default filesystem to create on new partitions using community.general.filesystem
