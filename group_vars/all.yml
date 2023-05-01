@@ -20,6 +20,9 @@ influx_v1_port: 8086
 # Container defaults
 docker_dir: /opt/docker/data
 
+# Ceph defaults
+default_ceph_conf: /etc/ceph/ceph.conf
+
 # Virtual Machine defaults
 provisioning_user: infadmin
 

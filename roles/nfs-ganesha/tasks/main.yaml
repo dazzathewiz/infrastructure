@@ -1,0 +1,87 @@
+---
+
+- name: Import vars from group_vars/pve-ceph.yaml
+  include_vars:
+    dir: ../../../group_vars
+    files_matching: pve-ceph.yaml
+
+- name: Copy 45drives.ganesha.conf.j2 template to {{ nfs_ganesha_ganesha_conf }}
+  become: yes
+  template: src=45drives.ganesha.conf.j2 dest={{ nfs_ganesha_ganesha_conf }}
+  register: config
+
+- name: Get PVE Ceph ceph.conf configuration
+  slurp:
+    src: "{{ default_ceph_conf }}"
+  register: ceph_config
+  delegate_to: "{{ nfs_ganesha_ceph_master }}"
+  run_once: true
+  changed_when: false
+
+- name: Copy ceph.conf to NFS Ganesha nodes
+  copy:
+    content: "{{ ceph_config.content | b64decode | replace('/etc/pve/priv/$cluster.$name.keyring', '/etc/ceph/$cluster.$name.keyring') }}"
+    dest: "{{ nfs_ganesha_ceph_conf }}"
+
+- name: Get PVE Ceph keyrings
+  shell: ceph auth get {{ item }}
+  register: ceph_admin_keys
+  with_items:
+    - "{{ nfs_ganesha_ceph_user_keys }}"
+  delegate_to: "{{ nfs_ganesha_ceph_master }}"
+  run_once: true
+  changed_when: false
+
+- name: Copy all client.<key>.keyring to NFS Ganesha nodes
+  copy:
+    content: "{{ item.stdout }}\n"
+    dest: "{{ nfs_ganesha_ceph_conf | dirname }}/ceph.{{ item.item }}.keyring"
+  with_items: "{{ ceph_admin_keys.results }}"
+  no_log: true
+
+- name: Grab current Grace DB config
+  shell: ganesha-rados-grace -p {{ pve_ceph_rados_nfs_pool }} -n {{ pve_ceph_rados_nfs_pool_ganesha_namespace }}
+  register: grace_status
+  ignore_errors: yes
+  changed_when: false
+
+- name: Create Grace DB in rados
+  shell: ganesha-rados-grace -p {{ pve_ceph_rados_nfs_pool }} -n {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} add{% for item in groups['proxmox_lxc_nfsganesha'] %} {{ hostvars[item].ansible_nodename }}{% endfor %}
+  run_once: true
+  when: grace_status.rc == 1
+  register: grace_db
+
+- name: Add nodeid to Grace DB if not current config
+  shell: ganesha-rados-grace -p {{ pve_ceph_rados_nfs_pool }} -n {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} add {{ ansible_nodename }}
+  when: grace_status.rc == 0 and ansible_nodename not in grace_status.stdout
+  register: grace_update
+
+- name: Stat the export-index file for nodes
+  shell: rados -p {{ pve_ceph_rados_nfs_pool }} -N {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} stat {{ nfs_ganesha_rados_export }}
+  register: export_index_stat
+  ignore_errors: yes
+  changed_when: false
+
+- name: Copy locally the export-index file for nodes
+  shell: rados -p {{ pve_ceph_rados_nfs_pool }} -N {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} get {{ nfs_ganesha_rados_export }} {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
+  when: export_index_stat.rc == 0
+  changed_when: false
+
+- name: Copy rados.exports.conf.j2 template to {{ nfs_ganesha_ganesha_conf }}
+  become: yes
+  template: src=rados.exports.conf.j2 dest={{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
+  register: export_index_file
+
+- name: Create export-index file for nodes
+  shell: rados -p {{ pve_ceph_rados_nfs_pool }} -N {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} put {{ nfs_ganesha_rados_export }} {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
+  when: export_index_file.changed
+  register: export_index
+
+- name: Start and enable the systemd services
+  systemd:
+    state: restarted
+    enabled: true
+    name: "{{ item }}"
+  with_items:
+    - nfs-ganesha
+  when: config.changed or grace_db.changed or grace_update.changed or export_index.changed

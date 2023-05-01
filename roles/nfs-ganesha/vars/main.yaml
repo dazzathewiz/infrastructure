@@ -1,0 +1,24 @@
+---
+
+# ganesha package/repo dependancies
+nfs_ganesha_packages:
+  - nfs-ganesha
+  - nfs-ganesha-ceph
+  - nfs-ganesha-rados-grace
+  - nfs-ganesha-rados-urls
+  - nfs-ganesha-rgw
+  - ceph-common
+nfs_ganesha_repositories:
+  - "ppa:nfs-ganesha/nfs-ganesha-4"
+  - "ppa:nfs-ganesha/libntirpc-4"
+
+# ganesha.conf
+nfs_ganesha_cluster_recovery_backend: "rados_cluster"
+nfs_ganesha_ceph_conf: "{{ default_ceph_conf }}"
+nfs_ganesha_ceph_admin_userid: admin
+nfs_ganesha_ganesha_conf: /etc/ganesha/ganesha.conf
+nfs_ganesha_rados_url: "rados://{{ pve_ceph_rados_nfs_pool }}/{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}/{{ nfs_ganesha_rados_export }}"
+
+# ganesha NFS exports - used only with local/rados.ganesha.conf templates
+nfs_ganesha_export_pseudoroot_path: /Media/
+nfs_ganesha_export_ceph_fs: "{{ pve_ceph_cephfs_name_plexdata }}"

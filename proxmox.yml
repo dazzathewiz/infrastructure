@@ -20,5 +20,12 @@
             # use when need to update an existing metric server token:
             #updatetoken: yes
         pve_ceph_enabled: yes
+        pve_nfs_enabled: yes
         pve_extra_packages:
           - iperf3
+
+# Disable/comment out if pve_nfs_enabled: no
+- hosts: proxmox_lxc_nfsganesha
+  roles:
+    - role: nfs-ganesha
+      tags: nfs

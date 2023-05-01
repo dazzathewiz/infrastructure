@@ -1,0 +1,19 @@
+# Config block for rados:// URL access. It too uses its own client to access
+# the object, separate from the FSAL_CEPH and RADOS_KV client.
+RADOS_URLS
+{
+    # Path to a ceph.conf file for this cluster.
+    # Ceph_Conf = {{ nfs_ganesha_ceph_conf }};
+
+    # RADOS_URLS use their own ceph client too. Authenticated access
+    # requires a cephx keyring file.
+    UserId = "{{ nfs_ganesha_ceph_admin_userid }}";
+
+    # We can also have ganesha watch a RADOS object for notifications, and
+    # have it force a configuration reload when one comes in. Set this to
+    # a valid rados:// URL to enable this feature.
+    watch_url = "rados://{{ pve_ceph_rados_nfs_pool }}/{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}/ganesha.conf";
+}
+
+# rados://$POOL-NAME/$NAMESPACE/$FILENAME
+%url rados://{{ pve_ceph_rados_nfs_pool }}/{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}/ganesha.conf

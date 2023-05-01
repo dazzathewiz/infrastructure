@@ -1,0 +1,7 @@
+---
+dependencies:
+  - role: system
+    vars:
+      packages: "{{ nfs_ganesha_packages }}"
+      add_apt_repository: "{{ nfs_ganesha_repositories }}"
+    tags: nfs

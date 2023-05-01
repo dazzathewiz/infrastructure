@@ -32,6 +32,7 @@ The playbook performs all of these by default (or independantly with tags):
 4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
 5. Setup Metric Server to ship metrics to InfluxDB ```ansible-playbook proxmox.yml --tags metrics --ask-vault-password```
 6. Setup and initalise Ceph ```ansible-playbook proxmox.yml --tags ceph --ask-vault-password```
+7. Setup NFS Ganesha nodes for HA ```ansible-playbook proxmox.yml --tags nfs --ask-vault-password```
 
 ### 1. Setup
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources
@@ -92,6 +93,14 @@ vars:
   pve_ceph_enabled: yes
 ```
 
+### 7. NFS-Ganesha
+Taken from the work of Kubernetes@Home [dcplaya/homeops](https://github.com/dcplaya/home-ops), this implements the steps in [NFS-Ganesha Client Setup][nfs-ganesha-client-setup]:
+1. Deploys Ubuntu LXC containers on each PVE Ceph Mon host
+2. Configures the containers with dependancies
+3. Configures NFS-Ganesha server backed by Ceph
+4. Configures HAProxy load balancer IP between the LXC containers
+
+More information documented in the [nfs-ganesha](../nfs-ganesha/README.md) role.
 
 ## Ceph Management
 I don't automate all of Ceph configuration because this is a homelab environment and I prefer to do these tasks
@@ -171,6 +180,15 @@ Referring to [Proxmox CephFS documentation][ceph-fs] for the setup of Metadata S
 
 7. (Optional) Can mount the filesystem: Datacentre -> Storage -> Add -> CephFS
 
+### Ceph NFS-Ganesha cluster pool
+A replicated pool is created specifically to facilitate co-ordination of Highly Availble NFS via [NFS-Ganesha](../nfs-ganesha/README.md) cluster.
+
+![Ceph Pool 7](files/pool_7.png)
+
+A namespace called 'ganesha-namespace' was also created in the dashboard:
+
+![Ceph Pool 7_2](files/pool_7_2.png)
+
 ### Managing ceph host reboots
 To manage a ceph host reboot in a fault tolerant manner;
 
@@ -243,3 +261,4 @@ When adding new nodes or sizing a cluster, consider:
 [ceph-fs]: https://pve.proxmox.com/wiki/Deploy_Hyper-Converged_Ceph_Cluster#pveceph_fs
 [ceph-tune]: https://ceph.io/en/news/blog/2022/autoscaler_tuning/
 [ceph-osd-maintain]: https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/
+[nfs-ganesha-client-setup]: https://github.com/dcplaya/home-ops/blob/main/k8s/clusters/cluster-1/manifests/rook-ceph-external/cluster/nfs-ganesha.md

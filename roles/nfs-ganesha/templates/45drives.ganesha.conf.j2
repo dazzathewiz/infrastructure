@@ -1,0 +1,37 @@
+# See: http://images.45drives.com/ceph/cephfs/nfs-ganesha-ceph.conf
+
+{# Cluster Recovery backend:
+Use rados_cluster when using active active NFS
+Use rados_ng when using single NFS (or active passive w. k8s or Pacemaker) #}
+NFSv4 {
+    RecoveryBackend = '{{ nfs_ganesha_cluster_recovery_backend }}';
+    # RecoveryBackend = 'rados_ng';
+}
+
+{# RADOS_URL Block:
+Specify the userid reponsible of reading the export config objects from the cluster
+Specify the watch_url to watch the export index file of the gateway.
+Whenever a export is created, modified or removed, NFS-ganesha will reload its configuration
+This allows dynamic exports when configuring with the Ceph Dashboard
+Note that the watch url object must be unique to each NFS gateway and should always be the same object used for exports #}
+RADOS_URLS {
+    ceph_conf = '{{ nfs_ganesha_ceph_conf }}';
+    userid = "{{ nfs_ganesha_ceph_admin_userid }}";
+    watch_url = "{{ nfs_ganesha_rados_url }}";
+}
+
+{# RADOS_KV Block
+Specify the RADOS pool and namespace where the Grace db is stored
+If using single NFS (or active passive w. k8s or Pacemaker) nodeid is not required. #}
+RADOS_KV {
+    pool = "{{ pve_ceph_rados_nfs_pool }}";
+    namespace = "{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}";
+    nodeid = "{{ ansible_nodename }}";
+}
+
+{# Exports
+Exports are managed from the Ceph UI (Ceph => v14). Previous Ceph releases must be managed from cli.
+Specify NFS server to read exports by giving the export-index RADOS URL
+Note that each NFS gateway will have an unique export-index. Where required object name syntax is conf-<HOSTNAME> #}
+
+%url {{ nfs_ganesha_rados_url }}

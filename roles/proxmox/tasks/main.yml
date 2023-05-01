@@ -47,3 +47,7 @@
 - import_tasks: pve_ceph.yml
   when: "pve_ceph_enabled | bool"
   tags: ceph, setup
+
+- import_tasks: pve_nfs_ganesha.yaml
+  when: "pve_nfs_enabled | bool and pve_ceph_enabled | bool and inventory_hostname in groups[pve_ceph_mon_group]"
+  tags: nfs, ceph, setup

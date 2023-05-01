@@ -1,0 +1,11 @@
+---
+nfs_ganesha_ceph_master: prox1    # A node which contains the current cluster ceph.conf and hold ceph client.keyrings
+nfs_ganesha_ceph_user_keys:       # Names of Ceph Client keys to copy to NFS server hosts from parent ceph cluster
+  - "client.{{ nfs_ganesha_ceph_admin_userid }}"
+  - "{{ pve_ceph_nfs_userid }}"
+
+# nfs_ganesha_rados_export
+#   * The file nfs-ganesha servers will refer to in rados for NFS exports
+#   * Configure for host specific when using a cluster with orchestration (Cephadm) - `conf-{{ ansible_nodename }}`
+#   * Configure with a static file name between all hosts for shared NFS exports - `conf-shared`
+nfs_ganesha_rados_export: conf-shared

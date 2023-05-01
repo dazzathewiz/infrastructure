@@ -42,5 +42,10 @@ pve_ceph_network_frontend: {subnet: 10.10.10.33/27, vlan: 1012}
 pve_ceph_mon_group: "{{ pve_group }}"
 pve_ceph_mgr_group: "{{ pve_ceph_mon_group }}"
 
+# NFS-Ganesha cluster lxc containers
+pve_nfs_enabled: false
+pve_nfs_container_name: nfs-ganesha
+pve_nfs_create_client_keyring: true
+
 # Perform cluster aware reboots which gracefully fail fault tolerant/HA capable config
 pve_graceful_reboot: "{{ pve_cluster_enabled or pve_ceph_enabled }}"
