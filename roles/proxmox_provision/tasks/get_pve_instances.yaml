@@ -1,0 +1,16 @@
+---
+- name: Get pve instances
+  proxmox_query:
+    query: "nodes/{{ pve_host }}/{% if provision_type == 'vm' %}qemu{% else %}{{ provision_type }}{% endif %}"
+  failed_when: false
+  register: _pve_instances
+  changed_when: false
+
+- name: Get instance by name
+  set_fact: 
+    pve_instance: "{{ (_pve_instances | community.general.json_query(query))[0] }}"
+  vars:
+    query: "response[?name=='{{ instance_name }}']"
+
+# - debug:
+#     var: pve_instance.vmid

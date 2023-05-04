@@ -31,7 +31,7 @@
     name: proxmox_provision
   vars:
     provision_type: lxc
-    lxc_name: "{{ pve_nfs_container_name }}{{ inventory_hostname[-1] }}"
+    instance_name: "{{ pve_nfs_container_name }}{{ inventory_hostname[-1] }}"
     lxc_ostemplate_name: ubuntu-20.04-standard_20.04-1_amd64.tar.gz     # Specify 20.04 as newer not supported/missing deps
     lxc_net_interfaces:
       - id: net0
@@ -41,42 +41,5 @@
     pve_lxc_description: Created by ansible.
     pve_onboot: yes
     pve_lxc_unprivileged: yes
-
-# Get the LXC container IP addresses
-- shell: lxc-ls --name={{ pve_nfs_container_name }}{{ inventory_hostname[-1] }}
-  register: _pve_lxc_ganesha_id
-  changed_when: false
-- shell: lxc-info -n {{ _pve_lxc_ganesha_id.stdout }} -i
-  register: _pve_lxc_ganesha_ip_text
-  changed_when: false
-- set_fact:
-    _pve_lxc_genesha_ip: '{{ _pve_lxc_ganesha_ip_text.stdout | regex_findall("[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+") }}'
-
-# Setup lxc containers in host file
-- name: Add LXC container to ansible hosts
-  add_host:
-    name: "{{ hostvars[item]._pve_lxc_genesha_ip[0] }}"
-    ansible_ssh_user: root
-    ansible_ssh_private_key_file: "{{ private_key }}"
-    groups: proxmox_lxc_nfsganesha
-  with_items: "{{ groups[pve_ceph_mon_group] }}"
-  changed_when: false
-
-- name: Get lxc containers ssh key ready for known_hosts
-  shell: ssh-keyscan {{ pve_nfs_container_name }}{{ inventory_hostname[-1] }},{{ _pve_lxc_genesha_ip[0] }}
-  register: ssh_known_host_result
-  ignore_errors: yes
-  retries: 3        # In testing, this keyscan command can fail and not return the key. Not sure why...
-  delay: 1
-  until: ssh_known_host_result.rc == 0
-  delegate_to: localhost
-  changed_when: false
-
-- name: Add/update public key in ssh known_hosts file
-  known_hosts:
-    name: "{{ pve_nfs_container_name }}{{ inventory_hostname[-1] }}"
-    key: "{{ ssh_known_host_result.stdout }}"
-    path: ~/.ssh/known_hosts
-  delegate_to: localhost
-  when: ssh_known_host_result.rc == 0
-  throttle: 1       # Throttle here b/c even though run on localhost there is a simultaneous task for each host in the play  
+    provision_add_to_inventory: true
+    provision_inventory_hostgroup: proxmox_lxc_nfsganesha

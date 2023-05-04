@@ -8,7 +8,7 @@
     # Create the VM in proxmox
     - role: proxmox_provision
       vars:
-        vm_name: backup
+        instance_name: backup
         #vm_memory: 4096
         vm_cpu: 2
         vm_network_bridge: vmbr1

@@ -9,7 +9,7 @@ Note: this role uses template variables from the "proxmox" role in this repo
 
 ## Useage
 All vars are optional depending on your configuration.
-* If no `vm_name` or `lxc_name` is defined, a random 8-char string will be chosen as VM/LXC name
+* If no `instance_name` is defined, a random 8-char string will be chosen as VM/LXC name
 * A VM will be created unless otherwise specified `provision_type:`. Valid options are `vm` or `lxc`
 * All other VM/container configuration will use the template defaults unless otherwise specifed
 
@@ -18,7 +18,7 @@ All vars are optional depending on your configuration.
     roles:
         - role: proxmox_provision
         vars:
-            vm_name: my_vm                      # VM Name, otherwise random
+            instance_name: my_vm                      # VM Name, otherwise random
             vm_memory: 10240                    # Memory MB to assign VM
             vm_memory_min: 6114                 # Sets the minimum memory assigned to VM ballon
             vm_cpu: 4                           # vCPU's to assign VM
@@ -43,7 +43,7 @@ See [provision_lxc.yaml](tasks/provision_lxc.yaml) for more
         - role: proxmox_provision
         vars:
             provision_type: lxc                 # Required for containers, otherwise defaults to 'vm'
-            lxc_name: my_container              # Container Name, otherwise random
+            instance_name: my_container              # Container Name, otherwise random
             lxc_ostemplate_name: <name>.tar.gz  # Must be a template available on the host
             lxc_storage: local-lvm              # PVE storage where the container will be stored/run from
             pve_lxc_ostemplate_storage: local   # PVE storage name where templates are stored

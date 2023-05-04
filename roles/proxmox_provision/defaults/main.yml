@@ -2,8 +2,7 @@
 # defaults file for proxmox_provision
 
 # Generates random name, but note evertime the variable is called the name is different
-vm_name: "{{ lookup('community.general.random_string', upper=false, numbers=false, special=false) }}"
-lxc_name: "{{ vm_name }}"
+instance_name: "{{ lookup('community.general.random_string', upper=false, numbers=false, special=false) }}"
 
 provision_type: "vm"    # Options: [ vm | lxc ]
 
@@ -26,3 +25,7 @@ pve_api_user: root@pam
 pve_api_password: "{{ infadmin_password }}"
 pve_host: "{{ inventory_hostname }}"
 pve_api_host: "{{ pve_host }}"
+
+# Ansible options
+provision_add_to_inventory: false                 # Adds the created instances to ansible hosts
+provision_inventory_hostgroup: proxmox_provision  # The name of the hostgroup the new instances assigned to in inventory

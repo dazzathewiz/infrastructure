@@ -12,7 +12,7 @@
     validate_certs: "{{ pve_validate_certs | default(omit) }}"
     hookscript: "{{ pve_lxc_hookscript | default(omit) }}"
     ostemplate: "{{ pve_lxc_ostemplate_storage | default('local') }}:{{ pve_lxc_ostemplate_content_type | default('vztmpl') }}/{{ lxc_ostemplate_name if(lxc_ostemplate_name is defined) else ( pve_lxc_ostemplate_url | urlsplit('path') | basename ) }}"
-    hostname: "{{ lxc_name }}"
+    hostname: "{{ instance_name }}"
     vmid: "{{ pve_lxc_vmid | default(omit) }}"
     description: "{{ pve_lxc_description | default(omit) }}"
     password: "{{ lxc_root_password }}"
@@ -43,21 +43,18 @@
   throttle: 1   # Prevents VMID conflict when cloning from multiple hosts simultaneously
   register: pve_lxc_container_created
 
-- name: Extract the container VMID
-  ansible.builtin.shell: |
-    set -o pipefail
-    pvesh get nodes/{{ pve_host }}/lxc --output-format=json 2>/dev/null | sed 's/},{/}\n{/g' | grep -Po '("vmid":")\K[[:digit:]]+(?=")'
-  args:
-    executable: /bin/bash
-  changed_when: false
-  register: pve_lxc_extracted_vmid
+- debug:
+    var: pve_lxc_container_created
+  when: pve_lxc_container_created is defined
+
+- import_tasks: get_pve_instances.yaml
   when:
     - pve_lxc_vmid is not defined
     - pve_lxc_container_created is succeeded
 
 - name: Set variable with the corresponding VMID for the container in case it has not been defined
   ansible.builtin.set_fact:
-    pve_lxc_inferred_vmid: "{{ pve_lxc_vmid if (pve_lxc_vmid is defined) else pve_lxc_extracted_vmid.stdout }}"
+    pve_lxc_inferred_vmid: "{{ pve_lxc_vmid if (pve_lxc_vmid is defined) else pve_instance.vmid }}"
 
 - name: Ensure the container is turned on
   community.general.proxmox:

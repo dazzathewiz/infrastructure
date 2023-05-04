@@ -1,3 +1,65 @@
 ---
 - import_tasks: "provision_{{ provision_type }}.yaml"
   tags: provision
+
+
+# Add provisioned instances to Ansible inventory
+- name: Add new instances to inventory
+  block:
+
+    # Get instance information if not already present
+    - import_tasks: get_pve_instances.yaml
+      when: pve_instance is not defined
+
+    # Get the LXC container IP addresses
+    - name: Get LXC container IP address
+      shell: lxc-info -n {{ pve_lxc_inferred_vmid }} -i
+      register: _pve_lxc_ip_text
+      changed_when: false
+      when: provision_type == 'lxc'
+    - set_fact:
+        _pve_instance_ip: '{{ (_pve_lxc_ip_text.stdout | regex_findall("[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"))[0] }}'
+      when: provision_type == 'lxc'
+
+    # Get the VM IP address
+    - name: Get VM IP address
+      proxmox_query:
+        query: "nodes/{{ pve_host }}/qemu/{{ pve_instance.vmid }}/agent/network-get-interfaces"
+      register: _pve_qemu_ip_json
+      when: provision_type == 'vm'
+    - set_fact:
+        _pve_instance_ip: "{{ (_pve_qemu_ip_json | community.general.json_query(query)).ip-addresses.ip-address }}"
+      vars:
+        query: "response.result[?name=='eth0']"
+      when: provision_type == 'vm'
+
+    # Setup lxc containers in host file
+    - name: Add LXC container to ansible hosts
+      add_host:
+        name: "{{ hostvars[item]._pve_instance_ip }}"
+        ansible_ssh_user: root
+        ansible_ssh_private_key_file: "{{ private_key }}"
+        groups: "{{ provision_inventory_hostgroup }}"
+      with_items: "{{ ansible_play_batch }}"
+      changed_when: false
+
+    - name: Get lxc containers ssh key ready for known_hosts
+      shell: ssh-keyscan {{ instance_name }},{{ _pve_instance_ip }}
+      register: ssh_known_host_result
+      ignore_errors: yes
+      retries: 3        # In testing, this keyscan command can fail and not return the key. Not sure why...
+      delay: 1
+      until: ssh_known_host_result.rc == 0
+      delegate_to: localhost
+      changed_when: false
+
+    - name: Add/update public key in ssh known_hosts file
+      known_hosts:
+        name: "{{ instance_name }}"
+        key: "{{ ssh_known_host_result.stdout }}"
+        path: ~/.ssh/known_hosts
+      delegate_to: localhost
+      when: ssh_known_host_result.rc == 0
+      throttle: 1       # Throttle here b/c even though run on localhost there is a simultaneous task for each host in the play
+  
+  when: "provision_add_to_inventory | bool"

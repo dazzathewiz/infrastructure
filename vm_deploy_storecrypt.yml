@@ -8,7 +8,7 @@
     # Create the VM in proxmox
     - role: proxmox_provision
       vars:
-        vm_name: storecrypt
+        instance_name: storecrypt
         vm_memory: 10240
         vm_memory_min: 8192
         vm_cpu: 2

@@ -4,12 +4,12 @@
   include_vars: ../proxmox/vars/templates.yml
 
 # Clone VM from template
-- name: Cloning virtual machine from "{{ pve_template_name }}" with name "{{ vm_name }}" 
+- name: Cloning virtual machine from "{{ pve_template_name }}" with name "{{ instance_name }}" 
   proxmox_kvm:
     api_user : "{{ pve_api_user }}"
     api_password: "{{ pve_api_password }}"
     api_host : "{{ pve_api_host }}"
-    name : "{{ vm_name }}"
+    name : "{{ instance_name }}"
     node : "{{ pve_host }}"
     clone: "{{ pve_template_name }}"
     vmid: "{{ pve_template_id }}"
