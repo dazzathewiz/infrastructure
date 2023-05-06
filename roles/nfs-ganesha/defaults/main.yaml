@@ -9,3 +9,7 @@ nfs_ganesha_ceph_user_keys:       # Names of Ceph Client keys to copy to NFS ser
 #   * Configure for host specific when using a cluster with orchestration (Cephadm) - `conf-{{ ansible_nodename }}`
 #   * Configure with a static file name between all hosts for shared NFS exports - `conf-shared`
 nfs_ganesha_rados_export: conf-shared
+
+# Templates used for the local node config and shared rados config
+nfs_ganesha_local_ganesha_conf: my.ganesha.conf.j2
+nfs_ganesha_rados_ganesha_conf: rados.exports.conf.j2

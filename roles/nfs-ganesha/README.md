@@ -38,6 +38,8 @@ Note the 45drives version, which stores exports inside rados and allows configur
 
 If you use Cephadm, manually enable the Ceph Dashboard with `ceph dashboard set-ganesha-clusters-rados-pool-namespace nfs-ganesha/ganesha-namespace`
 
+## References
+[Deploying an Active/Active NFS Cluster over CephFS](https://jtlayton.wordpress.com/2018/12/10/deploying-an-active-active-nfs-cluster-over-cephfs/)
 
 [nfs-ganesha-45drives]: http://images.45drives.com/ceph/cephfs/nfs-ganesha-ceph.conf
 [nfs-ganesha-client-setup]: https://github.com/dcplaya/home-ops/blob/main/k8s/clusters/cluster-1/manifests/rook-ceph-external/cluster/nfs-ganesha.md

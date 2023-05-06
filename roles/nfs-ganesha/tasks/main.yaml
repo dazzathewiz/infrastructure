@@ -5,9 +5,9 @@
     dir: ../../../group_vars
     files_matching: pve-ceph.yaml
 
-- name: Copy 45drives.ganesha.conf.j2 template to {{ nfs_ganesha_ganesha_conf }}
+- name: Copy {{ nfs_ganesha_local_ganesha_conf }} template to {{ nfs_ganesha_ganesha_conf }}
   become: yes
-  template: src=45drives.ganesha.conf.j2 dest={{ nfs_ganesha_ganesha_conf }}
+  template: src={{ nfs_ganesha_local_ganesha_conf }} dest={{ nfs_ganesha_ganesha_conf }}
   register: config
 
 - name: Get PVE Ceph ceph.conf configuration
@@ -67,9 +67,9 @@
   when: export_index_stat.rc == 0
   changed_when: false
 
-- name: Copy rados.exports.conf.j2 template to {{ nfs_ganesha_ganesha_conf }}
+- name: Copy {{ nfs_ganesha_rados_ganesha_conf }} template to {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
   become: yes
-  template: src=rados.exports.conf.j2 dest={{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
+  template: src={{ nfs_ganesha_rados_ganesha_conf }} dest={{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
   register: export_index_file
 
 - name: Create export-index file for nodes

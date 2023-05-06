@@ -8,6 +8,7 @@ nfs_ganesha_packages:
   - nfs-ganesha-rados-urls
   - nfs-ganesha-rgw
   - ceph-common
+  - net-tools
 nfs_ganesha_repositories:
   - "ppa:nfs-ganesha/nfs-ganesha-4"
   - "ppa:nfs-ganesha/libntirpc-4"
