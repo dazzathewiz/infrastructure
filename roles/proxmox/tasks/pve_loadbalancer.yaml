@@ -1,0 +1,25 @@
+---
+
+# Setup of LXC containers for HAProxy and keepalived Load Balancers of NFS-Ganesha
+
+- name: Create ubuntu 22.04 LXC container on {{ pve_group }} hosts
+  include_role: 
+    name: proxmox_provision
+  vars:
+    provision_type: lxc
+    instance_name: "{{ pve_lb_container_name }}{{ inventory_hostname[-1] }}"
+    lxc_ostemplate_name: ubuntu-22.04-standard_22.04-1_amd64.tar.zst
+    lxc_net_interfaces:
+      - id: net0
+        name: eth0
+        ip4: "dhcp"
+        bridge: vmbr2
+      - id: net1
+        name: eth1
+        ip4: "dhcp"
+        bridge: vmbr1
+    pve_lxc_description: Created by ansible.
+    pve_onboot: yes
+    pve_lxc_unprivileged: yes
+    provision_add_to_inventory: true
+    provision_inventory_hostgroup: proxmox_lxc_lb

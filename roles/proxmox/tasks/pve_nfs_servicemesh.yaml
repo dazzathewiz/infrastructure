@@ -1,0 +1,6 @@
+---
+# Deploys HA NFS service mesh via lxc containers
+
+- import_tasks: pve_nfs_ganesha.yaml
+
+- import_tasks: pve_loadbalancer.yaml

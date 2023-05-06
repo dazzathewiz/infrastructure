@@ -29,3 +29,14 @@
   roles:
     - role: nfs-ganesha
       tags: nfs
+
+- hosts: proxmox_lxc_lb
+  roles:
+    - role: haproxy
+      vars:
+        haproxy_lb_type: tcp
+        haproxy_frontend_name: nfs-frontend
+        haproxy_backend_name: nfs-backend
+        haproxy_backend_port: 2049
+        haproxy_backend_servers: proxmox_lxc_nfsganesha
+      tags: nfs, haproxy
