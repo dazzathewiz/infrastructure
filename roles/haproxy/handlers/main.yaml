@@ -1,0 +1,9 @@
+---
+- name: haproxy reload
+  systemd:
+    daemon_reload: true
+    state: restarted
+    enabled: true
+    name: "{{ item }}"
+  with_items:
+    - haproxy

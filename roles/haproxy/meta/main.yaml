@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: system
+    vars:
+      packages: "{{ haproxy_packages }}"
+    tags: nfs, haproxy
