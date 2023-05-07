@@ -1,0 +1,4 @@
+---
+
+pve_ganesha_instance_hosts_group: proxmox_instance_nfsganesha
+pve_lb_instance_hosts_group: proxmox_instance_lb
