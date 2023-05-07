@@ -11,31 +11,8 @@
     - import_tasks: get_pve_instances.yaml
       when: pve_instance is not defined
 
-    # Get the LXC container IP addresses
-    - name: Get LXC container IP address
-      shell: lxc-info -n {{ pve_lxc_inferred_vmid }} -i
-      register: _pve_lxc_ip_text
-      changed_when: false
-      when: provision_type == 'lxc'
-    - set_fact:
-        _pve_instance_ip: '{{ (_pve_lxc_ip_text.stdout | regex_findall("[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+"))[0] }}'
-      when: provision_type == 'lxc'
-
-    # Get the VM IP address
-    - name: Get VM IP address
-      proxmox_query:
-        query: "nodes/{{ pve_host }}/qemu/{{ pve_instance.vmid }}/agent/network-get-interfaces"
-      register: _pve_qemu_ip_json
-      when: provision_type == 'vm'
-    - set_fact:
-        _pve_instance_interface: "{{ (_pve_qemu_ip_json | community.general.json_query(query)) }}"
-      vars:
-        query: "response.result[?name=='eth0']"
-      when: provision_type == 'vm'
-    - set_fact:
-        _pve_instance_ip: "{{ item['ip-address'] }}"
-      with_items: "{{ _pve_instance_interface[0]['ip-addresses'] }}"
-      when: provision_type == 'vm' and item['ip-address-type'] == 'ipv4'
+    # Get the instance IP
+    - import_tasks: get_{{ provision_type }}_ip.yaml
 
     # Setup instance in host file
     - name: Add instance to ansible hosts
