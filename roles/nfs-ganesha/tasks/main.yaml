@@ -77,7 +77,7 @@
 
 - name: Create export-index file for nodes
   shell: rados -p {{ pve_ceph_rados_nfs_pool }} -N {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} put {{ nfs_ganesha_rados_export }} {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
-  when: export_index_file.changed
+  when: export_index_file.changed or export_index_stat.rc != 0
   register: export_index
 
 - name: Start and enable the systemd services
