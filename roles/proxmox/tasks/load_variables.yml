@@ -32,6 +32,11 @@
         _pve_bootloader: 'systemd'
       when: systemd.rc == 0
 
+    - name: Get local storage information
+      proxmox_query:
+        query: "storage/local"
+      register: _pve_storage_local
+
   tags: setup, ceph
 
 # Image and ISO download vars

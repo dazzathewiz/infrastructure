@@ -191,5 +191,10 @@
   when:
     - "pve_remove_subscription_warning | bool"
 
+- name: Add "snippets" to the local storage content
+  shell: pvesm set local --content {{ _pve_storage_local.response.content }},snippets
+  when: "'snippets' not in _pve_storage_local.response.content"
+  run_once: true
+
 - name: Trigger node reboots for updated config settings
   meta: flush_handlers
