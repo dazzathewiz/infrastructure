@@ -5,6 +5,7 @@ Largely followed Kubernetes@Home [dcplaya/homeops](https://github.com/dcplaya/ho
 ## Quick commands
 Perform these commands on a NFS-Ganesha configured node:
  * `ganesha-rados-grace -p nfs-ganesha -n ganesha-namespace` - Get status of grace sync.
+   `watch -n 1 "ganesha-rados-grace -p nfs-ganesha -n ganesha-namespace"` - Watch the evolution of cluster co-ordination status
     For understanding FLAGS returned, see [ganesha-rados-grace](https://github.com/nfs-ganesha/nfs-ganesha/blob/V3-stable/src/doc/man/ganesha-rados-grace.rst)
     ```
     cur=6 rec=5
@@ -14,11 +15,13 @@ Perform these commands on a NFS-Ganesha configured node:
     nfs-ganesha3	NE
     ```
  * `cat /var/log/ganesha/ganesha.log` - Ganesha logs
- * `cat /etc/ganesha/exports.cong` - Will show the export configuration. Note that exports are kept in Rados though and can be retrieved with next command
+ * `cat /etc/ganesha/exports.conf` - Will show the export configuration. Note that exports are kept in Rados though and can be retrieved with next command
  * `rados -p nfs-ganesha -N ganesha-namespace get conf-shared /etc/ganesha/exports.conf` - Will get the Rados config `conf-shared`; Note this observes values of 
     - `pve_ceph_rados_nfs_pool: nfs-ganesha`
     - `pve_ceph_rados_nfs_pool_ganesha_namespace: ganesha-namespace`
     - `nfs_ganesha_rados_export: conf-shared`
+ * `rados -p nfs-ganesha -N ganesha-namespace rm grace` - Remove the Grace db file
+ * `rados -p nfs-ganesha -N ganesha-namespace ls` - get the files stored in the rados namespace for ganesha cluster
 
 ## Ganesha Config
 `ganesha.conf`; see [ganesha-config](https://github.com/nfs-ganesha/nfs-ganesha/blob/V3-stable/src/doc/man/ganesha-config.rst#id6)
