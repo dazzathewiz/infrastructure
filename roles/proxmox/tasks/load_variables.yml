@@ -158,4 +158,4 @@
         files_matching: pve-ceph.yaml
     
   when: "pve_nfs_enabled | bool and pve_ceph_enabled | bool"
-  tags: nfs, ceph, setup
+  tags: nfs, ceph, setup, servicemesh
