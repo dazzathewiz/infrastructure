@@ -50,4 +50,4 @@
 
 - import_tasks: pve_nfs_servicemesh.yaml
   when: "pve_nfs_enabled | bool and pve_ceph_enabled | bool and inventory_hostname in groups[pve_ceph_mon_group]"
-  tags: nfs, ceph, setup, servicemesh
+  tags: ceph, setup, servicemesh
