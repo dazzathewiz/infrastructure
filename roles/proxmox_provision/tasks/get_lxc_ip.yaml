@@ -4,6 +4,9 @@
 - name: Get LXC container IP address
   shell: lxc-info -n {{ pve_lxc_inferred_vmid }} -i
   register: _pve_lxc_ip_text
+  retries: 5
+  delay: 1
+  until: "'IP' in _pve_lxc_ip_text.stdout"
   changed_when: false
 
 - set_fact:
