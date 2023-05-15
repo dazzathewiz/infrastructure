@@ -150,7 +150,7 @@
 - name: NFS Ganesha config vars
   block:
     - name: Import NFS Ganesha vars
-      include_vars: "nfs-ganesha.yaml"
+      include_vars: "nfs-servicemesh.yaml"
     
     - name: Import vars from group_vars/pve-ceph.yaml
       include_vars:

@@ -1,6 +1,6 @@
 ---
-nfs_ganesha_ceph_master: prox1    # A node which contains the current cluster ceph.conf and hold ceph client.keyrings
-nfs_ganesha_ceph_user_keys:       # Names of Ceph Client keys to copy to NFS server hosts from parent ceph cluster
+nfs_ganesha_ceph_master: "{{ groups['proxmox'][0] }}"     # A node which contains the current cluster ceph.conf and hold ceph client.keyrings
+nfs_ganesha_ceph_user_keys:                               # Names of Ceph Client keys to copy to NFS server hosts from parent ceph cluster
   - "client.{{ nfs_ganesha_ceph_admin_userid }}"
   - "{{ pve_ceph_nfs_userid }}"
 

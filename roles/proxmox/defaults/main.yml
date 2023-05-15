@@ -44,12 +44,11 @@ pve_ceph_mgr_group: "{{ pve_ceph_mon_group }}"
 
 # NFS-Ganesha cluster instances
 pve_nfs_enabled: false
-pve_nfs_instance_name: nfs-ganesha
-pve_nfs_instance_count: 2
-pve_nfs_create_client_keyring: true
+pve_nfs_create_client_keyring: true                           # Create a ceph client keyring dedicated to NFS-Ganesha role
+pve_nfs_instance_count: "{{ groups[pve_group] | length }}"    # Max number of Ganesha container instances to create
 
 # NFS Loadbalancer cluster lxc containers
-pve_lb_container_name: lb-
+pve_lb_instance_count: "{{ pve_nfs_instance_count }}"
 
 # Perform cluster aware reboots which gracefully fail fault tolerant/HA capable config
 pve_graceful_reboot: "{{ pve_cluster_enabled or pve_ceph_enabled }}"
