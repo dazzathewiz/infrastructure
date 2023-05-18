@@ -1,4 +1,5 @@
 ---
 
+pve_nfs_vip: 10.10.2.200/24
 pve_ganesha_instance_hosts_group: proxmox_instance_nfsganesha
 pve_lb_instance_hosts_group: proxmox_instance_lb

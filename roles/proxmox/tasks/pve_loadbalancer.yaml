@@ -21,6 +21,7 @@
     pve_lxc_description: Created by ansible.
     pve_onboot: yes
     pve_lxc_unprivileged: yes
+    pve_lxc_swap: 0
     provision_add_to_inventory: true
     provision_inventory_hostgroup: "{{ pve_lb_instance_hosts_group }}"
-  when: inventory_hostname[-1] | int <= pve_lb_instance_count
+  when: inventory_hostname[-1] | int <= pve_lb_instance_count | int

@@ -33,7 +33,7 @@ defaults
     maxconn                 3000
 
 frontend {{ haproxy_frontend_name }}
-    bind {{ ansible_default_ipv4.address }}:2049
+    bind {{ haproxy_frontend_ip }}:{{ haproxy_frontend_port }}
     mode {{ haproxy_mode }}
     option {{ haproxy_option }}
     default_backend             {{ haproxy_backend_name }}
