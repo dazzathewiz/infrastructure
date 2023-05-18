@@ -1,0 +1,7 @@
+---
+
+keepalived_process: haproxy
+keepalived_chk_script: "killall -0 {{ keepalived_process }}"
+keepalived_routerid: 33
+keepalived_vip: 10.10.2.200/24
+keepalived_authpass: "{{ lookup('password', './tmp/keepalived.secret length=15 chars=ascii_letters') }}"

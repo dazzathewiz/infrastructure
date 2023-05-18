@@ -1,0 +1,6 @@
+---
+dependencies:
+  - role: system
+    vars:
+      packages: "{{ keepalived_packages }}"
+    tags: keepalived
