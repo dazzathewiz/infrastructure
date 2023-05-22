@@ -25,6 +25,9 @@ NFS_CORE_PARAM
 	# Ganesha can lift the NFS grace period early if NLM is disabled.
 	Enable_NLM = false;
 
+{% if nfs_ganesha_port is defined %}	NFS_Port = {{ nfs_ganesha_port }};
+{% endif %}
+
 	# rquotad doesn't add any value here. CephFS doesn't support per-uid
 	# quotas anyway.
 	Enable_RQUOTA = false;

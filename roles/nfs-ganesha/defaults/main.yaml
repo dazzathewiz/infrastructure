@@ -13,3 +13,6 @@ nfs_ganesha_rados_export: conf-shared
 # Templates used for the local node config and shared rados config
 nfs_ganesha_local_ganesha_conf: my.ganesha.conf.j2
 nfs_ganesha_rados_ganesha_conf: rados.exports.conf.j2
+
+# Specify the NFS port ganesha responds on, default NFS_CORE_PARAM sets the port to 2049
+# nfs_ganesha_port: 2049
