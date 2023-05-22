@@ -1,9 +1,9 @@
 ---
 
-- name: Import vars from group_vars/pve-ceph.yaml
+- name: Import vars from group_vars/proxmox.yaml
   include_vars:
     dir: ../../../group_vars
-    files_matching: pve-ceph.yaml
+    files_matching: proxmox.yaml
 
 - name: Copy {{ nfs_ganesha_local_ganesha_conf }} template to {{ nfs_ganesha_ganesha_conf }}
   become: yes
