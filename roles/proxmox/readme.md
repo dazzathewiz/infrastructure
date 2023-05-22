@@ -180,6 +180,62 @@ Referring to [Proxmox CephFS documentation][ceph-fs] for the setup of Metadata S
 
 7. (Optional) Can mount the filesystem: Datacentre -> Storage -> Add -> CephFS
 
+### Change fault-domain on Ceph pool CRUSH rules
+
+In a situation where you need to change the CRUSH rules for the failure domain; Gather:
+* See the current ceph crush dump: `ceph osd crush dump`
+* 
+
+  #### Erasure Coded Rules
+  See: [Adjusting existing Erasure Code profiles due to CRUSHMAP changes](https://www.suse.com/support/kb/doc/?id=000019609)
+  Profiles can be used to define common CRUSH rulesets across a cluster. Adjust the EC Rule so any future Pools created work as expected, but note changing the profile will not affect any Pools with an existing CRUSH rule already created from a profile.
+
+  Get the names of existing rule profiles with `ceph osd crush rule ls`
+
+  Get the current settings for the profile. EG This command uses the profile named `HDD_EC_FDHost`
+  `ceph osd erasure-code-profile get HDD_EC_FDHost`; Returns:
+
+  ```
+  crush-device-class=hdd
+  crush-failure-domain=osd
+  crush-root=default
+  directory=/usr/lib/ceph/erasure-code
+  jerasure-per-chunk-alignment=false
+  k=2
+  m=1
+  packetsize=2048
+  plugin=jerasure
+  technique=reed_sol_van
+  w=8
+  ```
+  
+  Then use the output to forumlate a change, EG: here we change the `crush-failure-domain` to `host`
+  ```
+  ceph osd erasure-code-profile set HDD_EC_FDHost \
+  crush-device-class=hdd \
+  crush-failure-domain=host \
+  crush-root=default \
+  directory=/usr/lib/ceph/erasure-code \
+  jerasure-per-chunk-alignment=false \
+  k=2 \
+  m=1 \
+  packetsize=2048 \
+  plugin=jerasure \
+  technique=reed_sol_van \
+  w=8
+  ```
+
+  #### Modify the failure domain for existing pools
+  See: [How to modify the failure domains for existing pools](https://access.redhat.com/solutions/6518681)
+
+  Dump and edit the current CRUSH rules:
+  1. `ceph osd getcrushmap -o /tmp/cm.bin` - Dump existing
+  2. `crushtool -d /tmp/cm.bin -o /tmp/cm.bin.ascii` - Convert to human readable (ascii)
+  3. `vi /tmp/cm.bin.ascii` - Edit the file depending on the change being made
+  4. `crushtool -c /tmp/cm.bin.ascii -o /tmp/cm_updated.bin` - Encode CRUSH rule back to binary
+  5. `ceph osd setcrushmap -i /tmp/cm_updated.bin` - Apply the new CRUSH map... Note the cluster will start to rebalance immediately
+  
+
 ### Ceph NFS-Ganesha cluster pool
 A replicated pool is created specifically to facilitate co-ordination of Highly Availble NFS via [NFS-Ganesha](../nfs-ganesha/README.md) cluster.
 
