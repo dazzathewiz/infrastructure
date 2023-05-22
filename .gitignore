@@ -1,5 +1,7 @@
 .DS_Store
 secret.yml
 secrets.yml
+*.secret
 secret
 vault
+/tmp
