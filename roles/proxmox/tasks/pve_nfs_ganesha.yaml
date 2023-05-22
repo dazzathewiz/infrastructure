@@ -39,7 +39,12 @@
         name: eth0
         ip4: "dhcp"
         bridge: vmbr2
+      - id: net1
+        name: eth1
+        ip4: "dhcp"
+        bridge: vmbr1
     lxc_storage: ceph-vm
+    pve_lxc_memory: 768
     pve_lxc_swap: 0
     pve_lxc_description: Created by ansible.
     pve_onboot: yes
@@ -47,18 +52,3 @@
     provision_add_to_inventory: true
     provision_inventory_hostgroup: "{{ pve_ganesha_instance_hosts_group }}"
   when: inventory_hostname[-1] | int <= pve_nfs_instance_count | int
-
-# Create as VM's for better HA in proxmox
-# - name: Create ubuntu 20.04 instance on {{ pve_group }} hosts
-#   include_role: 
-#     name: proxmox_provision
-#   vars:
-#     instance_name: "{{ pve_nfs_instance_name }}{{ inventory_hostname[-1] }}"
-#     vm_memory: 1024
-#     vm_cpu: 1
-#     vm_network_bridge: vmbr2
-#     vm_disk_increase: 2
-#     vm_storage: "ceph-vm"
-#     provision_add_to_inventory: true
-#     provision_inventory_hostgroup: "{{ pve_ganesha_instance_hosts_group }}"
-#   when: inventory_hostname[-1] | int <= pve_nfs_instance_count | int

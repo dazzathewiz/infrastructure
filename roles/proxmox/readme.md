@@ -189,6 +189,11 @@ A namespace called 'ganesha-namespace' was also created in the dashboard:
 
 ![Ceph Pool 7_2](files/pool_7_2.png)
 
+  #### Resources:
+  * [Set Up Highly Available HAProxy Servers with Keepalived](https://www.digitalocean.com/community/tutorials/how-to-set-up-highly-available-haproxy-servers-with-keepalived-and-reserved-ips-on-ubuntu-14-04)
+  * [Keepalived for High Availability and Load Balancing](https://www.marksei.com/howto-keepalived-high-availability-load-balancing/)
+  * [Highly Available NFS](https://www.loadbalancer.org/blog/highly-available-shared-nfs-server/)
+
 ### Managing ceph host reboots
 To manage a ceph host reboot in a fault tolerant manner;
 
