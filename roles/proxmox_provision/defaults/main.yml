@@ -10,6 +10,7 @@ provision_type: "vm"    # Options: [ vm | lxc ]
 vm_disk_increase: 0     # Increase the vm disk by x GB
 vm_start: yes           # Start the VM after it's provisioned
 vm_enable_agent: yes    # Enable the proxmox qemu agent
+vm_install_qemu_agent: "{{ provision_add_to_inventory }}"
 vm_disk_passthrough: [] # Disk ID's to pass through to VM. See: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
 
 # LXC options
@@ -27,5 +28,5 @@ pve_host: "{{ inventory_hostname }}"
 pve_api_host: "{{ pve_host }}"
 
 # Ansible options
-provision_add_to_inventory: false                 # Adds the created instances to ansible hosts
+provision_add_to_inventory: false                 # Adds the created instances to ansible hosts, note that qemu-agent is required to be installed on 'vm' instance types for this feature
 provision_inventory_hostgroup: proxmox_provision  # The name of the hostgroup the new instances assigned to in inventory

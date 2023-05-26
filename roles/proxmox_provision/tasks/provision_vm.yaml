@@ -23,6 +23,30 @@
     msg: '{{ vm }}'
   when: vm is defined
 
+- block:
+  # Customise the user cloud-init config to include qemu-agent package (can't be done via proxmox cloud-init support)
+  - name: Get local storage information
+    proxmox_query:
+      query: "storage/local"
+    register: _pve_storage_local
+
+  - name: Get cloud template USER data
+    shell: qm cloudinit dump {{ pve_template_id }} user
+    register: _cloudinit_user_config
+    changed_when: false
+
+  - name: Copy custom cloud-init for VM {{ instance_name }}
+    copy:
+      content: "{{ _cloudinit_user_config.stdout + lookup('file','files/cloud-init-package-qemu-agent.yaml') }}"
+      dest: "{{ _pve_storage_local.response.path }}/snippets/{{ vm.vmid }}-cloud-init-user.yaml"
+    when: vm is defined
+
+  - name: Update VM settings to use custom cloud-init file
+    shell: qm set {{ vm.vmid }} --cicustom "user=local:snippets/{{ vm.vmid }}-cloud-init-user.yaml"
+    when: vm.changed
+
+  when: vm_install_qemu_agent | bool
+
 - name: Change VM memory if defined
   shell: qm set {{ vm.vmid }} --memory {{ vm_memory }}{% if vm_memory_min is defined %} --balloon {{ vm_memory_min }}{% endif %}
   when: vm_memory is defined and vm.changed

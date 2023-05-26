@@ -1,10 +1,13 @@
 ---
 # Get the VM IP address
 
-- name: Get VM IP address
+- name: Get VM IP address (wait for cloud-init... may take a while)
   proxmox_query:
     query: "nodes/{{ pve_host }}/qemu/{{ pve_instance.vmid }}/agent/network-get-interfaces"
   register: _pve_qemu_ip_json
+  retries: 20
+  delay: 15
+  until: "_pve_qemu_ip_json.response is defined"
 
 - set_fact:
     _pve_instance_interface: "{{ (_pve_qemu_ip_json | community.general.json_query(query)) }}"
