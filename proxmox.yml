@@ -32,6 +32,7 @@
     - role: nfs-ganesha
       vars:
         nfs_ganesha_port: 12049
+        nfs_ganesha_exports: "{{ pve_nfs_exports }}"
       tags: servicemesh
     - role: haproxy
       vars:
