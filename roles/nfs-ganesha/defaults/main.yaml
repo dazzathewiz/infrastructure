@@ -16,3 +16,10 @@ nfs_ganesha_rados_ganesha_conf: rados.exports.conf.j2
 
 # Specify the NFS port ganesha responds on, default NFS_CORE_PARAM sets the port to 2049
 # nfs_ganesha_port: 2049
+
+# ganesha NFS exports - used only with local/rados.ganesha.conf templates
+nfs_ganesha_exports:
+  - ceph_fs: "{{ pve_ceph_cephfs_name_plexdata }}"
+    ceph_path: /
+    pseudoroot_path: /Media/
+    user_id: "{{ pve_ceph_nfs_userid | replace('client.', '') }}"

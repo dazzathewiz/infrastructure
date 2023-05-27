@@ -1,7 +1,8 @@
+{% for count in range(nfs_ganesha_exports|length) %}
 EXPORT
 {
 	# Unique export ID number for this export
-	Export_ID=100;
+	Export_ID=10{{ count }};
 
 	# We're only interested in NFSv4 in this configuration
 	Protocols = 4;
@@ -17,13 +18,13 @@ EXPORT
 	# reachable via an exported subtree.
 	#
 	# For that reason, we just export "/" here.
-	Path = /;
+	Path = "{{ nfs_ganesha_exports[count]['ceph_path'] }}";
 
 	#
 	# The pseudoroot path. This is where the export will appear in the
 	# NFS pseudoroot namespace.
 	#
-	Pseudo = {{ nfs_ganesha_export_pseudoroot_path }};
+	Pseudo = "{{ nfs_ganesha_exports[count]['pseudoroot_path'] }}";
 
 	# We want to be able to read and write
 	Access_Type = RW;
@@ -60,7 +61,7 @@ EXPORT
 		# name. The default is to mount the default filesystem in the
 		# cluster (usually the first one created).
 		#
-		Filesystem = "{{ nfs_ganesha_export_ceph_fs }}";
+		Filesystem = "{{ nfs_ganesha_exports[count]['ceph_fs'] }}";
 
 		#
 		# Ceph clusters have their own authentication scheme (cephx).
@@ -79,7 +80,7 @@ EXPORT
 		# userid is set to the default in libcephfs (which is
 		# typically "admin").
 		#
-		User_Id = "{{ pve_ceph_nfs_userid | replace('client.', '') }}";
+		User_Id = "{{ nfs_ganesha_exports[count]['user_id'] }}";
 
 		#
 		# Key to use for the session (if any). If not set, it uses the
@@ -88,3 +89,4 @@ EXPORT
 		# Secret_Access_Key = "YOUR SECRET KEY HERE";
 	}
 }
+{% endfor %}
