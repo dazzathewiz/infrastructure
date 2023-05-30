@@ -1,0 +1,13 @@
+---
+
+# Type of load balancer, eg: http | tcp
+haproxy_lb_type: http
+haproxy_balance_type: roundrobin
+haproxy_frontend_name: my_frontend
+haproxy_frontend_ip: "{{ ansible_default_ipv4.address }}"
+haproxy_frontend_port: 80
+haproxy_backend_name: my_backend
+haproxy_backend_port: "{{ haproxy_frontend_port }}"
+
+# Backend servers should point to an Ansible host group name
+haproxy_backend_servers: haproxy_hosts

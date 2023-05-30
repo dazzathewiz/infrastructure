@@ -1,0 +1,15 @@
+---
+
+- name: Gather facts on backend servers
+  setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  loop: "{{ groups[haproxy_backend_servers] }}"
+  run_once: True
+
+- name: Copy haproxy.cfg.j2 template to {{ haproxy_confg_path }}
+  become: yes
+  template: src=haproxy.cfg.j2 dest={{ haproxy_confg_path }}
+  register: config
+  notify: 
+    - haproxy reload

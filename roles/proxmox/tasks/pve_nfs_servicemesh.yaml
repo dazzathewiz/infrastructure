@@ -26,20 +26,29 @@
     ceph -k /etc/pve/priv/ceph.client.admin.keyring auth add {{ pve_ceph_nfs_userid }} -i /etc/pve/priv/{{ pve_nfs_ceph_keyring }}
   when: inventory_hostname == groups[pve_ceph_mon_group][0] and _pve_ceph_auth_nfsganesha.failed and pve_nfs_create_client_keyring | bool
 
+
 - name: Create ubuntu 20.04 LXC container on {{ pve_group }} hosts
   include_role: 
     name: proxmox_provision
   vars:
     provision_type: lxc
-    instance_name: "{{ pve_nfs_container_name }}{{ inventory_hostname[-1] }}"
+    instance_name: "{{ pve_nfs_instance_name }}{{ inventory_hostname[-1] }}"
     lxc_ostemplate_name: ubuntu-20.04-standard_20.04-1_amd64.tar.gz     # Specify 20.04 as newer not supported/missing deps
     lxc_net_interfaces:
       - id: net0
         name: eth0
         ip4: "dhcp"
         bridge: vmbr2
+      - id: net1
+        name: eth1
+        ip4: "dhcp"
+        bridge: vmbr1
+    lxc_storage: ceph-vm
+    pve_lxc_memory: 768
+    pve_lxc_swap: 0
     pve_lxc_description: Created by ansible.
     pve_onboot: yes
     pve_lxc_unprivileged: yes
     provision_add_to_inventory: true
-    provision_inventory_hostgroup: proxmox_lxc_nfsganesha
+    provision_inventory_hostgroup: "{{ pve_ganesha_instance_hosts_group }}"
+  when: inventory_hostname[-1] | int <= pve_nfs_instance_count | int

@@ -1,0 +1,24 @@
+---
+
+# Ceph variables for items configured in the PVE Ceph Dashboard
+pve_ceph_cephfs_name_plexdata: cephfs_plexdata
+pve_ceph_rados_nfs_pool: nfs-ganesha  # Ceph pool name to store nfs-ganesha config (should be pre-created)
+pve_ceph_rados_nfs_pool_ganesha_namespace: ganesha-namespace
+pve_ceph_nfs_userid: "client.{{ pve_ceph_rados_nfs_pool }}"
+
+# NFS Ganesha variables for service CephFS via NFS from Proxmox
+pve_nfs_vip: 10.10.2.200/24
+pve_ganesha_instance_hosts_group: proxmox_instance_nfsganesha
+pve_nfs_exports:
+  - ceph_fs: "{{ pve_ceph_cephfs_name_plexdata }}"
+    ceph_path: /Movies/
+    pseudoroot_path: /Media/Movies/
+    user_id: "{{ pve_ceph_rados_nfs_pool }}"
+  - ceph_fs: "{{ pve_ceph_cephfs_name_plexdata }}"
+    ceph_path: /TV Shows/
+    pseudoroot_path: /Media/TV Shows/
+    user_id: "{{ pve_ceph_rados_nfs_pool }}"
+  - ceph_fs: "{{ pve_ceph_cephfs_name_plexdata }}"
+    ceph_path: /DVD Rips/
+    pseudoroot_path: /Media/DVD Rips/
+    user_id: "{{ pve_ceph_rados_nfs_pool }}"

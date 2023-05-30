@@ -25,7 +25,27 @@
           - iperf3
 
 # Disable/comment out if pve_nfs_enabled: no
-- hosts: proxmox_lxc_nfsganesha
+- hosts: "{{ pve_ganesha_instance_hosts_group }}"
+  vars_files: 
+    - group_vars/proxmox.yaml
   roles:
     - role: nfs-ganesha
-      tags: nfs
+      vars:
+        nfs_ganesha_port: 12049
+        nfs_ganesha_exports: "{{ pve_nfs_exports }}"
+      tags: servicemesh
+    - role: haproxy
+      vars:
+        haproxy_lb_type: tcp
+        haproxy_frontend_name: nfs-frontend
+        haproxy_frontend_ip: "*"
+        # haproxy_frontend_ip: "{{ pve_nfs_vip | regex_replace('/[0-9]{2}','') }}"
+        haproxy_frontend_port: 2049
+        haproxy_backend_name: nfs-backend
+        haproxy_backend_port: 12049
+        haproxy_backend_servers: "{{ pve_ganesha_instance_hosts_group }}"
+      tags: servicemesh
+    - role: keepalived
+      vars:
+        keepalived_vip: "{{ pve_nfs_vip }}"
+      tags: servicemesh

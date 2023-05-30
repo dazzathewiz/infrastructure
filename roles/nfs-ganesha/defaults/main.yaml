@@ -1,6 +1,6 @@
 ---
-nfs_ganesha_ceph_master: prox1    # A node which contains the current cluster ceph.conf and hold ceph client.keyrings
-nfs_ganesha_ceph_user_keys:       # Names of Ceph Client keys to copy to NFS server hosts from parent ceph cluster
+nfs_ganesha_ceph_master: "{{ groups['proxmox'][0] }}"     # A node which contains the current cluster ceph.conf and hold ceph client.keyrings
+nfs_ganesha_ceph_user_keys:                               # Names of Ceph Client keys to copy to NFS server hosts from parent ceph cluster
   - "client.{{ nfs_ganesha_ceph_admin_userid }}"
   - "{{ pve_ceph_nfs_userid }}"
 
@@ -9,3 +9,17 @@ nfs_ganesha_ceph_user_keys:       # Names of Ceph Client keys to copy to NFS ser
 #   * Configure for host specific when using a cluster with orchestration (Cephadm) - `conf-{{ ansible_nodename }}`
 #   * Configure with a static file name between all hosts for shared NFS exports - `conf-shared`
 nfs_ganesha_rados_export: conf-shared
+
+# Templates used for the local node config and shared rados config
+nfs_ganesha_local_ganesha_conf: my.ganesha.conf.j2
+nfs_ganesha_rados_ganesha_conf: rados.exports.conf.j2
+
+# Specify the NFS port ganesha responds on, default NFS_CORE_PARAM sets the port to 2049
+# nfs_ganesha_port: 2049
+
+# ganesha NFS exports - used only with local/rados.ganesha.conf templates
+nfs_ganesha_exports:
+  - ceph_fs: "{{ pve_ceph_cephfs_name_plexdata }}"
+    ceph_path: /
+    pseudoroot_path: /Media/
+    user_id: "{{ pve_ceph_nfs_userid | replace('client.', '') }}"

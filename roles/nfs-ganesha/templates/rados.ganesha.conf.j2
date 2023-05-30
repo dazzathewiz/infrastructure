@@ -1,4 +1,4 @@
-#
+{# #
 # It is possible to use FSAL_CEPH to provide an NFS gateway to CephFS. The
 # following sample config should be useful as a starting point for
 # configuration. This basic configuration is suitable for a standalone NFS
@@ -16,12 +16,15 @@
 # RADOS, and mandate NFSv4.1+ for access, we can avoid any sort of local
 # storage, and ganesha can run as an unprivileged user (even inside a
 # locked-down container).
-#
+# #}
 
 NFS_CORE_PARAM
 {
 	# Ganesha can lift the NFS grace period early if NLM is disabled.
 	Enable_NLM = false;
+
+{% if nfs_ganesha_port is defined %}	NFS_Port = {{ nfs_ganesha_port }};
+{% endif %}
 
 	# rquotad doesn't add any value here. CephFS doesn't support per-uid
 	# quotas anyway.
@@ -41,7 +44,7 @@ NFS_KRB5
 
 NFSv4
 {
-	# Modern versions of libcephfs have delegation support, though they
+	{# # Modern versions of libcephfs have delegation support, though they
 	# are not currently recommended in clustered configurations. They are
 	# disabled by default but can be re-enabled for singleton or
 	# active/passive configurations.
@@ -54,7 +57,7 @@ NFSv4
 	# For a single-node or active/passive configuration, rados_ng driver
 	# is preferred. For active/active clustered configurations, the
 	# rados_cluster backend can be used instead. See the
-	# ganesha-rados-grace manpage for more information.
+	# ganesha-rados-grace manpage for more information. #}
     RecoveryBackend = {{ nfs_ganesha_cluster_recovery_backend }};
 
 	# NFSv4.0 clients do not send a RECLAIM_COMPLETE, so we end up having
@@ -62,10 +65,10 @@ NFSv4
 	Minor_Versions =  1,2;
 }
 
-# The libcephfs client will aggressively cache information while it
+{# # The libcephfs client will aggressively cache information while it
 # can, so there is little benefit to ganesha actively caching the same
 # objects. Doing so can also hurt cache coherency. Here, we disable
-# as much attribute and directory caching as we can.
+# as much attribute and directory caching as we can. #}
 MDCACHE {
 	# Size the dirent cache down as small as possible.
 	Dir_Chunk = 0;
@@ -156,7 +159,7 @@ EXPORT
 		# userid is set to the default in libcephfs (which is
 		# typically "admin").
 		#
-        User_ID = "{{ pve_nfs_ceph_userid }}";
+		User_Id = "{{ pve_ceph_nfs_userid | replace('client.', '') }}";
 
 		#
 		# Key to use for the session (if any). If not set, it uses the
@@ -170,7 +173,7 @@ EXPORT
 CEPH
 {
 	# Path to a ceph.conf file for this ceph cluster.
-	# Ceph_Conf = {{ nfs_ganesha_ceph_conf }};
+	# Ceph_Conf = {{ default_ceph_conf }};
 
 	# User file-creation mask. These bits will be masked off from the unix
 	# permissions on newly-created inodes.
@@ -184,20 +187,20 @@ LOG {
 }
 
 
-#
+{# #
 # This is the config block for the RADOS RecoveryBackend. This is only
 # used if you're storing the client recovery records in a RADOS object.
-#
+# #}
 RADOS_KV
 {
 	# Path to a ceph.conf file for this cluster.
-    Ceph_Conf = {{ nfs_ganesha_ceph_conf }};
+    Ceph_Conf = {{ default_ceph_conf }};
 
-	# The recoverybackend has its own ceph client. The default is to
+	{# # The recoverybackend has its own ceph client. The default is to
 	# let libcephfs autogenerate the userid. Note that RADOS_KV block does
 	# not have a setting for Secret_Access_Key. A cephx keyring file must
-	# be used for authenticated access.
-    UserId = "{{ pve_nfs_ceph_admin_userid }}";
+	# be used for authenticated access. #}
+    UserId = "{{ nfs_ganesha_ceph_admin_userid }}";
 
 	# Pool ID of the ceph storage pool that contains the recovery objects.
 	# The default is "nfs-ganesha".
@@ -206,10 +209,12 @@ RADOS_KV
     # Recovery namespace to keep files seperate
     namespace = "{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}";
 
-	# Consider setting a unique nodeid for each running daemon here,
+	{# # Consider setting a unique nodeid for each running daemon here,
 	# particularly if this daemon could end up migrating to a host with
 	# a different hostname (i.e. if you're running an active/passive cluster
 	# with rados_ng/rados_kv and/or a scale-out rados_cluster). The default
 	# is to use the hostname of the node where ganesha is running.
-    # nodeid = hostname.example.com;
+    # nodeid = hostname.example.com; #}
+	# Cannot put nodeID in for a rados shared file
+	{# # nodeid = "{{ ansible_nodename }}"; #}
 }

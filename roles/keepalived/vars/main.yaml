@@ -1,0 +1,5 @@
+---
+keepalived_packages:
+  - keepalived
+
+keepalived_path: /etc/keepalived/keepalived.conf

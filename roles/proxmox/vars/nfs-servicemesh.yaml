@@ -2,3 +2,6 @@
 
 # Note that naming Ceph keyring creds should follow CephX search path convention: /etc/ceph/$cluster.$name.keyring
 pve_nfs_ceph_keyring: ceph.client.{{ pve_ceph_rados_nfs_pool }}.keyring
+
+# LXC container naming
+pve_nfs_instance_name: nfs-ganesha

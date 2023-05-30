@@ -1,0 +1,113 @@
+# See: http://images.45drives.com/ceph/cephfs/nfs-ganesha-ceph.conf
+
+{# #
+# It is possible to use FSAL_CEPH to provide an NFS gateway to CephFS. The
+# following sample config should be useful as a starting point for
+# configuration. This basic configuration is suitable for a standalone NFS
+# server, or an active/passive configuration managed by some sort of clustering
+# software (e.g. pacemaker, docker, etc.).
+#
+# Note too that it is also possible to put a config file in RADOS, and give
+# ganesha a rados URL from which to fetch it. For instance, if the config
+# file is stored in a RADOS pool called "nfs-ganesha", in a namespace called
+# "ganesha-namespace" with an object name of "ganesha-config":
+#
+# %url	rados://nfs-ganesha/ganesha-namespace/ganesha-config
+#
+# If we only export cephfs (or RGW), store the configs and recovery data in
+# RADOS, and mandate NFSv4.1+ for access, we can avoid any sort of local
+# storage, and ganesha can run as an unprivileged user (even inside a
+# locked-down container).
+# #}
+
+NFS_CORE_PARAM
+{
+	# Ganesha can lift the NFS grace period early if NLM is disabled.
+	Enable_NLM = false;
+
+{% if nfs_ganesha_port is defined %}	NFS_Port = {{ nfs_ganesha_port }};
+{% endif %}
+
+	# rquotad doesn't add any value here. CephFS doesn't support per-uid
+	# quotas anyway.
+	Enable_RQUOTA = false;
+
+	# In this configuration, we're just exporting NFSv4. In practice, it's
+	# best to use NFSv4.1+ to get the benefit of sessions.
+	Protocols = 4;
+
+    mount_path_pseudo = true;
+}
+
+NFS_KRB5
+{
+    Active_krb5 = false;
+}
+
+{# Cluster Recovery backend:
+Use rados_cluster when using active active NFS
+Use rados_ng when using single NFS (or active passive w. k8s or Pacemaker) #}
+NFSv4 {
+    RecoveryBackend = {{ nfs_ganesha_cluster_recovery_backend }};
+    # RecoveryBackend = rados_ng;
+
+    # NFSv4.0 clients do not send a RECLAIM_COMPLETE, so we end up having
+	# to wait out the entire grace period if there are any. Avoid them.
+	Minor_Versions =  1,2;
+}
+
+{# # The libcephfs client will aggressively cache information while it
+# can, so there is little benefit to ganesha actively caching the same
+# objects. Doing so can also hurt cache coherency. Here, we disable
+# as much attribute and directory caching as we can. #}
+MDCACHE {
+	# Size the dirent cache down as small as possible.
+	Dir_Chunk = 0;
+
+    # size the inode cache as small as possible
+    NParts = 1;
+    Cache_Size = 1;
+}
+
+LOG {
+    Components {
+        ALL = INFO;
+    }
+}
+
+{# RADOS_URL Block:
+Specify the userid reponsible of reading the export config objects from the cluster
+Specify the watch_url to watch the export index file of the gateway.
+Whenever a export is created, modified or removed, NFS-ganesha will reload its configuration
+This allows dynamic exports when configuring with the Ceph Dashboard
+Note that the watch url object must be unique to each NFS gateway and should always be the same object used for exports #}
+RADOS_URLS {
+    ceph_conf = '{{ nfs_ganesha_ceph_conf }}';
+    userid = "{{ nfs_ganesha_ceph_admin_userid }}";
+    watch_url = "{{ nfs_ganesha_rados_url }}";
+}
+
+{# RADOS_KV Block
+Specify the RADOS pool and namespace where the Grace db is stored
+If using single NFS (or active passive w. k8s or Pacemaker) nodeid is not required. #}
+RADOS_KV {
+    # Path to a ceph.conf file for this cluster.
+    Ceph_Conf = {{ default_ceph_conf }};
+
+    pool = "{{ pve_ceph_rados_nfs_pool }}";
+    namespace = "{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}";
+    nodeid = "{{ ansible_nodename }}";
+
+    {# # The recoverybackend has its own ceph client. The default is to
+	# let libcephfs autogenerate the userid. Note that RADOS_KV block does
+	# not have a setting for Secret_Access_Key. A cephx keyring file must
+	# be used for authenticated access. #}
+    UserId = "{{ nfs_ganesha_ceph_admin_userid }}";
+}
+
+{# Exports
+Exports are managed from the Ceph UI (Ceph => v14). Previous Ceph releases must be managed from cli.
+Specify NFS server to read exports by giving the export-index RADOS URL
+Note that each NFS gateway will have an unique export-index. Where required object name syntax is conf-<HOSTNAME> #}
+
+%url {{ nfs_ganesha_rados_url }}

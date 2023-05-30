@@ -12,8 +12,8 @@ RADOS_URLS
     # We can also have ganesha watch a RADOS object for notifications, and
     # have it force a configuration reload when one comes in. Set this to
     # a valid rados:// URL to enable this feature.
-    watch_url = "rados://{{ pve_ceph_rados_nfs_pool }}/{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}/ganesha.conf";
+    watch_url = "{{ nfs_ganesha_rados_url }}";
 }
 
 # rados://$POOL-NAME/$NAMESPACE/$FILENAME
-%url rados://{{ pve_ceph_rados_nfs_pool }}/{{ pve_ceph_rados_nfs_pool_ganesha_namespace }}/ganesha.conf
+%url {{ nfs_ganesha_rados_url }}

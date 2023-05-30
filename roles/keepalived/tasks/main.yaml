@@ -1,0 +1,24 @@
+---
+
+- set_fact:
+    keepalived_interface: "{{ hostvars[inventory_hostname]['ansible_' + item]['device'] }}"
+    node_ip: "{{ hostvars[inventory_hostname]['ansible_' + item]['ipv4']['address'] }}/{{ (hostvars[inventory_hostname]['ansible_' + item]['ipv4']['address'] + '/' + hostvars[inventory_hostname]['ansible_' + item]['ipv4']['netmask']) | ansible.utils.ipaddr('prefix') }}"
+  when:
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+    - hostvars[inventory_hostname]['ansible_' + item]['ipv4']['address'] | ansible.utils.ipaddr(keepalived_vip)
+  with_items: "{{ ansible_interfaces }}"
+
+- name: Copy keepalived.conf.j2 template to {{ keepalived_path }}
+  become: yes
+  template: src=keepalived.conf.j2 dest={{ keepalived_path }}
+  register: _keepalived_config
+
+- name: Start and enable the systemd services
+  become: yes
+  systemd:
+    state: restarted
+    enabled: true
+    name: "{{ item }}"
+  with_items:
+    - keepalived
+  when: _keepalived_config.changed

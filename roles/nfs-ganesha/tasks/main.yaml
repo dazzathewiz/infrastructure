@@ -1,13 +1,13 @@
 ---
 
-- name: Import vars from group_vars/pve-ceph.yaml
+- name: Import vars from group_vars/proxmox.yaml
   include_vars:
     dir: ../../../group_vars
-    files_matching: pve-ceph.yaml
+    files_matching: proxmox.yaml
 
-- name: Copy 45drives.ganesha.conf.j2 template to {{ nfs_ganesha_ganesha_conf }}
+- name: Copy {{ nfs_ganesha_local_ganesha_conf }} template to {{ nfs_ganesha_ganesha_conf }}
   become: yes
-  template: src=45drives.ganesha.conf.j2 dest={{ nfs_ganesha_ganesha_conf }}
+  template: src={{ nfs_ganesha_local_ganesha_conf }} dest={{ nfs_ganesha_ganesha_conf }}
   register: config
 
 - name: Get PVE Ceph ceph.conf configuration
@@ -19,6 +19,7 @@
   changed_when: false
 
 - name: Copy ceph.conf to NFS Ganesha nodes
+  become: yes
   copy:
     content: "{{ ceph_config.content | b64decode | replace('/etc/pve/priv/$cluster.$name.keyring', '/etc/ceph/$cluster.$name.keyring') }}"
     dest: "{{ nfs_ganesha_ceph_conf }}"
@@ -33,6 +34,7 @@
   changed_when: false
 
 - name: Copy all client.<key>.keyring to NFS Ganesha nodes
+  become: yes
   copy:
     content: "{{ item.stdout }}\n"
     dest: "{{ nfs_ganesha_ceph_conf | dirname }}/ceph.{{ item.item }}.keyring"
@@ -46,7 +48,7 @@
   changed_when: false
 
 - name: Create Grace DB in rados
-  shell: ganesha-rados-grace -p {{ pve_ceph_rados_nfs_pool }} -n {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} add{% for item in groups['proxmox_lxc_nfsganesha'] %} {{ hostvars[item].ansible_nodename }}{% endfor %}
+  shell: ganesha-rados-grace -p {{ pve_ceph_rados_nfs_pool }} -n {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} add{% for item in ansible_play_hosts_all %} {{ hostvars[item].ansible_nodename }}{% endfor %}
   run_once: true
   when: grace_status.rc == 1
   register: grace_db
@@ -63,21 +65,23 @@
   changed_when: false
 
 - name: Copy locally the export-index file for nodes
+  become: yes
   shell: rados -p {{ pve_ceph_rados_nfs_pool }} -N {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} get {{ nfs_ganesha_rados_export }} {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
   when: export_index_stat.rc == 0
   changed_when: false
 
-- name: Copy rados.exports.conf.j2 template to {{ nfs_ganesha_ganesha_conf }}
+- name: Copy {{ nfs_ganesha_rados_ganesha_conf }} template to {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
   become: yes
-  template: src=rados.exports.conf.j2 dest={{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
+  template: src={{ nfs_ganesha_rados_ganesha_conf }} dest={{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
   register: export_index_file
 
 - name: Create export-index file for nodes
   shell: rados -p {{ pve_ceph_rados_nfs_pool }} -N {{ pve_ceph_rados_nfs_pool_ganesha_namespace }} put {{ nfs_ganesha_rados_export }} {{ nfs_ganesha_ganesha_conf | dirname }}/exports.conf
-  when: export_index_file.changed
+  when: export_index_file.changed or export_index_stat.rc != 0
   register: export_index
 
 - name: Start and enable the systemd services
+  become: yes
   systemd:
     state: restarted
     enabled: true

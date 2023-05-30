@@ -1,0 +1,33 @@
+vrrp_script chk_{{ keepalived_process }} {
+    script "{{ keepalived_chk_script }}"
+    interval 2
+    weight 2
+}
+
+vrrp_instance VI_1 {
+    interface {{ keepalived_interface }}
+    state {% if inventory_hostname == ansible_play_hosts_all[0] %}MASTER{% else %}BACKUP{% endif %}
+
+    priority {{ 200 - ((ansible_nodename[-1] | int - 1) * 10) }}
+
+    virtual_router_id {{ keepalived_routerid }}
+    unicast_src_ip {{ node_ip }}
+    unicast_peer {
+        {% for item in ansible_play_hosts_all %}{% if item != inventory_hostname %}{{ hostvars[item].node_ip }}
+        {% endif %}{% endfor %}
+    
+    }
+
+    virtual_ipaddress {
+        {{ keepalived_vip }}
+    }
+
+    authentication {
+        auth_type PASS
+        auth_pass {{ keepalived_authpass }}
+    }
+
+    track_script {
+        chk_{{ keepalived_process }}
+    }
+}

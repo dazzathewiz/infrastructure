@@ -11,4 +11,5 @@ dependencies:
     vars:
       mounts: "{{ dietpi_mounts | default(omit) }}"
       manage_packages: no
+      set_timezone: no
     when: dietpi_mounts is defined

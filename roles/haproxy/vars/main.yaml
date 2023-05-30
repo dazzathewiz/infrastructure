@@ -1,0 +1,11 @@
+---
+
+# HAproxy package/repo dependancies
+haproxy_packages:
+  - haproxy
+  - net-tools
+
+# haproxy.cfg settings
+haproxy_confg_path: /etc/haproxy/haproxy.cfg
+haproxy_mode: "{{ haproxy_lb_type }}"
+haproxy_option: "{{ haproxy_lb_type }}log"

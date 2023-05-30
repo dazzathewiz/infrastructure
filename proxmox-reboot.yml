@@ -2,9 +2,9 @@
 
 # Change the hosts as desired for host needing reboot
 - hosts:
-  # - prox1
+  - prox1
   - prox2
-  # - prox3
+  - prox3
 
   tasks:
     - include_role:
@@ -14,5 +14,6 @@
       vars:
         pve_ceph_enabled: yes
         pve_system_role: no
+        pve_nfs_enabled: yes
       
         
