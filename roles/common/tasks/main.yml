@@ -8,9 +8,9 @@
   user:
     name: "{{ user }}"
     state: present
-    groups: sudo,admin
-    shell: /bin/bash
-    home: "/home/{{ user }}"
+    groups: "{{ user_groups }}"
+    shell: "{{ user_shell }}"
+    home: "{{ user_home }}"
 
 - name: Optionally set password for "{{ user }}"
   user:

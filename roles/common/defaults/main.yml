@@ -2,3 +2,6 @@
 user: "{{ provisioning_user }}"
 disable_password_auth: true
 set_user_password: false
+user_shell: /bin/bash
+user_home: "/home/{{ user }}"
+user_groups: sudo,admin
