@@ -1,0 +1,30 @@
+---
+- hosts: pikvm
+
+  # Note Ansible will not gather facts without `rw` already set before running this playbook...
+  gather_facts: False
+
+  vars_files: group_vars/secret.yml
+
+  pre_tasks:
+    - name: Set FS to RW
+      shell: rw
+
+  roles:
+    - role: common
+      vars:
+        user: root
+        set_user_password: true
+        user_shell: "{{ null|default(omit) }}"
+        user_groups: sudo,admin,root
+        user_home: "{{ null|default(omit) }}"
+  
+  tasks:
+    - name: Set PiKVM Web Interface password for admin user
+      command: kvmd-htpasswd set admin -i
+      args:
+        stdin: "{{ infadmin_password }}"
+
+  post_tasks:
+    - name: Reset FS to RO
+      shell: ro
