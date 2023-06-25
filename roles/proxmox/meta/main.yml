@@ -3,6 +3,7 @@
 dependencies:
   - role: system
     vars:
+      manage_packages: no
       upgrade_packages: no
       auto_reboot: no
     tags: setup
