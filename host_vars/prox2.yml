@@ -4,6 +4,6 @@ k3s_worker_pcie:
   - id: "00:02.0"   # Intel Corporation CometLake-S GT2 [UHD Graphics 630]
     mdev: "i915-GVTg_V5_4"
 
-k3s_worker_node_memory: 36864
+k3s_worker_node_memory: 16384
 k3s_worker_node_memory_min: 16384
 k3s_worker_node_cpu: 6

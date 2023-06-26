@@ -1,9 +1,9 @@
 ---
 k3s_worker_pcie:
-  - "02:00.0"       # 1TB Samsung 970 EVO NVMe - Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+  - "03:00.0"       # 2TB Sabrent Rocket 4.0 NVMe - Phison Electronics Corporation E16 PCIe4 NVMe Controller (rev 01)
   - id: "00:02.0"   # Intel Corporation CometLake-S GT2 [UHD Graphics 630]
     mdev: "i915-GVTg_V5_4"
 
-k3s_worker_node_memory: 36864
+k3s_worker_node_memory: 16384
 k3s_worker_node_memory_min: 16384
 k3s_worker_node_cpu: 6
