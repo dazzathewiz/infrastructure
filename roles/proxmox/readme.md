@@ -102,6 +102,21 @@ Taken from the work of Kubernetes@Home [dcplaya/homeops](https://github.com/dcpl
 
 More information documented in the [nfs-ganesha](../nfs-ganesha/README.md) role.
 
+## Proxmox Install from USB
+
+Setup to install Proxmox from USB
+![Proxmox Install](files/install_ventoy.png)
+
+1. ![Proxmox Install](files/install_proxmox1.png)
+2. Ensure you choose `Options`
+   ![Proxmox Install](files/install_proxmox2.png)
+3. ZFS setup is recommended, otherwise Proxmox will create a standard LVM partition by default
+   ![Proxmox Install](files/install_proxmox3.png)
+4. ![Proxmox Install](files/install_proxmox4.png)
+5. ![Proxmox Install](files/install_proxmox5.png)
+6. ![Proxmox Install](files/install_proxmox6.png)
+7. ![Proxmox Install](files/install_proxmox7.png)
+
 ## Ceph Management
 I don't automate all of Ceph configuration because this is a homelab environment and I prefer to do these tasks
 manually due to situational dynamics and avoiding automation hazards that lead to data loss:
@@ -129,6 +144,13 @@ Consideration for OSD's:
   * This [YouTube video](https://www.youtube.com/watch?v=aaMaMMqOk1o) quickly describes the `osd_memory_target` settings. 
   * Cephadm can perform [Automatic tuning of OSD memory](https://docs.ceph.com/en/quincy/cephadm/services/osd/?highlight=osd_memory_target_autotune#automatically-tuning-osd-memory) since Quincy (v17), however Proxmox installs don't use Cephadm. Furthermore, Ceph recommends disabling `osd_memory_target_autotune` on hyperconverged infrastructures such as Proxmox.
   * Ceph recommended in their [Quincy release](https://ceph.io/en/news/blog/2022/v17-2-0-quincy-released/) that `mgr/cephadm/autotune_memory_target_ratio` should default to `0.2` or 20% of available system RAM. This is to run ALL OSD's and that 20% memory should be devided up between OSD's.
+
+  #### Moving existing OSD's to another host
+  If you don't have a separate (shared) journal device, you can just down and out the OSD and physically move it from one host to another. (hot-)plugging it in should automatically start the OSD service on the new host, and you can mark the osd as "in" on the GUI.
+  Note that I needed to also run a ceph-volume command to activate the Ceph-LVM OSD's.
+  1. Set OSD's `down` and `out`
+  2. Move physical drives to another ceph/proxmox host
+  3. On the new ceph/proxmox host, run: `ceph-volume lvm activate --all`
 
 ### Pools
 I create Pools manually, managed using the Dashboard: ```https://{{ pve_ceph_net_front_base }}:8443/#/pool```
