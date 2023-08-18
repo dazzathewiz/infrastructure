@@ -49,6 +49,8 @@
           - { path: /mnt/disk3, src: UUID=b664d8a4-9cad-4a7e-95c2-fbfd5ffbf70f, fstype: xfs }
           - { path: /mnt/disk4, src: UUID=c2f06c17-a83a-4b3a-a087-89d03ec846a3, fstype: xfs }
           - { path: /mnt/disk5, src: UUID=dee733f1-4935-4062-a47c-2f876143745e, fstype: xfs }
+          - { path: /mnt/disk6, src: UUID=7cd7a54a-94ed-416d-89e9-fc12ea42d6c0, fstype: ext4 }
+          - { path: /mnt/disk7, src: UUID=36e9d9b7-5cdf-4293-910c-0a7e23b92807, fstype: ext4 }
 
           # MergerFS mount
           - { path: /mnt/storage, src: /mnt/disk*, fstype: fuse.mergerfs, opts: 'allow_other,direct_io,use_ino,category.create=mfs,moveonenospc=true,minfreespace=2G,fsname=array' }
@@ -116,12 +118,6 @@
     
     # machinaris containers
     # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
-
-    # scprime container
-    - { role: containers/scprime, tags: [containers] }
-
-    # Silicoin container
-    - { role: containers/silicoin, tags: [containers,test] }
 
     # Watchtower
     - role: containers/watchtower
