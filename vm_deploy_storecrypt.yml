@@ -19,11 +19,11 @@
         #vm_pcie_device: ["02:00.0", "01:00.0"]
         vm_disk_passthrough:
           # Chia Disks
-          - ata-ST16000NM000J-2TW103_ZR51RBDP
-          - ata-ST16000NM000J-2TW103_ZR51T3AQ
+          #- ata-ST16000NM000J-2TW103_ZR51RBDP
+          #- ata-ST16000NM000J-2TW103_ZR51T3AQ
           - ata-ST16000NM001G-2KK103_WL2094N3
-          - ata-ST16000NM000J-2TW103_ZR51W96J
-          - ata-ST16000NM000J-2TW103_ZR51XQ68
+          #- ata-ST16000NM000J-2TW103_ZR51W96J
+          #- ata-ST16000NM000J-2TW103_ZR51XQ68
           - ata-ST16000NM001G-2KK103_ZL258KWJ
           - ata-ST16000NM001G-2KK103_ZL219JBX
           - ata-ST16000NM001G-2KK103_ZL20TN0Y
