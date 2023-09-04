@@ -1,0 +1,115 @@
+---
+
+# Setup harvester1 server
+- hosts: harvester1
+  vars_files: group_vars/secret.yml
+
+  vars:
+
+    # pip docker package is used for deploying docker containers
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+
+  roles:
+    # - role: 45drives/repo
+    #   tags: 45drives
+    
+    # Install system packages, config, mount points
+    - role: system
+      vars:
+        packages:
+          - lm-sensors
+          - mergerfs
+          - samba
+          - cifs-utils
+          - 45drives-tools
+          - cockpit
+          - cockpit-file-sharing
+          - iperf3
+        mounts:
+
+          # Disk mounts
+          - { path: /mnt/disk1, src: UUID=7e44cd1c-184b-4572-843c-677c2edb7f5a, fstype: auto }
+          - { path: /mnt/disk2, src: UUID=6f4fe30d-b3ac-4b82-93bd-9cd91d80f891, fstype: auto }
+          - { path: /mnt/disk3, src: UUID=f5016637-5337-4cc5-8ba7-bcd39b0cc13a, fstype: auto }
+          - { path: /mnt/disk4, src: UUID=beb4c9f1-2f6b-4e42-b3f6-c2ccf7c847ef, fstype: auto }
+          - { path: /mnt/disk5, src: UUID=bb553ebf-f1f0-4aba-8f95-7ffb0f22514b, fstype: auto }
+          - { path: /mnt/disk6, src: UUID=0b5e464f-4842-43fc-b9eb-a6dafa495e88, fstype: auto }
+          - { path: /mnt/disk7, src: UUID=f5fbdec0-941b-4820-b711-df819d2568f3, fstype: auto }
+          - { path: /mnt/disk8, src: UUID=b2984f57-4eb7-4f3f-afdc-f8480901c0ca, fstype: auto }
+          - { path: /mnt/disk9, src: UUID=ab04443f-cc33-4b7d-a290-abf9e6ea5b98, fstype: auto }
+          - { path: /mnt/disk10, src: UUID=c87750b2-c46d-44db-b542-b108befdc003, fstype: auto }
+          - { path: /mnt/disk11, src: UUID=7ffc3205-565c-44ac-9f22-3d86cee94170, fstype: auto }
+          - { path: /mnt/disk12, src: UUID=4d43f1e3-9d6b-4643-9c34-fd6d6575ecd0, fstype: auto }
+          - { path: /mnt/disk13, src: UUID=9d4854eb-7055-4dcd-8bca-e609f0f1eb57, fstype: auto }
+          - { path: /mnt/disk14, src: UUID=400e435d-7af1-46e0-adcf-7891449a859b, fstype: auto }
+
+          # MergerFS mount
+          - { path: /mnt/storage, src: /mnt/disk*, fstype: fuse.mergerfs, opts: 'allow_other,direct_io,use_ino,category.create=mfs,moveonenospc=true,minfreespace=2G,fsname=array' }
+
+      tags: setup
+
+    # - role: 45drives/zfs-manager
+    #   tags: setup
+
+    # Placeholder to Install hddtemp monitoring
+    # - role: hddtemp 
+    #   become: true
+    #   hddtemp_run_daemon: yes
+    #   tags: [setup]
+
+    # Setup docker
+    - { role: geerlingguy.pip, become: true, tags: [setup] }
+    - role: geerlingguy.docker
+      become: true
+      vars:
+        docker_users:
+          - "{{ provisioning_user }}"
+      tags: setup
+    
+    # Deploy docker containers
+    # - { role: containers/portainer, tags: [containers] }
+    # - { role: containers/portainer_agent, tags: [containers] }
+    # - role: containers/telegraf
+    #   vars:
+    #     telegraf_agent_output:
+    #       - type: influxdb
+    #         config:
+    #           - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
+    #           - database = "filecoin"
+    #     telegraf_plugins_default:
+    #       - plugin: cpu
+    #         config:
+    #           - percpu = true
+    #           - totalcpu = true
+    #           - collect_cpu_time = false
+    #           - report_active = false
+    #       - plugin: disk
+    #         config:
+    #           - ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+    #       - plugin: diskio
+    #       - plugin: kernel
+    #       - plugin: mem
+    #       - plugin: swap
+    #       - plugin: system
+    #       - plugin: docker
+    #         config:
+    #           - endpoint = "unix:///var/run/docker.sock"
+    #       - plugin: hddtemp
+    #       - plugin: net
+    #       - plugin: netstat
+    #       - plugin: zfs
+    #         config:
+    #           - poolMetrics = true
+    #   tags: containers, telegraf
+    
+    # machinaris containers
+    # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
+
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
+      tags: containers, watchtower
