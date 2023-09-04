@@ -1,0 +1,25 @@
+---
+
+- name: Make sure {{ container_name }} container is created and running
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    pull: yes
+    state: 'started'
+    ports:
+      - 28967:28967/tcp
+      - 28967:28967/udp
+      - 14002:14002
+    env:
+      "TZ": "{{ timezone }}"
+      "WALLET": "{{ container_storj_wallet }}"
+      "EMAIL": "{{ container_storj_email }}"
+      "ADDRESS": "{{ container_storj_address }}"
+      "STORAGE": "{{ container_storj_storage }}"
+    volumes:
+      - "{{ container_storj_data }}:/app/config"
+      - "{{ container_storj_dbs }}:/app/dbs"
+      - "{{ container_storj_identity }}:/app/identity"
+    network_mode: bridge
+    restart_policy: always

@@ -1,0 +1,15 @@
+---
+
+container_name: storagenode
+container_image: "storjlabs/storagenode"
+
+# Data directories
+container_storj_data: "{{ docker_dir }}/{{ container_name }}/data"
+container_storj_dbs: "{{ docker_dir }}/{{ container_name }}/dbs"
+container_storj_identity: "{{ docker_dir }}/{{ container_name }}/identity"
+
+# Env variables
+container_storj_wallet: "0x000000"
+container_storj_email: fake@yourdomain
+container_storj_address: your.fqdn:28967
+container_storj_storage: 16TB
