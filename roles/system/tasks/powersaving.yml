@@ -2,6 +2,7 @@
 # Courtesy of https://github.com/notthebee/infra/tree/main/roles/system
 
 - name: Install the powersaving packages
+  become: yes
   package:
     name:
       - powertop 
@@ -9,6 +10,7 @@
     state: latest
 
 - name: Install the systemd services
+  become: yes
   copy:
     src: "{{ item }}"
     dest: "/etc/systemd/system/{{ item | basename }}"
@@ -22,6 +24,7 @@
     - files/powersaving/*.timer
       
 - name: Start and enable the systemd services
+  become: yes
   systemd:
     state: started
     enabled: true
