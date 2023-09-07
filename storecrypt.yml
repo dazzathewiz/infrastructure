@@ -2,15 +2,7 @@
 
 # Replaces fil-miner functions into proxmox VM
 
-# Create VM
-- import_playbook: vm_deploy_storecrypt.yml
-
-# Wait for VM to boot properly
-- hosts: controlhost
-  roles:
-    - role: waitboot
-      vars:
-        host: "{{ hostvars['storecrypt']['ansible_host'] }}"
+# VM must be created first, use vm_deploy_storecrypt.yml
 
 # Setup storecrypt server
 - hosts: storecrypt

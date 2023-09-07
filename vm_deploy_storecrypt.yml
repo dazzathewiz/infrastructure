@@ -31,3 +31,10 @@
           - ata-ST16000NM001G-2KK103_ZL211QMG 
           # Hybrid Disks
           - ata-ST10000VN0004-2GS11L_ZCH0GJST
+
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['storecrypt']['ansible_host'] }}"
