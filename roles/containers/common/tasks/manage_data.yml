@@ -1,8 +1,8 @@
 ---
 
-- name: Check if data exists already in docker directory {{ docker_dir }}/{{ container_name }}/data
+- name: Check if data exists already in docker directory {{ docker_dir }}/{{ container_name }}
   find:
-    paths: "{{ docker_dir }}/{{ container_name }}/data"
+    paths: "{{ docker_dir }}/{{ container_name }}"
     file_type: any
     hidden: true
   register: filesFound
@@ -10,10 +10,10 @@
 - debug:
       var: filesFound
 
-- name: Copy {{ container_name }} docker data from {{ container_data_backup }}
+- name: Copy {{ container_name }} docker data from {{ container_data_backup_dir }}
   become: yes
   ansible.posix.synchronize:
-    src: "{{ container_data_backup }}/"
-    dest: "{{ docker_dir }}/{{ container_name }}/data"
+    src: "{{ container_data_backup_dir }}/"
+    dest: "{{ docker_dir }}/{{ container_name }}"
   delegate_to: "{{ inventory_hostname }}"
   when: filesFound.matched == 0
