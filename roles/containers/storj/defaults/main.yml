@@ -3,6 +3,9 @@
 container_name: storagenode
 container_image: "storjlabs/storagenode"
 
+container_data_backup: yes
+container_data_backup_dir: /mnt/backup/{{ container_name }}
+
 # Data directories
 container_storj_data: "{{ docker_dir }}/{{ container_name }}/data"
 container_storj_dbs: "{{ docker_dir }}/{{ container_name }}/dbs"
