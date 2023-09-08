@@ -32,6 +32,7 @@
   include_role: 
     name: rsync-cron
   vars:
+    sync_cron_username: "root"
     sync_cron_src_path: "{{ docker_dir }}/{{ container_name }}/"
     sync_cron_dest_url: "{{ container_data_backup_dir }}"
     sync_cron_freq:
