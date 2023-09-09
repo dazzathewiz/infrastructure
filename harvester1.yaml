@@ -55,10 +55,7 @@
     #   tags: setup
 
     # Placeholder to Install hddtemp monitoring
-    # - role: hddtemp 
-    #   become: true
-    #   hddtemp_run_daemon: yes
-    #   tags: [setup]
+    # - { role: ironicbadger.hddtemp, become: true, tags: [setup] }
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }

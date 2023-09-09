@@ -63,10 +63,7 @@
 
     # Install hddtemp monitoring
     # Still need to run manually: `sudo dpkg-reconfigure hddtemp`
-    - role: hddtemp 
-      become: true
-      hddtemp_run_daemon: yes
-      tags: [setup]
+    - { role: ironicbadger.hddtemp, become: true, tags: [setup] }
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
