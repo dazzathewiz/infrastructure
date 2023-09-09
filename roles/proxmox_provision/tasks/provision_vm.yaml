@@ -64,7 +64,7 @@
   when: vm.changed and vm_network_bridge is defined or vm_network_vlan is defined or vm_network_mac is defined
 
 - name: Set a PCIe device passthrough to the VM if required
-  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}
+  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}{% if item['rombar'] is defined %},rombar={{ item['rombar'] }}{% endif %}
   loop: "{{ vm_pcie_device }}"
   loop_control:
     index_var: my_idx
