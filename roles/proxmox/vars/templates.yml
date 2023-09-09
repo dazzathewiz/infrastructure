@@ -1,6 +1,6 @@
 ---
 
-pve_template_image: focal-server-cloudimg-amd64.img
+pve_template_image: jammy-server-cloudimg-amd64.img
 pve_tempate_id_prefix: 800
 
 pve_template_name: ubuntu-cloud
