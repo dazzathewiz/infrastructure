@@ -2,15 +2,7 @@
 
 # Replaces fil-miner functions into proxmox VM
 
-# Create VM
-- import_playbook: vm_deploy_storecrypt.yml
-
-# Wait for VM to boot properly
-- hosts: controlhost
-  roles:
-    - role: waitboot
-      vars:
-        host: "{{ hostvars['storecrypt']['ansible_host'] }}"
+# VM must be created first, use vm_deploy_storecrypt.yml
 
 # Setup storecrypt server
 - hosts: storecrypt
@@ -42,14 +34,11 @@
           - cockpit
           - cockpit-file-sharing
           - iperf3
+          - fio
         mounts:
 
           # Disk mounts
           - { path: /mnt/disk1, src: UUID=6d1faaa6-3179-4218-b936-7639a2832b67, fstype: xfs }
-          #- { path: /mnt/disk2, src: UUID=0d0fc5a5-0367-40f0-bb43-a6c0fd797b64, fstype: xfs }
-          #- { path: /mnt/disk3, src: UUID=b664d8a4-9cad-4a7e-95c2-fbfd5ffbf70f, fstype: xfs }
-          #- { path: /mnt/disk4, src: UUID=c2f06c17-a83a-4b3a-a087-89d03ec846a3, fstype: xfs }
-          #- { path: /mnt/disk5, src: UUID=dee733f1-4935-4062-a47c-2f876143745e, fstype: xfs }
           - { path: /mnt/disk2, src: UUID=7cd7a54a-94ed-416d-89e9-fc12ea42d6c0, fstype: ext4 }
           - { path: /mnt/disk3, src: UUID=36e9d9b7-5cdf-4293-910c-0a7e23b92807, fstype: ext4 }
           - { path: /mnt/disk4, src: UUID=51623c95-43d9-4c06-8d2d-c5b209679bb1, fstype: ext4 }
@@ -70,11 +59,7 @@
     # It was much easier to use Houston to configure ZFS import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 
     # Install hddtemp monitoring
-    # Still need to run manually: `sudo dpkg-reconfigure hddtemp`
-    - role: hddtemp 
-      become: true
-      hddtemp_run_daemon: yes
-      tags: [setup]
+    - { role: ironicbadger.hddtemp, become: true, tags: [setup] }
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
@@ -129,6 +114,7 @@
         container_storj_storage: 2TB
         container_storj_data: /mnt/disk3/storj/data
         container_storj_identity: /mnt/disk3/storj/Identity/storagenode
+        container_data_backup_dir: "{{ persistent_backup }}/storagenode"
     
     # machinaris containers
     # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
@@ -138,13 +124,3 @@
       vars:
         update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
       tags: containers, watchtower
-
-
-#Install monitoring tools
-#- 45Drives Alert manager & Prometheus?? (from evernote notes)
-#- Monitor drive temps from passthrough PCIe (somehow)
-#- ZFS monitoring
-
-# Managing docker (future TODO)
-# - How to manage container updates?
-# - How to add or change containers in code?

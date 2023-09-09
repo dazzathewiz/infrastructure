@@ -30,6 +30,7 @@ All vars are optional depending on your configuration.
             vm_pcie_device:                     # Specify options for PCIe devices: https://pve.proxmox.com/pve-docs/qm.1.html
                 - id: "03:00.0"
                   mdev: "i915-GVTg_V5_4"
+                  rombar: "0"                   # Disable rombar support tickbox
             vm_storage: "ceph-vm"               # The target storage location
 
             vm_start: yes                       # Auto start the VM after provision

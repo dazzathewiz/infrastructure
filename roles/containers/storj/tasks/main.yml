@@ -1,5 +1,9 @@
 ---
 
+- name: Manage the docker data
+  import_tasks: roles/containers/common/tasks/manage_data.yml
+  when: container_data_backup
+
 - name: Make sure {{ container_name }} container is created and running
   become: yes
   docker_container:
@@ -23,3 +27,16 @@
       - "{{ container_storj_identity }}:/app/identity"
     network_mode: bridge
     restart_policy: always
+
+- name: Persist data to backup location with rsync-cron
+  include_role: 
+    name: rsync-cron
+  vars:
+    sync_cron_username: "root"
+    sync_cron_src_path: "{{ docker_dir }}/{{ container_name }}/"
+    sync_cron_dest_url: "{{ container_data_backup_dir }}"
+    sync_cron_freq:
+      name: "{{ container_name }} persistent data backup"
+      hour: "*/2"
+    sync_cron_rsync_flags: "-a --delete"  # delete destination files not in source
+  when: container_data_backup
