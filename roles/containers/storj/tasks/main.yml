@@ -38,4 +38,5 @@
     sync_cron_freq:
       name: "{{ container_name }} persistent data backup"
       hour: "*/2"
+    sync_cron_rsync_flags: "-a --delete"  # delete destination files not in source
   when: container_data_backup
