@@ -26,7 +26,7 @@
 
       auto vmbr1
       iface vmbr1 inet static
-      	address {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] | ansible.utils.ipmath(1) }}/24
+      	address {{ hostvars[inventory_hostname]['ansible_vmbr0']['ipv4']['address'] | ansible.utils.ipmath(1) }}/24
       	bridge-ports {{ _pve_second_nic }}
       	bridge-stp off
       	bridge-fd 0
