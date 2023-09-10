@@ -31,6 +31,16 @@
     upgrade: yes
   when: update_apt_nosub.changed or update_apt_enterprise.changed or _pve_ceph_repo.changed
 
+- name: perform system role after apt sources fixed
+  import_role: 
+    name: system
+  vars:
+    manage_packages: no
+    upgrade_packages: no
+    auto_reboot: no
+  tags: setup
+  when: "pve_system_role | bool"
+
 - import_tasks: identify_needed_packages.yml
 
 - name: Install related packages
@@ -163,8 +173,8 @@
 - name: Update hostname in /etc/hosts
   lineinfile:
     dest: /etc/hosts
-    regexp: "^{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
-    line: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }} {{ inventory_hostname }}.{{ ansible_dns['search'][0] }} {{ inventory_hostname }}"
+    regexp: "^{{ hostvars[inventory_hostname]['ansible_vmbr0']['ipv4']['address'] }}"
+    line: "{{ hostvars[inventory_hostname]['ansible_vmbr0']['ipv4']['address'] }} {{ inventory_hostname }}.{{ ansible_dns['search'][0] }} {{ inventory_hostname }}"
   register: update_hostname1
 
 - name: Update hostname in /etc/hostname
