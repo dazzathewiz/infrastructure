@@ -26,6 +26,8 @@ pve_api_user: root@pam
 pve_api_password: "{{ infadmin_password }}"
 pve_host: "{{ inventory_hostname }}"
 pve_api_host: "{{ pve_host }}"
+pve_gui_tags_enable: yes                          # Implement tags on provisioned VM's
+pve_gui_tags_list: []                             # A list of tags to apply to an instance
 
 # Ansible options
 provision_add_to_inventory: false                 # Adds the created instances to ansible hosts, note that qemu-agent is required to be installed on 'vm' instance types for this feature

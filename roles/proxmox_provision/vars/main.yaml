@@ -1,0 +1,4 @@
+---
+# Default tags applied to any instance
+_pve_gui_tags_list:
+  - provision_ansible

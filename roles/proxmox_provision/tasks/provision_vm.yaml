@@ -81,6 +81,15 @@
   shell: qm set {{ vm.vmid }} --agent 1
   when: vm_enable_agent and vm.changed
 
+- name: Stage VM tags
+  set_fact:
+    _pve_gui_tags_list: "{{ _pve_gui_tags_list | union(pve_gui_tags_list) }}"
+  when: pve_gui_tags_enable
+
+- name: Provision VM tags
+  shell: qm set {{ vm.vmid }} --tags {{ _pve_gui_tags_list|join(';') }}
+  when: vm.changed and pve_gui_tags_enable
+
 - name: starting new Virtual Machine ID {{ vm.vmid }}
   proxmox_kvm:
     api_user : "{{ pve_api_user }}"
