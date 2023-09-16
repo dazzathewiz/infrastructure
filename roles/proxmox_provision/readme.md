@@ -18,23 +18,30 @@ All vars are optional depending on your configuration.
     roles:
         - role: proxmox_provision
         vars:
-            instance_name: my_vm                      # VM Name, otherwise random
-            vm_memory: 10240                    # Memory MB to assign VM
-            vm_memory_min: 6114                 # Sets the minimum memory assigned to VM ballon
-            vm_cpu: 4                           # vCPU's to assign VM
-            vm_network_bridge: vmbr1            # Proxmox bridge interface
-            vm_network_vlan: 901                # VLAN
-            vm_network_mac: 06:FF:DB:D0:60:B2   # MAC address to assign VM NIC
-            vm_disk_increase: 46                # Increase template disk by #GB
-            vm_pcie_device: ["03:00.0"]         # Include listed PCIe devices, alternatively:
-            vm_pcie_device:                     # Specify options for PCIe devices: https://pve.proxmox.com/pve-docs/qm.1.html
+            instance_name: my_vm                    # VM Name, otherwise random
+            vm_memory: 10240                        # Memory MB to assign VM
+            vm_memory_min: 6114                     # Sets the minimum memory assigned to VM ballon
+            vm_cpu: 4                               # vCPU's to assign VM
+            vm_cpu_params: "flags=+pdpe1gb\\;+aes"  # --cpu parameters for `qm set`, note the '+' and double escape '\\'
+            vm_network_bridge: vmbr1                # Proxmox bridge interface
+            vm_network_vlan: 901                    # VLAN
+            vm_network_mac: 06:FF:DB:D0:60:B2       # MAC address to assign VM NIC
+            vm_disk_increase: 46                    # Increase template disk by #GB
+            vm_disk_ssdemulation: no                # Tick SSD Emulation in VM SCSI0
+            vm_disk_discard: no                     # Tick Discard in VM SCSI0
+            vm_pcie_device: ["03:00.0"]             # Include listed PCIe devices, alternatively:
+            vm_pcie_device:                         # Specify options for PCIe devices: https://pve.proxmox.com/pve-docs/qm.1.html
                 - id: "03:00.0"
                   mdev: "i915-GVTg_V5_4"
-                  rombar: "0"                   # Disable rombar support tickbox
-            vm_storage: "ceph-vm"               # The target storage location
+                  rombar: "0"                       # Disable rombar support tickbox
+                  gpu_primary: yes                  # Enable Primary GPU (x-vga=1)
+            vm_storage: "ceph-vm"                   # The target storage location
 
-            vm_start: yes                       # Auto start the VM after provision
-            vm_enable_agent: yes                # Enable the qemu agent
+            vm_start: yes                           # Auto start the VM after provision
+            vm_enable_agent: yes                    # Enable the qemu agent
+            vm_guest_trim: no                       # Run guest-trim after a disk move or VM migration, requires vm_enable_agent set to `yes`
+            vm_hotplug_devices: "network,disk,usb"  # Selectively enable hotplug features. Comma separated list
+            vm_enable_numa: no                      # Enable NUMA
 ```
 
 ### Example LXC Deployment

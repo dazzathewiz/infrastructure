@@ -55,16 +55,28 @@
   shell: qm set {{ vm.vmid }} --cores {{ vm_cpu }}
   when: vm_cpu is defined and vm.changed
 
+- name: Set CPU parameters
+  shell: qm set {{ vm.vmid }} --cpu {{ vm_cpu_params }}
+  when: vm_cpu_params is defined and vm.changed
+
+- name: Set enable NUMA
+  shell: qm set {{ vm.vmid }} --numa 1
+  when: vm_enable_numa and vm.changed
+
 - name: Increasing disk if it is necessary
   shell: qm resize {{ vm.vmid }} scsi0 +{{ vm_disk_increase }}G
   when: vm_disk_increase != 0 and vm.changed
+
+- name: Set disk configuration if specified
+  shell: qm set {{ vm.vmid }} --scsi0 file={{ vm_storage }}:vm-{{ vm.vmid }}-disk-0,{% if vm_disk_discard %}discard=on{% endif %}{% if vm_disk_ssdemulation and vm_disk_discard %},{% endif %}{% if vm_disk_ssdemulation %}ssd=1{% endif %}
+  when: (vm_disk_discard or vm_disk_ssdemulation) and vm.changed
 
 - name: Apply correct network interface settings
   shell: qm set {{ vm.vmid }} --net0 virtio{% if vm_network_bridge is defined %},bridge={{ vm_network_bridge }}{% else %},bridge=vmbr0{% endif %}{% if vm_network_vlan is defined %},tag={{ vm_network_vlan }}{% endif %}{% if vm_network_mac is defined %},macaddr={{ vm_network_mac }}{% endif %}
   when: vm.changed and vm_network_bridge is defined or vm_network_vlan is defined or vm_network_mac is defined
 
 - name: Set a PCIe device passthrough to the VM if required
-  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}{% if item['rombar'] is defined %},rombar={{ item['rombar'] }}{% endif %}
+  shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}{% if item['rombar'] is defined %},rombar={{ item['rombar'] }}{% endif %}{% if item['primary_gpu'] is defined and item['primary_gpu'] %},x-vga=on{% endif %}
   loop: "{{ vm_pcie_device }}"
   loop_control:
     index_var: my_idx
@@ -78,8 +90,12 @@
   when: (vm_disk_passthrough | length > 0) and vm.changed
 
 - name: Enable qemu agent
-  shell: qm set {{ vm.vmid }} --agent 1
+  shell: qm set {{ vm.vmid }} --agent 1{% if vm_guest_trim %},fstrim_cloned_disks=1{% endif %}
   when: vm_enable_agent and vm.changed
+
+- name: Enable hotplug devices
+  shell: qm set {{ vm.vmid }} --hotplug {{ vm_hotplug_devices }}
+  when: vm_hotplug_devices is defined and vm.changed
 
 - name: Stage VM tags
   set_fact:
