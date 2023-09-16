@@ -73,8 +73,6 @@
               - endpoint = "unix:///var/run/docker.sock"
           - plugin: net
           - plugin: netstat
-            config:
-              - poolMetrics = true
       tags: containers, telegraf
     
     # machinaris containers
