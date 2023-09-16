@@ -30,7 +30,7 @@ dietpi_four
 pikvm ansible_host=10.0.172.245 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [otherbaremetal]
-harvester1 ansible_host=192.168.15.13 ansible_user=chia ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+harvester1
 
 # Bare metal infrastructure (IE: not VM's, k3s, or docker)
 [baremetal:children]
@@ -58,6 +58,10 @@ k3sworker1
 k3sworker2
 k3sworker3
 
-[othervms]
+[chia]
+chiamain ansible_host=192.168.15.9 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 storecrypt ansible_host=192.168.15.11 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+harvester1 ansible_host=192.168.15.13 ansible_user=chia ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+
+[othervms]
 backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin

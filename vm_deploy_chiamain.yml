@@ -1,0 +1,40 @@
+---
+- hosts: prox5
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        instance_name: chiamain
+        vm_memory: 32768
+        vm_memory_min: 2048
+        vm_cpu: 8
+        vm_cpu_params: "cputype=x86-64-v2-AES,flags=+md-clear\\;+pdpe1gb\\;+aes"
+        vm_network_bridge: vmbr1
+        vm_network_vlan: 115
+        vm_network_mac: EA:F3:E4:8B:DE:98
+        vm_disk_increase: 198
+        vm_disk_ssdemulation: yes
+        vm_disk_discard: yes
+
+        # The GPU device has multiple functions (e.g., ‘01:00.0’ and ‘01:00.1’ ), you can pass them through 
+        # all together with the shortened syntax ``01:00`. 
+        # This is equivalent with checking the ``All Functions` checkbox in the web-interface.
+        vm_pcie_device: 
+          - id: "01:00"       # ‘01:00.0’ = GA106 [GeForce RTX 3060] 01:00.1’ = GA106 High Definition Audio Controller
+            primary_gpu: yes
+        
+        vm_storage: "local-nvme"
+        vm_enable_agent: yes
+        vm_hotplug_devices: "disk,network,usb,memory,cpu"
+        vm_enable_numa: yes
+
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['chiamain']['ansible_host'] }}"
