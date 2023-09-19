@@ -58,6 +58,10 @@
     # For zfs role; see https://github.com/dazzathewiz/infrastructure/tree/role-zfs
     # It was much easier to use Houston to configure ZFS import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 
+    # NFS share setup and export (of ZFS)
+    # NFS share settings for Houston are stored in /etc/exports.d/cockpit-file-sharing.exports <-- could be backed up and restored in future
+    # Settings should be configured as per documentation: https://knowledgebase.45drives.com/kb/kb450282-managing-nfs-in-houston-ui/
+
     # Install hddtemp monitoring
     - { role: ironicbadger.hddtemp, become: true, tags: [setup] }
 
