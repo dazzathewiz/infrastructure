@@ -115,7 +115,7 @@
         container_storj_wallet: "{{ storj_wallet }}"
         container_storj_email: "{{ admin_email }}"
         container_storj_address: "{{ storj_address }}"
-        container_storj_storage: 2TB
+        container_storj_storage: 8TB
         container_storj_data: /mnt/disk3/storj/data
         container_storj_identity: /mnt/disk3/storj/Identity/storagenode
         container_data_backup_dir: "{{ persistent_backup }}/storagenode"
