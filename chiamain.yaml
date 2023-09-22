@@ -29,7 +29,9 @@
         mounts:
 
           # NFS mounts
-          - { path: /mnt/truenas01/data0, src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
+          - { path: /mnt/truenas01/data00, src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
+          - { path: /mnt/truenas01/data10, src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/pool1/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
+          - { path: /mnt/truenas01/backup, src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/nas/backup", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
           - { path: /mnt/storecrypt/data0, src: "{{ hostvars['storecrypt'].ansible_host }}:/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
         
       tags: setup
