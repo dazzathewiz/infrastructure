@@ -1,0 +1,190 @@
+{{ ansible_managed | comment }}
+---
+version: "{{ compose_schema_version | default('2') }}"
+services:
+{% for container in containers %}
+{% if container.active %}
+  {{ container.service_name }}:
+    image: {{ container.image }}
+    container_name: {{ container.container_name | default(container.service_name) }}
+{% if container.extra_hosts is defined %}
+    extra_hosts:
+{% for host in container.extra_hosts %}
+      - {{ host }}
+{% endfor %}
+{% endif %}
+{% if container.network_mode is defined %}
+    network_mode: {{ container.network_mode }}
+{% endif %}
+{% if container.networks is defined %}
+    networks:
+{% if container.networks is iterable and (container.networks is not string and container.networks is not mapping) %}
+{% for network in container.networks %}
+      - {{ network }}
+{% endfor %}
+{% else %}
+{% for network, params in container.networks.items() %}
+      {{ network }}:
+{# {% if params.aliases is defined %}
+        aliases:
+{% for alias in params.aliases %}
+          - {{ alias }}
+{% endfor %}
+{% endif %} #}
+        {{ params|to_nice_yaml(indent=2)|indent(8) }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if container.build is defined %}
+    build: {{ container.build }}
+{% endif %}
+{% if container.privileged is defined %}
+    privileged: {{ container.privileged }}
+{% endif %}
+{% if container.cap_add is defined %}
+    cap_add:
+{% for cap in container.cap_add %}
+      - {{ cap }}
+{% endfor %}
+{% endif %}
+{% if container.group_add is defined %}
+    group_add:
+{% for group in container.group_add %}
+      - {{ group }}
+{% endfor %}
+{% endif %}
+{% if container.devices is defined %}
+    devices:
+{% for device in container.devices %}
+      - {{ device }}
+{% endfor %}
+{% endif %}
+{% if container.volumes is defined %}
+    volumes:
+{% for volume in container.volumes %}
+      - {{ volume }}
+{% endfor %}
+{% endif %}
+{% if container.labels is defined %}
+    labels:
+{% for label in container.labels %}
+      - {{ label }}
+{% endfor %}
+{% endif %}
+{% if container.ports is defined %}
+    ports:
+{% for port in container.ports %}
+      - {{ port }}
+{% endfor %}
+{% endif %}
+{% if ( container.environment is defined ) or ( container.include_global_env_vars is defined and container.include_global_env_vars) %}
+    environment:
+{% if container.include_global_env_vars | default(false) %}
+{% for global_var in global_env_vars %}
+      - {{ global_var }}
+{% endfor %}
+{% endif %}
+{% if container.environment is defined %}
+{% for env_var in container.environment %}
+      - {{ env_var }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if container.depends_on is defined %}
+    depends_on:
+{% for dependent in container.depends_on %}
+      - {{ dependent }}
+{% endfor %}
+{% endif %}
+{% if container.hostname is defined %}
+    hostname: {{ container.hostname }}
+{% endif %}
+{% if container.mem_limit is defined %}
+    mem_limit: {{ container.mem_limit }}
+{% endif %}
+{% if container.command is defined %}
+{% if container.command is string %}
+    command: {{ container.command }}
+{% else %}
+    command:
+{% for command in container.command %}
+      - {{ command }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if container.security_opt is defined %}
+    security_opt:
+{% for sec_opt in container.security_opt %}
+      - {{ sec_opt }}
+{% endfor %}
+{% endif %}
+{% if container.sysctl is defined %}
+    sysctls:
+{% for param in container.sysctl %}
+      - {{ param }}
+{% endfor %}
+{% endif %}
+{% if container.shm_size is defined %}
+    shm_size: {{ container.shm_size }}
+{% endif %}
+{% if container.ulimits is defined %}
+    ulimits:
+{% if container.ulimits.nproc is defined %}
+      nproc: {{ container.ulimits.nproc }}
+{% endif %}
+{% if container.ulimits.nofile is defined %}
+      nofile:
+{% for param, value in container.ulimits.nofile.items() %}
+        {{ param }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% if container.ulimits.memlock is defined %}
+      memlock:
+{% for param, value in container.ulimits.memlock.items() %}
+        {{ param }}: {{ value }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if container.tmpfs is defined %}
+    tmpfs:
+{% for item in container.tmpfs %}
+      - {{ item }}
+{% endfor %}
+{% endif %}
+{% if container.dns is defined %}
+    dns:
+{% for dns_entry in container.dns %}
+      - {{ dns_entry }}
+{% endfor %}
+{% endif %}
+{% if container.logging.driver is defined %}
+    logging:
+      driver: {{ container.logging.driver }}
+{% if container.logging.options is defined %}
+      options:
+{% for option in container.logging.options %}
+        {{ option }}: {{ container.logging.options[option] }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if container.env_file is defined %}
+    env_file:
+{% for envfile in container.env_file %}
+      - {{ envfile }}
+{% endfor %}
+{% endif %}
+{% if container.user is defined %}
+    user: {{ container.user }}
+{% endif %}
+{% if container.restart is defined %}
+    restart: {{ container.restart }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% if docker_networks is defined %}
+networks:
+{% for network in docker_networks %}
+  {{ network }}:
+    {{ docker_networks[network]|to_nice_yaml(indent=2)|indent(4) }}
+{% endfor %}
+{% endif %}
