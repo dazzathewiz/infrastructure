@@ -321,6 +321,14 @@ If creating a 2 node cluster (less than 3 nodes), this works fine however when 1
 the other node due to quorum configuration. If only 1 node in the cluster is online, ssh to the node and run command:
 ```pvecm expected 1```
 
+## Node Memory Management
+Memory management can be quite complicated for the uninitiated. My learnings are as follows:
+  1. When ballooning is enabled, set the minimum memory so your VM isn't pressured more than you expect
+  2. When doing PCI-E passthrough to a VM, you must disable ballooning because [VM memory must be pinned into actual host memory due to possible device-initiated DMA][pcie-passthrough-balloon]
+  3. [ZFS storage will use up to 50% of host memory for ARC-Cache by default][zfs-arccache-ram], and will pressure down balloon enabled VM's to accomodate this. Use `arc_summary` to understand the amount of RAM in use by ZFS ARC-Cache
+  4. When using Ceph, important to consider the [memory constraints](#osds-and-memory-management)
+  5. Use `ps aux --sort -%mem` to understand how much memory processes are using on the host (running VM's will be at the top). Otherwise `free -h` also provides insight
+
 ## Node Sizing and Tweaking for clusters
 When adding new nodes or sizing a cluster, consider:
   ### If using Ceph
@@ -345,3 +353,5 @@ When adding new nodes or sizing a cluster, consider:
 [ceph-tune]: https://ceph.io/en/news/blog/2022/autoscaler_tuning/
 [ceph-osd-maintain]: https://docs.ceph.com/en/quincy/rados/troubleshooting/troubleshooting-osd/
 [nfs-ganesha-client-setup]: https://github.com/dcplaya/home-ops/blob/main/k8s/clusters/cluster-1/manifests/rook-ceph-external/cluster/nfs-ganesha.md
+[pcie-passthrough-balloon]: https://forum.proxmox.com/threads/memory-ballooning-pcie-passthrough-booting-from-nvme.123161/
+[zfs-arccache-ram]: https://forum.proxmox.com/threads/ballooning-memory-and-zfs-fighting-for-available-ram.88670/

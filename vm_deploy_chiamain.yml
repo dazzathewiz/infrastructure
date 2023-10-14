@@ -10,7 +10,7 @@
       vars:
         instance_name: chiamain
         vm_memory: 32768
-        vm_memory_min: 2048
+        vm_memory_min: 0      # Set to 0 to disable the balloon driver as PCI-E passthrough may use device-initiatied DMA 
         vm_cpu: 8
         vm_cpu_params: "cputype=x86-64-v2-AES,flags=+md-clear\\;+pdpe1gb\\;+aes"
         vm_network_bridge: vmbr1
