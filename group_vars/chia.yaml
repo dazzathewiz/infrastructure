@@ -1,0 +1,16 @@
+---
+
+# Variables applying to all chia host systems
+
+chia_machinaris_data: "{{ docker_dir }}/machinaris"
+
+# Network infrastructure specific to Chia
+chia_network:
+  truenas01:
+    ip: 192.168.15.35
+  chia_main: 
+    ip: 192.168.15.20
+  default:
+    subnet: 192.168.15.0/24
+    gateway: 192.168.15.1
+    ip_range: 192.168.15.0/24

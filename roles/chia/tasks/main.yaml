@@ -1,0 +1,11 @@
+---
+
+# Copy/construct files and folders required for chia/machinaris
+- import_tasks: chia_mnemonics.yaml
+- import_tasks: chia_blockchain_db.yaml
+
+- import_tasks: load_vars.yaml
+
+# Setup backup of blockchain DB and machinaris data
+- import_tasks: chia_blockchain_backup.yaml
+- import_tasks: chia_machinaris_backup.yaml

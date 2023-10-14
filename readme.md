@@ -22,6 +22,10 @@ To edit the secret.yml later:
 ansible-vault edit secret.yml
 ```
 
+### 1Password
+For some plays, the host requires [1Password CLI][opcli] to access secrets. Ensure your host has this installed:
+1. `brew install 1password-cli`
+
 ## Usage
 See sections below for:
 - Setup local machine as an Infrastructure Control Host
@@ -153,6 +157,14 @@ import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 - setup
 - containers
 
+## Chiamain
+1. Ensure you have [1password-cli](#1Password) working
+2. `ansible-playbook chiamain.yaml --ask-vault-password`
+3. Start the docker stack with `docker-compose up -d` from home dir `~/`
+4. SSL keys may need to be copied over from backup, if you expect existing harvesters to connect to master node
+
+* Note it will take some time to do a DB copy if this is a first-time setup. DB sync can be painful and likely needs to be managed separately.
+
 ### Notes:
 1. For new Shinobi deployments, setup the users and consider copying existing cameras via [Export/Import][shinobi-monitor]
 
@@ -160,3 +172,4 @@ import on storecrypt; see: https://miner.dazzathewiz.com:9090/
 [shinobi-monitor]: https://hub.shinobi.video/articles/view/QzWPj4vp8Y2k1R5
 [proxmox-readme]: roles/proxmox/readme.md
 [opautomation]: https://developer.1password.com/docs/connect/get-started/#step-1-set-up-a-secrets-automation-workflow
+[opcli]: https://sculley.github.io/posts/2022/12/31/using-1password-to-automatically-retrieve-your-ansible-become-password.html

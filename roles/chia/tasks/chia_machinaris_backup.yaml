@@ -1,0 +1,13 @@
+---
+
+- name: Backup machinaris data with rsync-cron
+  include_role: 
+    name: rsync-cron
+  vars:
+    sync_cron_username: "root"
+    sync_cron_src_path: "{{ chia_machinaris_data }}/.machinaris/"
+    sync_cron_dest_url: "{{ persistent_backup }}/{{ inventory_hostname }}/machinaris_config/"
+    sync_cron_freq:
+      name: "{{ container_name }} persistent data backup"
+      hour: "*/12"    # Every 12 hours
+    sync_cron_rsync_flags: "-a --delete --recursive --exclude={'*id_*','*mnemonic*','blockchain_v2_mainnet.sqlite'}"

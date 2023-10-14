@@ -1,0 +1,10 @@
+- name: blockchain-backup systemd reload
+  become: yes
+  systemd:
+    daemon_reload: true
+    state: restarted
+    enabled: true
+    name: "{{ item }}"
+  with_items:
+    # - chia-blockchain-backup  # Don't need this as it will run the backup manually and timeout the task
+    - chia-blockchain-backup.timer

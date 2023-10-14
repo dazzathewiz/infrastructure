@@ -1,0 +1,25 @@
+---
+# See: https://wiki.spacefarmers.io/guides/farming/backupdb
+
+- name: Install the systemd services
+  become: yes
+  template:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: 0755
+  notify: 
+    - blockchain-backup systemd reload
+  with_fileglob:
+    - files/blockchain-backup/*.service
+    - files/blockchain-backup/*.timer
+      
+- name: Start and enable the systemd services
+  become: yes
+  systemd:
+    state: started
+    enabled: true
+    name: "{{ item }}"
+  with_items:
+    - chia-blockchain-backup.timer

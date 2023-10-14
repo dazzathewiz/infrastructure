@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Chia blockchain database backup
+
+[Timer]
+Unit=chia-blockchain-backup.service
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=900
+
+[Install]
+WantedBy=timers.target
