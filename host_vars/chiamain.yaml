@@ -1,0 +1,7 @@
+---
+persistent_backup: /mnt/truenas01/backup
+
+chia_harvester_plots:
+  - /mnt/truenas01/data00
+  #- /mnt/truenas01/data10
+  - /mnt/storecrypt/data0

@@ -1,0 +1,30 @@
+---
+
+- name: Create data location for mnemonic keys
+  become: yes
+  file:
+    path: "{{ chia_machinaris_data }}/keys"
+    state: directory
+    recurse: yes
+
+- name: Get mnemonics from 1Password items
+  shell: op item get "{{ item.name }}" --fields "label={{ item.field }}" --vault "{{ item.vault }}"
+  environment:
+    OP_SERVICE_ACCOUNT_TOKEN: "{{ op_ansible_chia }}"
+  loop: "{{ chia_farmer_mnemonics }}"
+  delegate_to: localhost
+  register: _mnemonic_phrases
+  changed_when: false
+  failed_when: _mnemonic_phrases.rc > 0
+
+- name: Copy mnemonic text files
+  become: yes
+  ansible.builtin.copy:
+    content: "{{ item.stdout }}"
+    dest: "{{ chia_machinaris_data }}/keys/mnemonic_{{ (index + 1) | string }}.txt"
+    mode: '640'
+  loop: "{{ _mnemonic_phrases.results }}"
+  loop_control:
+    index_var: index
+  no_log: true
+  register: _mnemonics

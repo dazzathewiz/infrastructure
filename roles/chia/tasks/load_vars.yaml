@@ -1,0 +1,41 @@
+---
+
+- name: Set fact for container plots volume mapping
+  set_fact:
+    _volumes: "{{ _volumes | default([]) + [ item + ':/plots' + (my_count + 1) | string ] }}"
+    _plots:  "{% if my_count == 0 %}/plots{{ (my_count + 1) | string }}{% else %}{{ _plots }}:/plots{{ (my_count + 1) | string }}{% endif %}"
+  loop: "{{ chia_harvester_plots }}"
+  loop_control:
+    index_var: my_count
+  when: chia_harvester_plots is defined
+
+- name: Set fact for container mnemonic volume mapping
+  set_fact:
+    _keys:  "{{ _keys | default([]) + [ chia_farmer_container_keys_dir + '/' + item.path | basename ] }}"
+  loop: "{{ _mnemonics.results }}"
+  no_log: true
+  when: _mnemonics is defined
+
+- name: Stage environment vars
+  set_fact:
+    _environment: [ "{{'plots_dir=' + _plots}}" ]
+  when: _plots is defined
+
+- name: Add keys to environment vars
+  set_fact:
+    _environment: "{{ _environment | default([]) | union(['keys=' + _keys | join(':')]) }}"
+  when: _keys is defined and _keys | length>0
+
+- name: Stage updated container variables
+  set_fact:
+    _containers: "{{ _containers | default([]) + [{ 'container_name': containers[my_idx].container_name, 'volumes': containers[my_idx].volumes | union(_volumes), 'environment': containers[my_idx].environment | union(_environment | default([]) ) }] }}"
+  loop: "{{ containers }}"
+  loop_control:
+    index_var: my_idx
+  when: item.image is search("machinaris")
+
+- name: Merge container variables with updated contents
+  set_fact:
+    containers: "{{ containers | community.general.lists_mergeby(_containers, 'container_name', recursive=True) }}"
+
+# - debug: var=containers

@@ -1,0 +1,8 @@
+[Unit]
+Description=Hot-backup Chia blockchain database
+
+[Service]
+Type=oneshot
+Environment=DATABASE={{ chia_blockchain_db_dir }}/{{ chia_db_filename }}
+ExecStartPre=rm -f {{ persistent_backup }}/{{ inventory_hostname }}/chia/{{ chia_db_filename }}.bak
+ExecStart=/usr/bin/sqlite3 ${DATABASE} "vacuum into '{{ persistent_backup }}/{{ inventory_hostname }}/chia/{{ chia_db_filename }}.bak'"

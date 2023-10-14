@@ -1,0 +1,34 @@
+---
+
+- name: Install sqlite package
+  become: yes
+  package:
+    name:
+      - sqlite 
+    state: latest
+
+- name: Ensure db directory exists
+  become: yes
+  file:
+    path: "{{ chia_blockchain_db_dir }}"
+    state: directory
+    recurse: yes
+
+- name: Check if db already exists in the container dir
+  find:
+    paths: "{{ chia_blockchain_db_dir }}"
+    file_type: file
+    patterns: '{{ chia_db_filename }}'
+    hidden: true
+  register: filesFound
+
+- debug:
+      var: filesFound
+
+- name: Copy {{ chia_db_filename }}.bak from {{ persistent_backup }}/{{ inventory_hostname }}/chia/{{ chia_db_filename }}.bak
+  become: yes
+  ansible.posix.synchronize:
+    src: "{{ persistent_backup }}/{{ inventory_hostname }}/chia/{{ chia_db_filename }}.bak"
+    dest: "{{ chia_blockchain_db_dir }}/{{ chia_db_filename }}"
+  delegate_to: "{{ inventory_hostname }}"
+  when: filesFound.matched == 0
