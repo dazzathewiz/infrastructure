@@ -4,6 +4,12 @@
 - import_tasks: chia_mnemonics.yaml
 - import_tasks: chia_blockchain_db.yaml
 
+# Must configure specific GPU functions for harvister with compressed plots:
+# https://docs.chia.net/farming-compressed-plots/
+# /root/.chia/mainnet/config/config.yaml:
+#   - parallel_decompressor_count: 1
+#   - use_gpu_harvesting: true
+
 - import_tasks: load_vars.yaml
 
 # Setup backup of blockchain DB and machinaris data

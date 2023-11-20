@@ -1,33 +1,24 @@
----
-
-# Chia Main farmer variables only
-
-# List the 1Password items to grab the seed phrases from for chia nmemonics
-chia_farmer_mnemonics:
-  - name: "Chia (XCH) Farming Wallet"
-    field: "recovery seed phrase"
-    vault: "Chia Mining"
-
-chia_farmer_container_keys_dir: /root/keys
-
 containers:
-  ###
-  - service_name: machinaris
-    active: true
-    image: ghcr.io/guydavis/machinaris
-    container_name: machinaris
+{% for blockchain in blockchains %}
+  - service_name: machinaris{% if blockchain is not 'chia' %}-{{ blockchain }}{% endif %}
+    active: "{{ blockchain.enable }}"
+    image: "{{ machinaris_docker_image }}"
+    container_name: machinaris{% if blockchain is not 'chia' %}-{{ blockchain }}{% endif %}
     hostname: "{{ inventory_hostname }}"
     restart: always
     volumes: 
-      - "{{ chia_machinaris_data }}/.machinaris:/root/.chia"
-      - "{{ chia_machinaris_data }}/keys:{{ chia_farmer_container_keys_dir }}"
+      - "{{ machinaris_docker_data }}/.machinaris:/root/.chia"
+      - "{{ machinaris_docker_data }}/keys:{{ machinaris_farmer_container_keys_dir }}"
+{% for volume in volume_mounts %}
+      - "{{ item['hostpath'] }}:{{ item['container_path'] }}"
+{% endfor %}
       # Volumes are set by `role: chia`, where the host has `chia_harvester_plots` defined, otherwise define:
       # - "/host/path/1:/plots1"
       # - "/host/path/2:/plots2"
       # - "/host/path/3:/plots3"
     environment: 
       - "TZ={{ timezone }}"
-      - mode=fullnode
+      - "mode={{ mode }}"
       - "worker_address={{ chia_network['chia_main']['ip'] }}"
       # These options are set by `role: chia`, where the host has `chia_harvester_plots` and/or `chia_farmer_mnemonics` defined
       # - "plots_dir=/plots1:/plots2:/plots3
