@@ -1,0 +1,77 @@
+---
+- hosts: pihole
+
+  vars_files: group_vars/secret.yml
+
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+  
+  roles:
+    - vmguest
+    - system
+
+    # Setup docker
+    - { role: geerlingguy.pip, become: true, tags: [setup] }
+    - role: geerlingguy.docker
+      become: true
+      vars:
+        docker_users:
+          - "{{ provisioning_user }}"
+      tags: setup
+    
+    # Deploy docker containers
+    - { role: containers/portainer, tags: [containers] }
+    - { role: containers/portainer_agent, tags: [containers] }
+
+    - role: containers/telegraf
+      vars:
+        telegraf_agent_output:
+          - type: influxdb
+            config:
+              - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
+              - database = "filecoin"
+        telegraf_plugins_default:
+          - plugin: cpu
+            config:
+              - percpu = true
+              - totalcpu = true
+              - collect_cpu_time = false
+              - report_active = false
+          - plugin: disk
+            config:
+              - ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+          - plugin: diskio
+          - plugin: kernel
+          - plugin: mem
+          - plugin: swap
+          - plugin: system
+          - plugin: docker
+            config:
+              - endpoint = "unix:///var/run/docker.sock"
+          - plugin: net
+          - plugin: netstat
+      tags: containers, telegraf
+    
+    # PiHole
+    - role: containers/pihole
+      vars:
+        container_network_ip: "{{ dns[0] }}"
+        pihole_gravity_sync: yes
+
+        container_network_subnet: "{{ networks['network_services']['subnet'] }}"
+        container_network_gateway: "{{ networks['network_services']['gateway'] }}"
+        container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
+
+        # Pihole docker settings
+        pihole_hostname: pihole_primary
+        pihole_upstream_dns1: "{{ networks['network_services']['gateway'] }}"
+
+      tags: containers, pihole
+    
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
+      tags: containers, watchtower

@@ -6,10 +6,17 @@ private_key: "~/.ssh/id_ed25519_infadmin"
 
 # Infrastructure
 dns:
-  - 192.168.10.53
-  - 192.168.10.153
+  - 10.10.3.53
+  - 10.10.3.153
 timezone: Australia/Brisbane
 search_domain: dazzathewiz.com
+
+# networks are configured in unifi controller
+networks:
+  network_services:
+    subnet: 10.10.3.0/24
+    gateway: 10.10.3.1
+    vlan: 903
 
 # Logging and Metrics
 influx_server: "{{ hostvars['unnas'].ansible_host }}"

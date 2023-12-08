@@ -1,0 +1,61 @@
+---
+- hosts: pi-01
+
+  vars_files: group_vars/secret.yml
+
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+
+  roles:
+    - role: dietpi
+      tags: setup, dietpi
+    
+    - { role: geerlingguy.pip, become: true, tags: [setup, docker] }
+    - role: geerlingguy.docker_arm
+      become: true
+      vars:
+        docker_users:
+          - dietpi
+        #docker_install_compose: no    # Remove later, there was a dep problem at install with bcrypt
+      tags: setup, docker
+
+    # Containers
+    - { role: containers/portainer, tags: [containers, portainer] }
+    - { role: containers/portainer_agent, tags: [containers, portainer] }
+
+    # Monitoring TIG stack
+    - { role: containers/influxdb, tags: [containers, influxdb] }
+    - role: containers/telegraf
+      vars:
+        telegraf_agent_output:
+          - type: influxdb
+            config:
+              - urls = ["http://localhost:8086"]
+              - database = "rpi_monitoring"
+              - password = "{{ pifour_influxdb_demo_password }}"
+        profile: "rpi"
+      tags: containers, telegraf
+
+    # PiHole
+    - role: containers/pihole
+      vars:
+        container_network_ip: "{{ dns[1] }}"
+        container_network_subnet: "{{ networks['network_services']['subnet'] }}"
+        container_network_gateway: "{{ networks['network_services']['gateway'] }}"
+        container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
+        
+        # Pihole docker settings
+        pihole_gravity_sync: yes
+        pihole_hostname: pihole_secondary_a
+        pihole_upstream_dns1: "{{ networks['network_services']['gateway'] }}"
+        pihole_gravity_master_host: 'pihole'
+      tags: containers, pihole
+    
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 30 9 * * *"'   # Run at 9:30am daily
+      tags: containers, watchtower
+
