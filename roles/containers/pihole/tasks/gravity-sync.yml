@@ -52,8 +52,8 @@
 
 - name: Run gravity install/upgrade gs-install.sh
   shell: curl -sSL {{ GS_INSTALL }} | sudo bash -
-  args:
-    warn: no
+  # args:
+  #   warn: no
 
 - name: Create SSH keys {{ GS_SSH_PKIF }}
   become: yes
