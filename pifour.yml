@@ -1,5 +1,5 @@
 ---
-- hosts: dietpi_four
+- hosts: pifour
 
   vars_files: group_vars/secret.yml
 
@@ -52,7 +52,10 @@
     # PiHole
     - role: containers/pihole
       vars:
-        container_network_ip: "{{ dns[1] }}"
+        container_network_ip: 192.168.10.153
+        container_network_subnet: 192.168.10.0/24
+        container_network_gateway: 192.168.10.1
+        pihole_upstream_dns1: 192.168.10.1
         pihole_gravity_sync: yes
       tags: containers, pihole
 
