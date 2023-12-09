@@ -58,15 +58,9 @@
     - role: containers/pihole
       vars:
         container_network_ip: "{{ dns[0] }}"
-        pihole_gravity_sync: yes
-
-        container_network_subnet: "{{ networks['network_services']['subnet'] }}"
-        container_network_gateway: "{{ networks['network_services']['gateway'] }}"
-        container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
 
         # Pihole docker settings
         pihole_hostname: pihole_primary
-        pihole_upstream_dns1: "{{ networks['network_services']['gateway'] }}"
 
       tags: containers, pihole
     
