@@ -1,0 +1,40 @@
+---
+
+# Crudely run steps in `kill_automation_service` of gravity-sync bash file since it asks for confirmation
+# which cannot be handled in Ansible.
+
+- name: Stop and Disable gravity-sync.* services
+  become: yes
+  systemd:
+    state: stopped
+    enabled: false
+    name: "{{ item }}"
+  with_items:
+    - "gravity-sync.timer"
+    - "gravity-sync.service"
+
+- name: Get daemon service files
+  find:
+    paths: "{{ GS_OS_DAEMON_PATH }}/"
+    patterns: "gravity-sync.*"
+  register: gravity_daemon_files
+
+- name: Manually remove daemon files
+  become: yes
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items:
+    - "{{ gravity_daemon_files.files }}"
+
+- name: reload systemd
+  become: yes
+  command: systemctl daemon-reload --quiet
+
+# - name: Remove prior install of gravity-sync
+#   shell: "{{ GS_FILEPATH }} purge"
+#   args:
+#     removes: "{{ GS_FILEPATH }}"
+
+- debug:
+    msg: "gravity-sync automation is disabled but you should run '{{ GS_FILEPATH }} purge' on {{ inventory_hostname }}"

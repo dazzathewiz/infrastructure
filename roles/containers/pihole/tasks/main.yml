@@ -37,3 +37,6 @@
 # Install and setup gravity-sync
 - import_tasks: gravity-sync.yml
   when: "pihole_gravity_sync | bool"
+
+- import_tasks: remove-gravity-sync.yaml
+  when: not pihole_gravity_sync and 'gravity-sync.service' in services
