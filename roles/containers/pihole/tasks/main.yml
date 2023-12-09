@@ -31,6 +31,9 @@
     restart_policy: always
     hostname: "{{ pihole_hostname }}"
 
+- name: Get service facts
+  service_facts:
+
 # Install and setup gravity-sync
 - import_tasks: gravity-sync.yml
   when: "pihole_gravity_sync | bool"
