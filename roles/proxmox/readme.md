@@ -23,16 +23,18 @@ See ../proxmox.yml
 
 The playbook performs all of these by default (or independantly with tags):
 1. Setup of a proxmox host ```ansible-playbook proxmox.yml --tags setup```
-  - Network in /etc/network/interfaces can be setup with ```--tags network```
-  - NFS mount point can be set with ```--tags nfs```
+    * Network in /etc/network/interfaces can be setup with ```--tags network```
+    * NFS mount point can be set with ```--tags nfs```
 2. Downloading of cloud images/ISO's and container templates ```ansible-playbook proxmox.yml --tags update_images```
-  * (Optional Tagging) `--tags update_iso_images` will ONLY re-download VM Cloud image/ISO's to storage `local-zfs` or `local` if local-zfs not configured.
-  * (Optional Tagging) `--tags update_container_images` will download CT Templates to storage `local` (Note local-zfs doesn't hold CT Templates)
+    * (Optional Tagging) `--tags update_iso_images` will ONLY re-download VM Cloud image/ISO's to storage `local-zfs` or `local` if local-zfs not configured.
+    * (Optional Tagging) `--tags update_container_images` will download CT Templates to storage `local` (Note local-zfs doesn't hold CT Templates)
 3. Clusters together all proxmox nodes in the playbook ```ansible-playbook proxmox.yml --tags cluster```
 4. Creation of VM template for use on each nodes local-* storage ```ansible-playbook proxmox.yml --tags templates --ask-vault-password```
 5. Setup Metric Server to ship metrics to InfluxDB ```ansible-playbook proxmox.yml --tags metrics --ask-vault-password```
 6. Setup and initalise Ceph ```ansible-playbook proxmox.yml --tags ceph --ask-vault-password```
 7. Setup NFS Ganesha nodes for HA ```ansible-playbook proxmox.yml --tags nfs --ask-vault-password```
+8. To reconfigure basic setup and configuration (such as removing subscription nag after an update, or changing DNS IP's etc):
+    `ansible-playbook proxmox.yml --tags config_basic --ask-vault-password`
 
 ### 1. Setup
 - apt sources to point to non-enterprise (no subscription), and ensures apt packages are updated after changing sources

@@ -13,7 +13,7 @@
 - import_tasks: load_variables.yml
 
 - import_tasks: pve_setup_config.yml
-  tags: setup
+  tags: setup, config_basic
 
 - import_tasks: pve_network.yml
   tags: setup, network, ceph
