@@ -1,0 +1,30 @@
+---
+- hosts: prox1
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        instance_name: docker
+        vm_memory: 4096
+        vm_memory_min: 2048
+        vm_cpu: 4
+        vm_network_bridge: vmbr1
+        vm_disk_increase: 4
+        vm_disk_ssdemulation: yes
+        vm_disk_discard: yes
+        vm_enable_agent: yes
+        vm_enable_numa: yes
+        vm_hotplug_devices: "disk,network,usb,memory,cpu"
+        vm_storage: "ceph-vm"
+        vm_network_mac: 76:2B:DA:03:0E:9F
+
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['docker']['ansible_host'] }}"

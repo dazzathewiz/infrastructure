@@ -1,0 +1,73 @@
+---
+
+# Setup docker server
+- hosts: docker
+  vars_files: group_vars/secret.yml
+
+  vars:
+
+    # pip docker package is used for deploying docker containers
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+
+  roles:
+    - vmguest
+    
+    # Install system packages, config, mount points
+    - role: system
+      # vars:
+      #   packages:
+      #     - zfsutils-linux
+      tags: setup
+
+    # Setup docker
+    - { role: geerlingguy.pip, become: true, tags: [setup] }
+    - role: geerlingguy.docker
+      become: true
+      vars:
+        docker_users:
+          - "{{ provisioning_user }}"
+      tags: setup
+    
+    # Deploy docker containers
+    - { role: containers/portainer, tags: [containers] }
+    - { role: containers/portainer_agent, tags: [containers] }
+    - role: containers/telegraf
+      vars:
+        telegraf_agent_output:
+          - type: influxdb
+            config:
+              - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
+              - database = "filecoin"
+        telegraf_plugins_default:
+          - plugin: cpu
+            config:
+              - percpu = true
+              - totalcpu = true
+              - collect_cpu_time = false
+              - report_active = false
+          - plugin: disk
+            config:
+              - ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+          - plugin: diskio
+          - plugin: kernel
+          - plugin: mem
+          - plugin: swap
+          - plugin: system
+          - plugin: docker
+            config:
+              - endpoint = "unix:///var/run/docker.sock"
+            config:
+              - poolMetrics = true
+      tags: containers, telegraf
+    
+    - role: docker_compose_generator
+      tags: setup
+
+    # Watchtower
+    - role: containers/watchtower
+      vars:
+        update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
+      tags: containers, watchtower
