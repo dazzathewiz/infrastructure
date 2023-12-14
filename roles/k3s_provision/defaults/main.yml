@@ -15,6 +15,10 @@ master_node_max: 3
 worker_node_name: "k3sworker"
 worker_node_disk_increase: 46
 
+# List tags for VMs in Proxmox
+pve_tags:
+  - k3s
+
 # k3s_worker_node_storage: 'local-nvme'
 
 # `lspci` to identify devices to pass through, then specify in host_vars for each host:
