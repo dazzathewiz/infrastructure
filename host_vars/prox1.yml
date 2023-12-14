@@ -1,9 +1,21 @@
 ---
+# Default storage location for VM's on this node
+vm_storage_default: 'local-nvme'
+
 k3s_worker_pcie:
-  - "02:00.0"       # 1TB Samsung 970 EVO NVMe - Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
+  # - "02:00.0"       # 1TB Samsung 970 EVO NVMe - Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
   - id: "00:02.0"   # Intel Corporation CometLake-S GT2 [UHD Graphics 630]
     mdev: "i915-GVTg_V5_4"
 
+k3s_worker_node_storage: "{{ vm_storage_default }}"
+
+k3s_worker_virtual_disk:
+  - '{{ vm_storage_default }}:1000,format=raw'        # Create 1TB disk for k3s longhorn on 'local-nvme' storage
+
+k3s_worker_disk_passthrough:
+  - ata-ST4000VN000-1H4168_Z301G8TD
+  - ata-ST4000VN008-2DR166_ZGY9DPR1
+
 k3s_worker_node_memory: 16384
-k3s_worker_node_memory_min: 16384
+k3s_worker_node_memory_min: 8192
 k3s_worker_node_cpu: 6
