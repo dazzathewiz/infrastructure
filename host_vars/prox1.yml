@@ -10,7 +10,7 @@ k3s_worker_pcie:
 k3s_worker_node_storage: "{{ vm_storage_default }}"
 
 k3s_worker_virtual_disk:
-  - '{{ vm_storage_default }}:1000,format=raw'        # Create 1TB disk for k3s longhorn on 'local-nvme' storage
+  - '{{ vm_storage_default }}:931.53,format=raw'        # Create 1TB disk for k3s longhorn on 'local-nvme' storage; 931.53 is GiB as close as possible to 1TB NVME
 
 k3s_worker_disk_passthrough:
   - ata-ST4000VN000-1H4168_Z301G8TD
