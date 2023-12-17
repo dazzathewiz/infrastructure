@@ -2,7 +2,7 @@
 - name: Partition the disk into a single large partition filling the disk
   become: yes
   parted:
-    device: "{{ item }}"
+    device: "{% if item['device'] is defined %}{{ item['device'] }}{% else %}{{ item }}{% endif %}"
     number: 1
     state: present
     part_start: "0%"
@@ -14,5 +14,20 @@
   become: yes
   filesystem:
     fstype: "{{ fstype }}"
-    dev: "{{ item }}{% if 'nvme' in item %}p{% endif %}1"
+    dev: "{% if item['device'] is defined %}{{ item['device'] }}{% if 'nvme' in item['device'] %}p{% endif %}1{% else %}{{ item }}{% if 'nvme' in item %}p{% endif %}1{% endif %}"
   with_items: "{{ partition_devices }}"
+
+- name: Setup automount of paritioned disks
+  set_fact:
+    path: "{% if item['mount'] is defined %}{{ item['mount'] }}{% else %}{{ default_mountpoint + '/' + (item | basename) }}{% endif %}"
+    src: "{% if item['device'] is defined %}{{ item['device'] }}{% if 'nvme' in item['device'] %}p{% endif %}1{% else %}{{ item }}{% if 'nvme' in item %}p{% endif %}1{% endif %}"
+    fstype: "{{ fstype }}"
+  loop: "{{ partition_devices }}"
+  register: _mounts
+  when: "auto_mount | bool"
+
+- name: Update mounts fact with partitioned drives
+  set_fact:
+    mounts: "{{ mounts | default([]) + [{ 'path': item['ansible_facts'].path, 'src': item['ansible_facts'].src, 'fstype': item['ansible_facts'].fstype }] }}"
+  with_items: "{{ _mounts.results }}"
+  when: "auto_mount | bool"

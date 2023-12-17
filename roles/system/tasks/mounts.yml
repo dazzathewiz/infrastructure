@@ -2,7 +2,7 @@
 - name: Do system mount points
   become: yes
   mount:
-    name: "{{ item.path }}"
+    name: "{{ item.path | default(default_mountpoint + '/' + (item.src | basename)) }}"
     src: "{{ item.src }}"
     opts: "{{ item.opts | default(omit) }}"
     fstype: "{{ item.fstype }}"
