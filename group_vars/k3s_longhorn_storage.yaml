@@ -1,0 +1,6 @@
+---
+
+# List of disks to be provisioned for Longhorn storage by default
+k3s_longhorn_blockdevices:
+  - device: /dev/nvme0n1
+    mount: /mnt/longhorn
