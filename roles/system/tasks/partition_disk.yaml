@@ -14,13 +14,13 @@
   become: yes
   filesystem:
     fstype: "{{ fstype }}"
-    dev: "{% if item['device'] is defined %}{{ item['device'] }}{% if 'nvme' in item['device'] %}p{% endif %}1{% else %}{{ item }}{% if 'nvme' in item %}p{% endif %}1{% endif %}"
+    dev: "{% if item['device'] is defined %}{{ item['device'] }}{% if 'nvme' in item['device'] %}p{% elif 'by-id' in item['device'] %}-part{% endif %}1{% else %}{{ item }}{% if 'nvme' in item %}p{% endif %}1{% endif %}"
   with_items: "{{ partition_devices }}"
 
 - name: Setup automount of paritioned disks
   set_fact:
     path: "{% if item['mount'] is defined %}{{ item['mount'] }}{% else %}{{ default_mountpoint + '/' + (item | basename) }}{% endif %}"
-    src: "{% if item['device'] is defined %}{{ item['device'] }}{% if 'nvme' in item['device'] %}p{% endif %}1{% else %}{{ item }}{% if 'nvme' in item %}p{% endif %}1{% endif %}"
+    src: "{% if item['device'] is defined %}{{ item['device'] }}{% if 'nvme' in item['device'] %}p{% elif 'by-id' in item['device'] %}-part{% endif %}1{% else %}{{ item }}{% if 'nvme' in item %}p{% endif %}1{% endif %}"
     fstype: "{{ fstype }}"
   loop: "{{ partition_devices }}"
   register: _mounts
