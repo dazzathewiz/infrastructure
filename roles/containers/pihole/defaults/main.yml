@@ -16,3 +16,9 @@ pihole_webpassword: "{{ infadmin_password }}"
 pihole_gravity_sync: no
 pihole_gravity_sync_direction: "pull"
 pihole_gravity_master_host: 'pihole'       # Name of the host in hosts.ini for master PiHole instance
+
+# Pihole backup settings
+pihole_backup: no
+pihole_backup_retension: 30    # keep the last 'n' backup files
+pihole_backup_hour: 15         # 3pm
+pihole_backup_minute: 0        # on the hour

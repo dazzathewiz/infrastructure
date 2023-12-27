@@ -1,5 +1,10 @@
 ---
 
+# Container Volumes:
+container_volumes:
+- "{{ docker_dir }}/{{ container_name }}/data/pihole:/etc/pihole"
+- "{{ docker_dir }}/{{ container_name }}/data/dnsmasq.d:/etc/dnsmasq.d"
+
 # Gravity install script; see https://github.com/vmstan/gravity-sync/wiki/Installing
 GS_INSTALL: https://raw.githubusercontent.com/vmstan/gs-install/main/gs-install.sh
 

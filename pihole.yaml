@@ -10,7 +10,12 @@
   
   roles:
     - vmguest
-    - system
+    
+    - role: system
+      vars:
+        packages:
+          - nfs-common
+        mounts: "{{ filesystem_mounts }}"
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
@@ -61,6 +66,8 @@
 
         # Pihole docker settings
         pihole_hostname: pihole_primary
+
+        pihole_backup: yes
 
       tags: containers, pihole
     
