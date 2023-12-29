@@ -8,11 +8,20 @@ chia_machinaris_data: "{{ docker_dir }}/machinaris"
 chia_network:
   truenas01:
     ip: 192.168.15.35
-  chia_main: 
-    ip: 192.168.15.20
   default:
     subnet: 192.168.15.0/24
     gateway: 192.168.15.1
     ip_range: 192.168.15.0/24
 
 persistent_backup: /mnt/truenas01/backup
+
+docker_networks:
+  miner_network:
+    driver: macvlan
+    driver_opts:
+      parent: "{{ ansible_default_ipv4.interface }}"
+    ipam:
+      config:
+        - subnet: "{{ chia_network['default']['subnet'] }}"
+          gateway: "{{ chia_network['default']['gateway'] }}"
+          ip_range: "{{ chia_network['default']['ip_range'] }}"
