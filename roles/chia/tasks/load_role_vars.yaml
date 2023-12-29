@@ -1,0 +1,18 @@
+---
+
+# Setup role based on ansible hosts file configuration
+# Roles can be one of fullnode, farmer, harvester, plotter, farmer+plotter, harvester+plotter.
+# Refer: https://github.com/guydavis/machinaris/blob/main/docker/dockerfile: `ENV mode`
+
+# Only fullnode (farmer) and harvester supported
+
+- name: Confirm host configuration
+  fail:
+    msg: "{{ inventory_hostname }} should not be part of chia_harvester and chia_farmer groups in hosts file; Can only be 1 type"
+  when: "inventory_hostname in groups['chia_harvester'] and inventory_hostname in groups['chia_farmer']"
+
+- include_vars: harvester.yaml
+  when: "inventory_hostname in groups['chia_harvester']"
+
+- include_vars: fullnode.yaml
+  when: "inventory_hostname in groups['chia_farmer']"

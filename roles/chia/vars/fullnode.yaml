@@ -1,5 +1,7 @@
 ---
 
-# Manage the blockchain db
+chia_role: fullnode
+
+# Manage the blockchain db on farmers
 chia_blockchain_db_dir: "{{ chia_machinaris_data }}/.machinaris/mainnet/db"
 chia_db_filename: blockchain_v2_mainnet.sqlite
