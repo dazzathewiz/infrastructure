@@ -13,19 +13,36 @@
       - name: docker
       - name: docker-compose
 
+  pre_tasks:
+    
+    - name: Combine chia package vars
+      set_fact:
+        host_packages: "{{ host_packages | default([]) + chia_packages }}"
+      when: chia_packages is defined
+    
+    - name: Combine chia_farmer package vars
+      set_fact:
+        host_packages: "{{ host_packages | default([]) + chia_farmer_packages }}"
+      when: chia_farmer_packages is defined
+
+    - name: Combine chia mount vars
+      set_fact:
+        host_mounts: "{{ host_mounts | default([]) + chia_mounts }}"
+      when: chia_mounts is defined
+    
+    - name: Combine chia_farmer mount vars
+      set_fact:
+        host_mounts: "{{ host_mounts | default([]) + chia_farmer_mounts }}"
+      when: chia_farmer_mounts is defined
+
   roles:
     - vmguest
     
     # Install system packages, config, mount points
     - role: system
       vars:
-        packages:
-          - nvtop
-          - htop
-          - sysstat
-          - nvidia-driver-535               # https://forums.developer.nvidia.com/t/nvidia-smi-not-working-on-dual-booted-ubuntu-20-04/262433
-          - nfs-common
-        mounts: "{{ chia_farmer_mounts }}"
+        packages: "{{ host_packages }}"
+        mounts: "{{ host_mounts }}"
         
       tags: setup
 

@@ -25,3 +25,7 @@ docker_networks:
         - subnet: "{{ chia_network['default']['subnet'] }}"
           gateway: "{{ chia_network['default']['gateway'] }}"
           ip_range: "{{ chia_network['default']['ip_range'] }}"
+
+chia_packages:
+  - htop
+  - sysstat
