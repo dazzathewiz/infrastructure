@@ -33,11 +33,11 @@
 
 - name: Stage updated container variables
   set_fact:
-    _containers: "{{ _containers | default([]) + [{ 'container_name': containers[my_idx].container_name, 'volumes': containers[my_idx].volumes | union(_volumes), 'environment': containers[my_idx].environment | union(_environment | default([]) ) }] }}"
+    _containers: "{{ _containers | default([]) + [{ 'container_name': containers[my_idx].container_name, 'volumes': containers[my_idx].volumes | union(_volumes) | sort, 'environment': containers[my_idx].environment | union(_environment | default([])) | sort }] }}"
   loop: "{{ containers }}"
   loop_control:
     index_var: my_idx
-  when: item.image is search("machinaris")
+  when: item.image is search("machinaris.*")
 
 - name: Merge container variables with updated contents
   set_fact:
