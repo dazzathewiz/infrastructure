@@ -10,4 +10,4 @@
     sync_cron_freq:
       name: "{{ container_name }} persistent data backup"
       hour: "*/12"    # Every 12 hours
-    sync_cron_rsync_flags: "-a --delete --recursive --exclude={'*id_*','*mnemonic*','blockchain_v2_mainnet.sqlite'}"
+    sync_cron_rsync_flags: "-a --delete --recursive --exclude={'*id_*','*mnemonic*','{{ chia_db_filename }}'}"
