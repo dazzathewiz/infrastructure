@@ -1,0 +1,81 @@
+---
+
+- name: Initialise container config
+  set_fact:
+    container:
+      ### {{ item['name'] }}
+      service_name: "machinaris{% if item['name'] != 'chia' %}-{{ item['name'] }}{% endif %}"
+      active: true
+      image: "ghcr.io/guydavis/machinaris{% if item['name'] != 'chia' %}-{{ item['name'] }}{% endif %}"
+      container_name: "machinaris{% if item['name'] != 'chia' %}-{{ item['name'] }}{% endif %}"
+      hostname: "{{ inventory_hostname }}"
+      restart: always
+      volumes: 
+        - "{{ chia_machinaris_data }}/.machinaris{% if item['name'] != 'chia' %}-{{ item['name'] }}{% endif %}:/root/.chia"
+        - "{{ chia_machinaris_data }}/keys:{{ chia_farmer_container_keys_dir }}"
+        # Volumes are set by `role: chia`, where the host has `chia_harvester_plots` defined, otherwise define:
+        # - "/host/path/1:/plots1"
+        # - "/host/path/2:/plots2"
+        # - "/host/path/3:/plots3"
+      environment: 
+        - "TZ={{ timezone }}"
+        - "mode={{ chia_role }}"
+        - "worker_address={{ item['ip'] }}"
+        # These options are set by `role: chia`, where the host has `chia_harvester_plots` and/or `chia_farmer_mnemonics` defined
+        # - "plots_dir=/plots1:/plots2:/plots3
+        # - "keys=/root/.chia/mnemonic.txt:/root/.chia/fil_mnemonic_1.txt"
+        - "blockchains={{ item['name'] }}"
+      ports:
+        - 8926:8926
+        - 8927:8927
+        - 8444:8444
+        - 8447:8447
+
+
+# Farmer / fullnode options
+- name: Set blockchain_db_download
+  set_fact:
+    container: "{{ container | combine( {'environment': ['blockchain_db_download=true']}, recursive=true, list_merge='append' ) }}"
+  when: chia_role == 'fullnode'
+
+# GPU options for Chia
+- block:
+
+  - name: GPU options for container vars
+    set_fact:
+      _stage_container:
+        environment:
+          - OPENCL_GPU=nvidia
+          - NVIDIA_VISIBLE_DEVICES=all
+          - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+        runtime: nvidia
+
+  - name: Combine GPU options into container var
+    set_fact:
+      container: "{{ container | combine(_stage_container, recursive=true, list_merge='append') }}"
+
+  when: item['gpu'] is defined and item['gpu'] == 'nvidia' and item['name'] == 'chia'
+
+# Network options
+- block:
+
+  - name: Network options for container
+    set_fact:
+      _stage_container:
+        networks:
+          miner_network:
+            ipv4_address: "{{ item['ip'] }}"
+
+  - name: Combine Network options into container var
+    set_fact:
+      container: "{{ container | combine(_stage_container, recursive=true) }}"
+
+  when: item['ip'] is defined
+
+# - debug: var=container
+
+# Add the container var to the containers array
+- name: Add container to containers array
+  set_fact:
+    containers: "{{ containers | default([]) + [ container ] }}"
+
