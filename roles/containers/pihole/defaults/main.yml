@@ -2,17 +2,23 @@
 
 container_name: pihole
 container_network_ip: ""                # Must be provided
-container_network_subnet: 192.168.10.0/24
-container_network_gateway: 192.168.10.1
+container_network_subnet: "{{ networks['network_services']['subnet'] }}"
+container_network_gateway: "{{ networks['network_services']['gateway'] }}"
 container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
 
 # Pihole docker settings
 pihole_hostname: pihole2
-pihole_upstream_dns1: 192.168.10.1
+pihole_upstream_dns1: "{{ networks['network_services']['gateway'] }}"
 pihole_upstream_dns2: 8.8.4.4
 pihole_webpassword: "{{ infadmin_password }}"
 
 # Pihole gravity sync
 pihole_gravity_sync: no
 pihole_gravity_sync_direction: "pull"
-pihole_gravity_master_host: 'unnas'       # Name of the host in hosts.ini for master PiHole instance
+pihole_gravity_master_host: 'pihole'       # Name of the host in hosts.ini for master PiHole instance
+
+# Pihole backup settings
+pihole_backup: no
+pihole_backup_retension: 30    # keep the last 'n' backup files
+pihole_backup_hour: 15         # 3pm
+pihole_backup_minute: 0        # on the hour

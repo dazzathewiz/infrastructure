@@ -73,7 +73,7 @@
 
 - name: Apply correct network interface settings
   shell: qm set {{ vm.vmid }} --net0 virtio{% if vm_network_bridge is defined %},bridge={{ vm_network_bridge }}{% else %},bridge=vmbr0{% endif %}{% if vm_network_vlan is defined %},tag={{ vm_network_vlan }}{% endif %}{% if vm_network_mac is defined %},macaddr={{ vm_network_mac }}{% endif %}
-  when: vm.changed and vm_network_bridge is defined or vm_network_vlan is defined or vm_network_mac is defined
+  when: vm.changed and (vm_network_bridge is defined or vm_network_vlan is defined or vm_network_mac is defined)
 
 - name: Set a PCIe device passthrough to the VM if required
   shell: qm set {{ vm.vmid }} -hostpci{{ my_idx }} {% if item['id'] is defined %}{{ item['id'] }}{% else %}{{ item }}{% endif %}{% if item['mdev'] is defined %},mdev={{ item['mdev'] }}{% endif %}{% if item['rombar'] is defined %},rombar={{ item['rombar'] }}{% endif %}{% if item['primary_gpu'] is defined and item['primary_gpu'] %},x-vga=on{% endif %}
@@ -82,8 +82,16 @@
     index_var: my_idx
   when: vm.changed and vm_pcie_device is defined
 
+- name: Create specified virtual disks
+  shell: qm set {{ vm.vmid }} -scsi{{ disk_idx + 2 }} {{ item }}{% if vm_disk_ssdemulation %},ssd=1{% endif %}
+  loop: "{{ vm_disk_virtual }}"
+  loop_control:
+    index_var: disk_idx
+  when: (vm_disk_virtual | length > 0) and vm.changed
+  register: _virtual_disks
+
 - name: Setup phyiscal disk passthough
-  shell: qm set {{ vm.vmid }} -scsi{{ my_idx + 2 }} /dev/disk/by-id/{{ item }}
+  shell: qm set {{ vm.vmid }} -scsi{{ _virtual_disks.results | length + my_idx + 2 }} /dev/disk/by-id/{{ item }}
   loop: "{{ vm_disk_passthrough }}"
   loop_control:
     index_var: my_idx
@@ -103,7 +111,7 @@
   when: pve_gui_tags_enable
 
 - name: Provision VM tags
-  shell: qm set {{ vm.vmid }} --tags {{ _pve_gui_tags_list|join(';') }}
+  shell: qm set {{ vm.vmid }} --tags {{ _pve_gui_tags_list|join(',') }}
   when: vm.changed and pve_gui_tags_enable
 
 - name: starting new Virtual Machine ID {{ vm.vmid }}

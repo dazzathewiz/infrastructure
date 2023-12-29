@@ -37,7 +37,7 @@
         query: "storage/local"
       register: _pve_storage_local
 
-  tags: setup, ceph
+  tags: setup, ceph, config_basic
 
 # Image and ISO download vars
 - name: Cloud download urls for ISO's and image vars
@@ -144,7 +144,7 @@
         _ceph_network_frontend_ip: "{{ pve_ceph_net_front_base | ansible.utils.ipmath(inventory_hostname[-1]) }}"
     
   when: "pve_ceph_enabled | bool"
-  tags: ceph, setup
+  tags: ceph, setup, config_basic
 
 # NFS Ganesha vars
 - name: NFS Ganesha config vars

@@ -29,6 +29,8 @@ All vars are optional depending on your configuration.
             vm_disk_increase: 46                    # Increase template disk by #GB
             vm_disk_ssdemulation: no                # Tick SSD Emulation in VM SCSI0
             vm_disk_discard: no                     # Tick Discard in VM SCSI0
+            vm_disk_virtual:                        # List extra virtual disks to be created
+                - 'local-zfs:10,format=raw'             # Format should be 'STORAGE_ID:SIZE_IN_GB<,options>'
             vm_pcie_device: ["03:00.0"]             # Include listed PCIe devices, alternatively:
             vm_pcie_device:                         # Specify options for PCIe devices: https://pve.proxmox.com/pve-docs/qm.1.html
                 - id: "03:00.0"

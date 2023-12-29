@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Run Pi-hole core Teleport command inside container # See: https://docs.pi-hole.net/core/pihole-command/
+docker exec -w /backup {{ container_name }} pihole -a -t
+
+# and delete all oldest files and keep only {{ pihole_backup_retension }}
+# - https://www.ostechnix.com/find-delete-oldest-file-x-files-directory/
+(cd {{ docker_dir }}/{{ container_name }}/backup && ls -1t | tail -n +{{  pihole_backup_retension + 1 }} | xargs -r rm)

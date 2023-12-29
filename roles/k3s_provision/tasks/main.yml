@@ -12,6 +12,7 @@
     vm_network_vlan: "{{ all_node_network_vlan }}"
     vm_disk_increase: "{{ master_node_disk_increase }}"
     vm_storage: "{{ master_node_storage }}"
+    pve_gui_tags_list: "{{ pve_tags }}"
   when: inventory_hostname[-1] | int <= master_node_max
 
 # Create k3s Worker + Storage node
@@ -27,3 +28,7 @@
     vm_network_vlan: "{{ all_node_network_vlan }}"
     vm_disk_increase: "{{ worker_node_disk_increase }}"
     vm_pcie_device: "{{ k3s_worker_pcie|default(omit) }}"
+    vm_disk_virtual: "{{ k3s_worker_virtual_disk|default([]) }}"
+    vm_disk_passthrough: "{{ k3s_worker_disk_passthrough|default([]) }}"
+    vm_storage: "{{ k3s_worker_node_storage|default(omit) }}"
+    pve_gui_tags_list: "{{ pve_tags }}"

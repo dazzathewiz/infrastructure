@@ -12,6 +12,7 @@ vm_enable_agent: yes      # Enable the proxmox qemu agent
 vm_enable_numa: no        # Enable NUMA
 vm_install_qemu_agent: "{{ provision_add_to_inventory }}"
 vm_disk_passthrough: []   # Disk ID's to pass through to VM. See: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
+vm_disk_virtual: []       # List of virtual disks to be created. List items should be in format 'STORAGE_ID:SIZE_IN_GB<,options>', EG: 'local-zfs:10,format=raw'
 vm_disk_increase: 0       # Increase the vm disk by x GB
 vm_disk_ssdemulation: no  # Tick SSD Emulation in VM SCSI0
 vm_disk_discard: no       # Tick Discard in VM SCSI0

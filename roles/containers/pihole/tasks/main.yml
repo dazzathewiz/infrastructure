@@ -3,6 +3,11 @@
 - name: Setup container network
   import_tasks: roles/containers/common/tasks/docker-network-default.yml
 
+- name: Include backup volume in {{ container_name }} container
+  set_fact:
+    container_volumes: "{{ [ docker_dir + '/' + container_name + '/backup:/backup' ] | union(container_volumes) }}"
+  when: "pihole_backup | bool"
+
 - name: Make sure {{ container_name }} container is created and running
   become: yes
   docker_container:
@@ -21,9 +26,7 @@
       "DNS1": "{{ pihole_upstream_dns1 }}"
       "DNS2": "{{ pihole_upstream_dns2 }}"
       "WEBPASSWORD": "{{ pihole_webpassword }}"
-    volumes:
-      - "{{ docker_dir }}/{{ container_name }}/data/pihole:/etc/pihole"
-      - "{{ docker_dir }}/{{ container_name }}/data/dnsmasq.d:/etc/dnsmasq.d"
+    volumes: "{{ container_volumes }}"
     networks:
       - name: "{{ container_network_interface }}"
         aliases: "{{ pihole_hostname }}"
@@ -31,6 +34,15 @@
     restart_policy: always
     hostname: "{{ pihole_hostname }}"
 
+- name: Get service facts
+  service_facts:
+
 # Install and setup gravity-sync
 - import_tasks: gravity-sync.yml
   when: "pihole_gravity_sync | bool"
+
+- import_tasks: remove-gravity-sync.yaml
+  when: not pihole_gravity_sync and 'gravity-sync.service' in services
+
+- import_tasks: pihole-backup.yaml
+  when: "pihole_backup | bool"

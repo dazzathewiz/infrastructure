@@ -1,5 +1,10 @@
 ---
 
+# Container Volumes:
+container_volumes:
+- "{{ docker_dir }}/{{ container_name }}/data/pihole:/etc/pihole"
+- "{{ docker_dir }}/{{ container_name }}/data/dnsmasq.d:/etc/dnsmasq.d"
+
 # Gravity install script; see https://github.com/vmstan/gravity-sync/wiki/Installing
 GS_INSTALL: https://raw.githubusercontent.com/vmstan/gs-install/main/gs-install.sh
 
@@ -8,3 +13,4 @@ GS_FILEPATH: '/usr/local/bin/gravity-sync'
 GS_ETC_PATH: '/etc/gravity-sync'
 GS_CONFIG_FILE: 'gravity-sync.conf'
 GS_SSH_PKIF: "{{ GS_ETC_PATH }}/gravity-sync.rsa"
+GS_OS_DAEMON_PATH: '/etc/systemd/system'

@@ -1,0 +1,32 @@
+---
+
+- name: Setup Pihole backup shell script ~/pihole-backup.sh
+  template:
+    src: pihole-backup.j2
+    dest: ~/pihole-backup.sh
+    mode: u=rwx,g=r,o=r
+
+- name: Create cron entry for ~/pihole-backup.sh
+  cron:
+    name: "Pihole Teleport Backup"
+    minute: "{{ pihole_backup_minute }}"
+    hour: "{{ pihole_backup_hour }}"
+    job: "~/pihole-backup.sh"
+
+- name: Ensure the backup directory path exists
+  file:
+    path: "{{ persistent_backup }}/{{ inventory_hostname }}"
+    state: directory
+    recurse: yes
+
+- name: Backup Pihole settings with rsync-cron
+  include_role: 
+    name: rsync-cron
+  vars:
+    sync_cron_username: "root"
+    sync_cron_src_path: "{{ docker_dir }}/{{ container_name }}/backup/"
+    sync_cron_dest_url: "{{ persistent_backup }}/{{ inventory_hostname }}/pihole_teleport/"
+    sync_cron_freq:
+      name: "{{ container_name }} persistent data backup"
+      hour: "*/12"    # Every 12 hours
+    sync_cron_rsync_flags: "-a --delete --recursive"

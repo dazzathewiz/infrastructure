@@ -1,0 +1,31 @@
+---
+- hosts: prox1
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        instance_name: pihole
+        vm_memory: 4096
+        vm_memory_min: 2048
+        vm_cpu: 2
+        vm_network_bridge: vmbr1
+        vm_network_vlan: "{{ networks['network_services']['vlan'] }}"
+        vm_disk_increase: 4
+        vm_disk_ssdemulation: yes
+        vm_disk_discard: yes
+        vm_enable_agent: yes
+        vm_enable_numa: yes
+        vm_hotplug_devices: "disk,network,usb,memory,cpu"
+        vm_storage: "ceph-vm"
+        vm_network_mac: 52:1c:3d:f2:b5:9d
+
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['pihole']['ansible_host'] }}"

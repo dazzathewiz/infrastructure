@@ -49,7 +49,7 @@
       auto vmbr2
       iface vmbr2 inet static
       	address {{ _ceph_network_frontend_ip }}/{{ pve_ceph_net_front_cidr }}
-        gateway {{ pve_ceph_net_front_base }}
+      	gateway {{ pve_ceph_net_front_base }}
       	bridge-ports vlan{{ pve_ceph_network_frontend['vlan'] }}
       	bridge-stp off
       	bridge-fd 0

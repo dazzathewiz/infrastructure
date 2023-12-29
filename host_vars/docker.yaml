@@ -1,0 +1,45 @@
+---
+
+containers:
+  ###
+  - service_name: homeassistant
+    active: true
+    image: homeassistant/home-assistant:2023.11
+    container_name: home-assistant
+    hostname: "{{ inventory_hostname }}"
+    restart: always
+    volumes: 
+      - "{{ docker_dir }}/homeassistant/config:/config"
+      - "{{ docker_dir }}/homeassistant/snapshots:/snapshots"
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    environment:
+      - "TZ={{ timezone }}"
+    privileged: true
+    network_mode: host
+  
+  - service_name: letsencrypt
+    active: true
+    image: linuxserver/letsencrypt
+    container_name: letsencrypt
+    hostname: "{{ inventory_hostname }}"
+    restart: always
+    volumes: 
+      - "{{ docker_dir }}/letsencrypt/config:/config"
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - "TZ={{ timezone }}"
+      - "URL={{ letsencrypt_domain }}"
+      - "SUBDOMAINS={{ letsencrypt_subdomains }}"
+      - VALIDATION=http
+      - "EMAIL={{ admin_email }}"
+      - ONLY_SUBDOMAINS=true
+      - DHLEVEL=4096
+    ports:
+      - 443:443
+      - 80:80
+    privileged: true
+    network_mode: host

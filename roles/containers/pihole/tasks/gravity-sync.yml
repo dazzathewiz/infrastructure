@@ -6,6 +6,7 @@
   shell: docker container ls | grep 'pihole/pihole' | awk '{print $1}'
   register: container_id
   delegate_to: "{{ pihole_gravity_master_host }}"
+  changed_when: false
   
 - name: Check a container was found
   fail:
@@ -53,7 +54,7 @@
 - name: Run gravity install/upgrade gs-install.sh
   shell: curl -sSL {{ GS_INSTALL }} | sudo bash -
   args:
-    warn: no
+    creates: "{{ GS_FILEPATH }}"
 
 - name: Create SSH keys {{ GS_SSH_PKIF }}
   become: yes
@@ -74,14 +75,35 @@
   with_items: "{{ ansible_play_hosts }}"
   delegate_to: "{{ pihole_gravity_master_host }}"
 
-- name: Run Gravity-Sync {{ pihole_gravity_sync_direction }} from primary-{{ pihole_gravity_master_host }}
+# Requires you to accept host fingerprint (known hosts) as root before Gravity-Sync will work
+- name: Ensure {{ pihole_gravity_master_host }} is in root known_hosts for play hosts
   become: yes
-  shell: "{{ GS_FILEPATH }} {{ pihole_gravity_sync_direction }}"
-  register: sync_result
-  changed_when: "'No replication is required at this time' not in sync_result.stdout"
-  failed_when: "'✗' in sync_result.stdout"
+  lineinfile:
+    dest: /root/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -trsa ' + hostvars[pihole_gravity_master_host].ansible_host ) }}"
 
-- name: Automate Gravity-Sync
+- name: Initial setup when service not already present
+  block:
+
+    - name: Run Gravity-Sync {{ pihole_gravity_sync_direction }} from primary-{{ pihole_gravity_master_host }}
+      become: yes
+      shell: "{{ GS_FILEPATH }} {{ pihole_gravity_sync_direction }}"
+      register: sync_result
+      changed_when: "'No replication is required at this time' not in sync_result.stdout"
+      failed_when: "'✗' in sync_result.stdout"
+
+    - name: Automate Gravity-Sync
+      become: yes
+      shell: "{{ GS_FILEPATH }} auto"
+      failed_when: "'✗' in sync_result.stdout"
+  
+  when: "'gravity-sync.service' not in services"
+
+- name: gravity-sync.timer service should be started
   become: yes
-  shell: "{{ GS_FILEPATH }} auto"
-  failed_when: "'✗' in sync_result.stdout"
+  systemd:
+    state: started
+    enabled: true
+    name: "gravity-sync.timer"

@@ -1,0 +1,5 @@
+---
+persistent_backup: /mnt/truenas01/backup
+
+filesystem_mounts:
+  - { path: "{{ persistent_backup }}", src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/nas/backup", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }

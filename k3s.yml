@@ -32,10 +32,7 @@
         packages:
           - nfs-common
           - open-iscsi
-        partition_devices:
-          - "/dev/nvme0n1"
-        mounts:
-          - { path: /mnt/nvme0, src: /dev/nvme0n1p1, fstype: ext4 }
+        partition_devices: "{{ k3s_longhorn_blockdevices }}"
       tags: longhorn,setup
   tasks:
     - name: Start the systemd service for iscsid if it is not started

@@ -1,5 +1,5 @@
 ---
-- hosts: pifour
+- hosts: pi-01
 
   vars_files: group_vars/secret.yml
 
@@ -8,19 +8,8 @@
     pip_install_packages:
       - name: docker
 
-    # USB SATA drive UUID - changes when re-formatting the drive
-    sata_uuid: f4a635f0-5c75-4cbd-910f-bbef857c89b2
-
-    # Overwrite the docker directory to use USB attached storage
-    docker_dir: /mnt/{{ sata_uuid }}/docker/data
-
   roles:
     - role: dietpi
-      vars:
-        dietpi_mounts:
-          # Disk mounts
-          - { path: "/mnt/{{ sata_uuid }}", src: "UUID={{ sata_uuid }}", fstype: ext4, opts: "noatime,lazytime,rw,nofail,noauto,x-systemd.automount" }
-        dietpi_userdata: "/mnt/{{ sata_uuid }}/dietpi_userdata"
       tags: setup, dietpi
     
     - { role: geerlingguy.pip, become: true, tags: [setup, docker] }
@@ -52,28 +41,21 @@
     # PiHole
     - role: containers/pihole
       vars:
-        container_network_ip: 192.168.10.153
-        container_network_subnet: 192.168.10.0/24
-        container_network_gateway: 192.168.10.1
-        pihole_upstream_dns1: 192.168.10.1
+        container_network_ip: "{{ dns[1] }}"
+        container_network_subnet: "{{ networks['network_services']['subnet'] }}"
+        container_network_gateway: "{{ networks['network_services']['gateway'] }}"
+        container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
+        
+        # Pihole docker settings
         pihole_gravity_sync: yes
+        pihole_hostname: pihole_secondary_a
+        pihole_upstream_dns1: "{{ networks['network_services']['gateway'] }}"
+        pihole_gravity_master_host: 'pihole'
       tags: containers, pihole
-
-    # Cyber Power UPS
-    - role: containers/upsd
-      vars:
-        ups_description: "CyberPower 1300VA PFC Sinewave"
-      tags: containers, upsd
-    
-    # Shinobi
-    - role: containers/shinobi
-      vars:
-        container_network_ip: 192.168.13.21
-      tags: containers, shinobi
     
     # Watchtower
     - role: containers/watchtower
       vars:
-        update_schedule: '"0 30 11 * * *"'   # Run at 11:30am daily
+        update_schedule: '"0 30 9 * * *"'   # Run at 9:30am daily
       tags: containers, watchtower
 
