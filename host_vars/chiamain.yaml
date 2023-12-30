@@ -10,6 +10,8 @@ chia_blockchains:
   - name: chia
     ip: 192.168.15.20
     gpu: nvidia
+    blockchain_db_backup: yes
+    machinaris_backup: yes
 
 host_packages:
   - nvtop
