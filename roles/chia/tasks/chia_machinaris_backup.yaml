@@ -5,9 +5,10 @@
     name: rsync-cron
   vars:
     sync_cron_username: "root"
-    sync_cron_src_path: "{{ chia_machinaris_data }}/.machinaris/"
-    sync_cron_dest_url: "{{ persistent_backup }}/{{ inventory_hostname }}/machinaris_config/"
+    sync_cron_src_path: "{{ chia_machinaris_data }}/.machinaris{% if outer_item['name'] != 'chia' %}-{{ outer_item['name'] }}{% endif %}/"
+    sync_cron_dest_url: "{{ persistent_backup }}/{{ inventory_hostname }}/machinaris_config/{{ outer_item['name'] }}/"
     sync_cron_freq:
       name: "{{ container_name }} persistent data backup"
       hour: "*/12"    # Every 12 hours
     sync_cron_rsync_flags: "-a --delete --recursive --exclude={'*id_*','*mnemonic*','{{ chia_db_filename }}'}"
+  when: "outer_item['machinaris_backup'] is defined and outer_item['machinaris_backup'] | bool"
