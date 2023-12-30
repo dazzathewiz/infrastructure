@@ -2,22 +2,20 @@
 
 - import_tasks: load_role_vars.yaml
 
-# Copy/construct files and folders required for chia/machinaris
-- block:
-  - import_tasks: chia_mnemonics.yaml
-  - import_tasks: chia_blockchain_db.yaml
+# Tasks for fullnode role
+- import_tasks: fullnode_tasks.yaml
   when: chia_role == 'fullnode'
+
+# Tasks for all other roles
+- import_tasks: default_role_tasks.yaml
+  when: chia_role != 'fullnode'
+
+# Finalise container vars
+- import_tasks: load_vars.yaml
+
 
 # Must configure specific GPU functions for harvister with compressed plots:
 # https://docs.chia.net/farming-compressed-plots/
 # /root/.chia/mainnet/config/config.yaml:
 #   - parallel_decompressor_count: 1
 #   - use_gpu_harvesting: true
-
-- import_tasks: load_vars.yaml
-
-# Setup backup of blockchain DB and machinaris data
-- block:
-  - import_tasks: chia_blockchain_backup.yaml
-  - import_tasks: chia_machinaris_backup.yaml
-  when: chia_role == 'fullnode'

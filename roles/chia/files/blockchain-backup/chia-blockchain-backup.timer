@@ -1,8 +1,8 @@
 [Unit]
-Description=Run Chia blockchain database backup
+Description=Run {{ outer_item['name'] }} blockchain database backup
 
 [Timer]
-Unit=chia-blockchain-backup.service
+Unit={{ outer_item['name'] }}-blockchain-backup.service
 OnCalendar=daily
 Persistent=true
 RandomizedDelaySec=900

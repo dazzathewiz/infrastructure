@@ -1,0 +1,5 @@
+---
+- include_tasks: chia_compose_container_vars.yaml
+  loop: "{{ chia_blockchains }}"
+  loop_control:
+    loop_var: outer_item

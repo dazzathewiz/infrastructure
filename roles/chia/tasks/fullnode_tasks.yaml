@@ -1,0 +1,8 @@
+---
+
+- import_tasks: chia_mnemonics.yaml
+
+- include_tasks: fullnode_blockchain_setup.yaml
+  loop: "{{ chia_blockchains }}"
+  loop_control:
+    loop_var: outer_item

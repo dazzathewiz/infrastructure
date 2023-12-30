@@ -25,10 +25,10 @@
 - debug:
       var: filesFound
 
-- name: Copy {{ chia_db_filename }}.bak from {{ persistent_backup }}/{{ inventory_hostname }}/chia/{{ chia_db_filename }}.bak
+- name: Copy {{ chia_db_filename }}.bak from {{ persistent_backup }}/{{ inventory_hostname }}/{{ outer_item['name'] }}/{{ chia_db_filename }}.bak
   become: yes
   ansible.posix.synchronize:
-    src: "{{ persistent_backup }}/{{ inventory_hostname }}/chia/{{ chia_db_filename }}.bak"
+    src: "{{ persistent_backup }}/{{ inventory_hostname }}/{{ outer_item['name'] }}/{{ chia_db_filename }}.bak"
     dest: "{{ chia_blockchain_db_dir }}/{{ chia_db_filename }}"
   delegate_to: "{{ inventory_hostname }}"
   when: filesFound.matched == 0

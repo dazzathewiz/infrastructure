@@ -1,10 +1,5 @@
 ---
 
-# Setup chia containers variable
-- name: Setup containers variables
-  include_tasks: chia_compose_container_vars.yaml
-  loop: "{{ chia_blockchains }}"
-
 - name: Set fact for container plots volume mapping
   set_fact:
     _volumes: "{{ _volumes | default([]) + [ item + ':/plots' + (my_count + 1) | string ] }}"
