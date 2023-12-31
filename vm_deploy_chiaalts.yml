@@ -16,7 +16,7 @@
         vm_network_bridge: vmbr1
         vm_network_vlan: 115
         vm_network_mac: 56:0E:15:5E:3A:A0
-        vm_disk_increase: 348
+        vm_disk_increase: 498
         vm_disk_ssdemulation: yes
         vm_disk_discard: yes
         vm_storage: "local-nvme"

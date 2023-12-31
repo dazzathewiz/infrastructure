@@ -2,7 +2,7 @@
 
 # VM must be created first, use vm_deploy_chiamain.yml
 
-- hosts: chiamain
+- hosts: chia_farmer
   vars_files: group_vars/secret.yml
 
   vars:
