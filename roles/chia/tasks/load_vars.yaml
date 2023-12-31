@@ -28,7 +28,7 @@
 
 - name: Stage updated container variables
   set_fact:
-    _containers: "{{ _containers | default([]) + [{ 'container_name': containers[my_idx].container_name, 'volumes': containers[my_idx].volumes | union(_volumes) | sort, 'environment': containers[my_idx].environment | union(_environment | default([])) | sort }] }}"
+    _containers: "{{ _containers | default([]) + [{ 'container_name': containers[my_idx].container_name, 'volumes': containers[my_idx].volumes | union(_volumes | default([])) | sort, 'environment': containers[my_idx].environment | union(_environment | default([])) | sort }] }}"
   loop: "{{ containers }}"
   loop_control:
     index_var: my_idx
