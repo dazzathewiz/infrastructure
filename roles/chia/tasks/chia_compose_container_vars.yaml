@@ -33,9 +33,17 @@
 
 
 # Farmer / fullnode options
-- name: Set blockchain_db_download
-  set_fact:
-    container: "{{ container | combine( {'environment': ['blockchain_db_download=true']}, recursive=true, list_merge='append' ) }}"
+- block:
+
+  - name: Set blockchain_db_download
+    set_fact:
+      container: "{{ container | combine( {'environment': ['blockchain_db_download=true']}, recursive=true, list_merge='append' ) }}"
+
+  - name: Set worker env vars for alt chains
+    set_fact:
+      container: "{{ container | combine( {'environment': ['controller_host=' + chia_network['machinaris_controller']['ip'], 'worker_api_port=' + chia_network['machinaris_controller']['api_port'] | string ]}, recursive=true, list_merge='append' ) }}"
+    when: outer_item['name'] != 'chia'
+
   when: chia_role == 'fullnode'
 
 # GPU options for Chia

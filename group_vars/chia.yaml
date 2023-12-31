@@ -8,6 +8,9 @@ chia_machinaris_data: "{{ docker_dir }}/machinaris"
 chia_network:
   truenas01:
     ip: 192.168.15.35
+  machinaris_controller: 
+    ip: 192.168.15.20
+    api_port: 8938
   default:
     subnet: 192.168.15.0/24
     gateway: 192.168.15.1

@@ -8,7 +8,7 @@ chia_harvester_plots:
 # List the blockchains this host will use
 chia_blockchains:
   - name: chia
-    ip: 192.168.15.20
+    ip: 192.168.15.20   # update chia.yaml -> machinaris_controller if this address changes
     gpu: nvidia
     blockchain_db_backup: yes
     machinaris_backup: yes
