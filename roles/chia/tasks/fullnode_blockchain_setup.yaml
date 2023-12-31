@@ -2,7 +2,7 @@
 
 - name: Set blockchain backup var
   set_fact:
-    chia_blockchain_db_dir: "{{ chia_machinaris_data }}/.machinaris{% if outer_item['name'] != 'chia' %}-{{ outer_item['name'] }}{% endif %}/mainnet/db"
+    chia_blockchain_db_dir: "{{ chia_machinaris_data }}/.machinaris{% if outer_item['name'] != 'chia' %}-{{ outer_item['name'] }}/{{ outer_item['name'] }}{% endif %}/mainnet/db"
 
 - import_tasks: chia_blockchain_db.yaml
 
