@@ -12,6 +12,7 @@ chia_blockchains:
     gpu: nvidia
     blockchain_db_backup: yes
     machinaris_backup: yes
+    disable_plot_check: yes
 
 host_packages:
   - nvtop

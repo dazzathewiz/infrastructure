@@ -25,6 +25,7 @@
         # - "plots_dir=/plots1:/plots2:/plots3
         # - "keys=/root/.chia/mnemonic.txt:/root/.chia/fil_mnemonic_1.txt"
         - "blockchains={{ outer_item['name'] }}"
+        - "plots_check_analyze_skip={% if outer_item['disable_plot_check'] is defined %}{{ outer_item['disable_plot_check'] }}{% else %}false{% endif %}"
       ports:
         - 8926:8926
         - 8927:8927
