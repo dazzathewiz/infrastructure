@@ -92,6 +92,8 @@
     
     # Machinaris containers - configured by variable `containers`
     - role: docker_compose_generator
+        vars:
+          docker_compose_generator_backup: yes  # Allow comparison of backup versions in case of changes over time
       tags: setup
 
     # Watchtower
