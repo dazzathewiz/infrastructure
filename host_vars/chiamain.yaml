@@ -2,7 +2,7 @@
 
 chia_harvester_plots:
   - /mnt/truenas01/data00
-  #- /mnt/truenas01/data10
+  - /mnt/truenas01/data10
   - /mnt/storecrypt/data0
 
 # List the blockchains this host will use
@@ -21,5 +21,5 @@ host_packages:
   # NFS mounts for chia network data shares
 host_mounts:
   - { path: /mnt/truenas01/data00, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
-  #- { path: /mnt/truenas01/data10, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/pool1/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
+  - { path: /mnt/truenas01/data10, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/pool1/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
   - { path: /mnt/storecrypt/data0, src: "{{ hostvars['storecrypt'].ansible_host }}:/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
