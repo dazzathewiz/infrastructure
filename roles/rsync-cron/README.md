@@ -26,7 +26,7 @@ Here's an example usage for a local development environment:
     - role: sync_cron
       sync_cron_username: "user"
       sync_cron_src_path: "user@testdomain.net:*"
-      sync_cron_dest_url: "/backups/test"
+      sync_cron_dest_url: "/backups/test/"    # Should be a folder
       sync_cron_freq:
         name: "backup cron for test"
         hour: 3
