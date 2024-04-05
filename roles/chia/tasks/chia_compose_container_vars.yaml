@@ -25,7 +25,6 @@
         # - "plots_dir=/plots1:/plots2:/plots3
         # - "keys=/root/.chia/mnemonic.txt:/root/.chia/fil_mnemonic_1.txt"
         - "blockchains={{ outer_item['name'] }}"
-        - "plots_check_analyze_skip={% if outer_item['disable_plot_check'] is defined %}{{ outer_item['disable_plot_check'] }}{% else %}false{% endif %}"
       ports:
         - 8926:8926
         - 8927:8927
@@ -44,6 +43,12 @@
     set_fact:
       container: "{{ container | combine( {'environment': ['controller_host=' + chia_network['machinaris_controller']['ip'], 'worker_api_port=' + chia_network['machinaris_controller']['api_port'] | string ]}, recursive=true, list_merge='append' ) }}"
     when: outer_item['name'] != 'chia'
+  
+  # https://github.com/guydavis/machinaris/wiki/Chia#check
+  - name: Disable machinaris plot checking for chia fullnode
+    set_fact:
+      container: "{{ container | combine( {'environment': ['plots_check_analyze_skip=' + outer_item['disable_plot_check'] | string ]}, recursive=true, list_merge='append' ) }}"
+    when: outer_item['name'] == 'chia' and outer_item['disable_plot_check'] is defined
 
   when: chia_role == 'fullnode'
 
