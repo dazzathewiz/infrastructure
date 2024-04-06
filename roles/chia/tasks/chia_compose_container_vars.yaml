@@ -25,12 +25,7 @@
         # - "plots_dir=/plots1:/plots2:/plots3
         # - "keys=/root/.chia/mnemonic.txt:/root/.chia/fil_mnemonic_1.txt"
         - "blockchains={{ outer_item['name'] }}"
-      ports:
-        - 8926:8926
-        - 8927:8927
-        - 8444:8444
-        - 8447:8447
-
+      ports: "{{ chia_chains[outer_item['name']]['ports'] }}"
 
 # Farmer / fullnode options
 - block:
@@ -41,7 +36,7 @@
 
   - name: Set worker env vars for alt chains
     set_fact:
-      container: "{{ container | combine( {'environment': ['controller_host=' + chia_network['machinaris_controller']['ip'], 'worker_api_port=' + chia_network['machinaris_controller']['api_port'] | string ]}, recursive=true, list_merge='append' ) }}"
+      container: "{{ container | combine( {'environment': ['controller_host=' + chia_network['machinaris_controller']['ip'], 'worker_api_port=' + chia_chains[outer_item['name']]['worker_api_port'] | string ]}, recursive=true, list_merge='append' ) }}"
     when: outer_item['name'] != 'chia'
   
   # https://github.com/guydavis/machinaris/wiki/Chia#check
