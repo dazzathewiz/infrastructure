@@ -2,6 +2,13 @@
 # See: https://wiki.spacefarmers.io/guides/farming/backupdb
 
 - block:
+  - name: Install sqlite package
+    become: yes
+    package:
+      name:
+        - sqlite 
+      state: latest
+
   - name: Install the systemd services
     become: yes
     template:
