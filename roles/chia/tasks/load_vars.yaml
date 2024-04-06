@@ -11,7 +11,7 @@
 
 - name: Set fact for container mnemonic volume mapping
   set_fact:
-    _keys:  "{{ _keys | default([]) + [ chia_farmer_container_keys_dir + '/' + item.path | basename ] }}"
+    _keys:  "{{ _keys | default([]) + [ chia_farmer_container_keys_dir + '/' + item.dest | basename ] }}"
   loop: "{{ _mnemonics.results }}"
   no_log: true
   when: _mnemonics is defined
