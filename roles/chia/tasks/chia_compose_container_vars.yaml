@@ -30,9 +30,11 @@
 # Farmer / fullnode options
 - block:
 
+  # https://github.com/guydavis/machinaris/wiki/Blockchains#blockchain-download
   - name: Set blockchain_db_download
     set_fact:
-      container: "{{ container | combine( {'environment': ['blockchain_db_download=true']}, recursive=true, list_merge='append' ) }}"
+      container: "{{ container | combine( {'environment': ['blockchain_db_download=' + outer_item['blockchain_db_download'] | string ]}, recursive=true, list_merge='append' ) }}"
+    when: outer_item['blockchain_db_download'] is defined
 
   - name: Set worker env vars for alt chains
     set_fact:

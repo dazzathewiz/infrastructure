@@ -14,6 +14,7 @@ chia_blockchains:
     machinaris_backup: yes
     disable_plot_check: yes
     restore_blockchain_db: yes
+    blockchain_db_download: yes
 
 host_packages:
   - nvtop
