@@ -59,3 +59,9 @@ chia_chains:
       - 7442:7442
       - 18974:18974
     worker_api_port: 8939
+  staicoin:
+    ports:
+      - 8934:8934
+      - 1999:1999
+      - 1692:1692
+    worker_api_port: 8934
