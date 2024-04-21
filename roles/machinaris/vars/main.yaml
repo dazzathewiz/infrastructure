@@ -1,4 +1,0 @@
----
-
-machinaris_docker_image: ghcr.io/guydavis/machinaris
-machinaris_farmer_container_keys_dir: /root/keys
