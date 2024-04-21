@@ -19,3 +19,15 @@ k3s_worker_disk_passthrough:
 k3s_worker_node_memory: 16384
 k3s_worker_node_memory_min: 8192
 k3s_worker_node_cpu: 6
+
+
+# ZFS ARC cache uses 50% of RAM by default. As this server hosts VM's configured for 75% of system RAM (48GB), ARC cache has been reduced.
+# 
+# ```
+# vi /etc/modprobe.d/zfs.conf -> Enter: `options zfs zfs_arc_max=17179869184` (16GB)
+# update-initramfs -u <-- required to apply
+# reboot
+# Check change has worked with `arc_summary` or `arc_summary | grep "ARC size (current)"`
+# ```
+# See:  https://www.reddit.com/r/Proxmox/comments/14ka64x/how_to_reduce_memory_used_by_zfs/
+#       https://pve.proxmox.com/wiki/ZFS:_Tips_and_Tricks#Install_on_a_high_performance_system 
