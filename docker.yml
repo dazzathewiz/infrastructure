@@ -17,9 +17,9 @@
     
     # Install system packages, config, mount points
     - role: system
-      # vars:
-      #   packages:
-      #     - zfsutils-linux
+      vars:
+        packages: "{{ host_packages }}"
+        mounts: "{{ filesystem_mounts }}"
       tags: setup
 
     # Setup docker
@@ -71,3 +71,27 @@
       vars:
         update_schedule: '"0 00 05 * * *"'   # Run at 5:00am daily
       tags: containers, watchtower
+
+    # Backup for Home Assistant
+    - role: rsync-cron
+      vars:
+        sync_cron_username: "root"
+        sync_cron_src_path: "{{ ha_config_dir }}/backups/"
+        sync_cron_dest_url: "{{ persistent_backup }}/{{ inventory_hostname }}/homeassistant/"
+        sync_cron_freq:
+          name: "homeassistant persistent data backup"
+          hour: "17"    # @ 5pm daily
+        sync_cron_rsync_flags: "-a --delete --recursive"
+      tags: setup
+
+    # Backup for letsencrypt
+    - role: rsync-cron
+      vars:
+        sync_cron_username: "root"
+        sync_cron_src_path: "{{ le_config_dir }}/"
+        sync_cron_dest_url: "{{ persistent_backup }}/{{ inventory_hostname }}/letsencrypt/"
+        sync_cron_freq:
+          name: "letsencrypt persistent data backup"
+          hour: "17"    # @ 5pm daily
+        sync_cron_rsync_flags: "-a --delete --recursive"
+      tags: setup

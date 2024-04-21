@@ -1,0 +1,32 @@
+---
+- hosts: prox1
+
+  vars_files: group_vars/secret.yml
+
+  roles:
+
+    # Create the VM in proxmox
+    - role: proxmox_provision
+      vars:
+        instance_name: chiaalts
+        vm_memory: 32768
+        vm_memory_min: 0
+        vm_cpu: 6
+        vm_cpu_params: "cputype=x86-64-v2-AES,flags=+md-clear\\;+pdpe1gb\\;+aes"
+        vm_network_bridge: vmbr1
+        vm_network_vlan: 115
+        vm_network_mac: 56:0E:15:5E:3A:A0
+        vm_disk_increase: 498
+        vm_disk_ssdemulation: yes
+        vm_disk_discard: yes
+        vm_storage: "local-nvme"
+        vm_enable_agent: yes
+        vm_hotplug_devices: "disk,network,usb,memory,cpu"
+        vm_enable_numa: yes
+
+# Wait for VM to boot properly
+- hosts: controlhost
+  roles:
+    - role: waitboot
+      vars:
+        host: "{{ hostvars['chiaalts']['ansible_host'] }}"

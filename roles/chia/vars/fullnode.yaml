@@ -1,0 +1,67 @@
+---
+
+chia_role: fullnode
+chia_db_filename: blockchain_v2_mainnet.sqlite
+
+# Static config of altcoin ports used by machinaris - https://www.machinaris.app/
+chia_chains:
+  chia:
+    ports:
+      - 8926:8926
+      - 8927:8927
+      - 8444:8444
+      - 8447:8447
+  btcgreen:
+    ports:
+      - 8938:8938
+      - 9282:9282
+      - 18655:18655
+    worker_api_port: 8938
+  cactus:
+    ports:
+      - 8936:8936
+      - 11444:11444
+      - 11447:11447
+    worker_api_port: 8936
+  chives:
+    ports:
+      - 8931:8931
+      - 9699:9699
+      - 9647:9647
+    worker_api_port: 8931
+  cryptodoge:
+    ports:
+      - 8937:8937
+      - 15994:15994
+      - 16895:16895
+    worker_api_port: 8937
+  flax:
+    ports:
+      - 8928:8928
+      - 6888:6888
+      - 6885:6885
+    worker_api_port: 8928
+  hddcoin:
+    ports:
+      - 8930:8930
+      - 28444:28444
+      - 28447:28447
+    worker_api_port: 8930
+  maize:
+    ports:
+      - 8933:8933
+      - 8644:8644
+      - 8647:8647
+    worker_api_port: 8933
+  shibgreen:
+    ports:
+      - 8939:8939
+      - 7442:7442
+      - 18974:18974
+    worker_api_port: 8939
+  staicoin:
+    ports:
+      - 8934:8934
+      - 1999:1999
+      - 1692:1692
+    worker_api_port: 8934

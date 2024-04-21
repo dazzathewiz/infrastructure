@@ -96,6 +96,9 @@ services:
       - {{ dependent }}
 {% endfor %}
 {% endif %}
+{% if container.runtime is defined %}
+    runtime: {{ container.runtime }}
+{% endif %}
 {% if container.hostname is defined %}
     hostname: {{ container.hostname }}
 {% endif %}

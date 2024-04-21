@@ -1,5 +1,0 @@
----
-
-# Manage the blockchain db
-chia_blockchain_db_dir: "{{ chia_machinaris_data }}/.machinaris/mainnet/db"
-chia_db_filename: blockchain_v2_mainnet.sqlite

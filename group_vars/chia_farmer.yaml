@@ -1,0 +1,17 @@
+---
+
+# Chia farmer variables only
+
+# List the 1Password items to grab the seed phrases from for chia nmemonics
+chia_farmer_mnemonics:
+  - name: "Chia (XCH) Farming Wallet"
+    field: "recovery seed phrase"
+    vault: "Chia Mining"
+
+chia_farmer_container_keys_dir: /root/keys
+
+chia_farmer_packages:
+  - nfs-common
+
+chia_farmer_mounts:
+  - { path: /mnt/truenas01/backup, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/nas/backup", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }

@@ -1,0 +1,42 @@
+---
+
+# List the blockchains this host will use
+chia_blockchains:
+  - name: btcgreen
+    ip: 192.168.15.31
+    blockchain_db_download: yes
+  - name: cactus
+    ip: 192.168.15.21
+    blockchain_db_download: yes
+  - name: chives
+    ip: 192.168.15.22
+    blockchain_db_download: yes
+  - name: cryptodoge
+    ip: 192.168.15.23
+    blockchain_db_download: yes
+  - name: flax
+    ip: 192.168.15.24
+    blockchain_db_download: yes
+  - name: hddcoin
+    ip: 192.168.15.26
+    blockchain_db_download: yes
+  - name: maize
+    ip: 192.168.15.27
+    blockchain_db_download: yes
+  - name: shibgreen
+    ip: 192.168.15.32
+    blockchain_db_download: yes
+  - name: staicoin
+    ip: 192.168.15.29
+    blockchain_db_download: yes
+
+# Listed specifically for chia alts to get keys used for some og plots
+chia_farmer_mnemonics:
+  - name: "Chia (XCH) Farming Wallet"
+    field: "recovery seed phrase"
+    vault: "Chia Mining"
+
+  # This is not required for mainnet chia to farm, just alts:
+  - name: "Altcoins Chia Farming Keys 1"
+    field: "recovery seed phrase"
+    vault: "Chia Mining"

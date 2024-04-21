@@ -1,5 +1,12 @@
 ---
 
+# Container Config dirs
+ha_config_dir: "{{ docker_dir }}/homeassistant/config"
+le_config_dir: "{{ docker_dir }}/letsencrypt/config"
+
+host_packages:
+  - nfs-common
+
 containers:
   ###
   - service_name: homeassistant
@@ -9,7 +16,7 @@ containers:
     hostname: "{{ inventory_hostname }}"
     restart: always
     volumes: 
-      - "{{ docker_dir }}/homeassistant/config:/config"
+      - "{{ ha_config_dir }}:/config"
       - "{{ docker_dir }}/homeassistant/snapshots:/snapshots"
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
@@ -25,7 +32,7 @@ containers:
     hostname: "{{ inventory_hostname }}"
     restart: always
     volumes: 
-      - "{{ docker_dir }}/letsencrypt/config:/config"
+      - "{{ le_config_dir }}:/config"
     cap_add:
       - NET_ADMIN
     environment:
@@ -43,3 +50,8 @@ containers:
       - 80:80
     privileged: true
     network_mode: host
+
+persistent_backup: /mnt/truenas01/backup
+
+filesystem_mounts:
+  - { path: "{{ persistent_backup }}", src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/nas/backup", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }

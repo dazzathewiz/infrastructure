@@ -2,7 +2,7 @@
 
 # VM must be created first, use vm_deploy_chiamain.yml
 
-- hosts: chiamain
+- hosts: chia_farmer
   vars_files: group_vars/secret.yml
 
   vars:
@@ -13,26 +13,36 @@
       - name: docker
       - name: docker-compose
 
+  pre_tasks:
+    
+    - name: Combine chia package vars
+      set_fact:
+        host_packages: "{{ host_packages | default([]) + chia_packages }}"
+      when: chia_packages is defined
+    
+    - name: Combine chia_farmer package vars
+      set_fact:
+        host_packages: "{{ host_packages | default([]) + chia_farmer_packages }}"
+      when: chia_farmer_packages is defined
+
+    - name: Combine chia mount vars
+      set_fact:
+        host_mounts: "{{ host_mounts | default([]) + chia_mounts }}"
+      when: chia_mounts is defined
+    
+    - name: Combine chia_farmer mount vars
+      set_fact:
+        host_mounts: "{{ host_mounts | default([]) + chia_farmer_mounts }}"
+      when: chia_farmer_mounts is defined
+
   roles:
     - vmguest
     
     # Install system packages, config, mount points
     - role: system
       vars:
-        packages:
-          - nvtop
-          - htop
-          - sysstat
-          - nvidia-driver-525
-          - nfs-common
-        
-        mounts:
-
-          # NFS mounts
-          - { path: /mnt/truenas01/data00, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
-          #- { path: /mnt/truenas01/data10, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/pool1/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
-          - { path: /mnt/truenas01/backup, src: "{{ chia_network['truenas01']['ip'] }}:/mnt/nas/backup", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
-          - { path: /mnt/storecrypt/data0, src: "{{ hostvars['storecrypt'].ansible_host }}:/pool0/data0", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
+        packages: "{{ host_packages }}"
+        mounts: "{{ host_mounts }}"
         
       tags: setup
 
@@ -82,6 +92,8 @@
     
     # Machinaris containers - configured by variable `containers`
     - role: docker_compose_generator
+      vars:
+        docker_compose_generator_backup: yes  # Allow comparison of backup versions in case of changes over time
       tags: setup
 
     # Watchtower
