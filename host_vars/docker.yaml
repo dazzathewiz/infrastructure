@@ -11,7 +11,7 @@ containers:
   ###
   - service_name: homeassistant
     active: true
-    image: homeassistant/home-assistant:2023.11
+    image: homeassistant/home-assistant:2024.5
     container_name: home-assistant
     hostname: "{{ inventory_hostname }}"
     restart: always
