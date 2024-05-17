@@ -59,8 +59,6 @@
           - plugin: docker
             config:
               - endpoint = "unix:///var/run/docker.sock"
-            config:
-              - poolMetrics = true
       tags: containers, telegraf
     
     - role: docker_compose_generator
