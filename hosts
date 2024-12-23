@@ -41,16 +41,16 @@ proxmox
 otherbaremetal
 
 [k3s_master]
-k3smaster1 ansible_host=10.10.1.49 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3smaster2 ansible_host=10.10.1.38 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3smaster3 ansible_host=10.10.1.22 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3smaster1 ansible_host=10.10.1.77 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3smaster2 ansible_host=10.10.1.74 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3smaster3 ansible_host=10.10.1.65 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [k3s_node]
-k3sworker1 ansible_host=10.10.1.67 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3sworker2 ansible_host=10.10.1.46 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3sworker3 ansible_host=10.10.1.31 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3sworker4 ansible_host=10.10.1.93 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3sworker5 ansible_host=10.10.1.29 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker1 ansible_host=10.10.1.16 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker2 ansible_host=10.10.1.72 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker3 ansible_host=10.10.1.68 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker4 ansible_host=10.10.1.88 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+k3sworker5 ansible_host=10.10.1.18 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [k3s_cluster:children]
 k3s_master

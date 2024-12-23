@@ -91,12 +91,30 @@ Requirements:
     [k3s_longhorn_storage]
     <storage_nodes>         -> These nodes expect to have a /dev/nvme0 device for Longhorn storage
     ```
-2. Define the work node settings in `host_vars/<nodename>.yml` Example:
+2. Define the work node settings in `host_vars/<nodename>.yml` 
+    Note:
+    - `lspci` to identify devices to pass through, then specify in host_vars for each host `k3s_worker_pcie:`
+    - Passthough disks to k3s worker nodes using their `ls /dev/disk/by-id` name for `k3s_worker_disk_passthrough`
+
+    Example:
     ```
     k3s_worker_pcie:
     - "02:00.0"       # 1TB Samsung 970 EVO NVMe - Samsung Electronics Co Ltd NVMe SSD Controller SM981/PM981/PM983
     - id: "00:02.0"   # Intel Corporation CometLake-S GT2 [UHD Graphics 630]
         mdev: "i915-GVTg_V5_4"
+
+    k3s_worker_node_storage: 'local-nvme'
+
+    k3s_worker_pcie:
+      - "02:00.0"   # Typically NVME storage
+      - "00:02.0"   # Typically the built in Intel UHD Graphics
+
+    k3s_worker_virtual_disk:
+      - '{{ vm_storage_default }}:931.53,format=raw'
+
+    k3s_worker_disk_passthrough:
+      - ata-ST4000VN000-1H4168_Z301GA45
+      - ata-ST4000VN000-1H4168_Z3054AS0
 
     k3s_worker_node_memory: 36864
     k3s_worker_node_cpu: 6

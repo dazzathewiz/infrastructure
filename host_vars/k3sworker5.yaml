@@ -1,0 +1,5 @@
+---
+# Non-standard Longhorn disk device:
+k3s_longhorn_blockdevices:
+  - device: /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_drive-scsi2
+    mount: /mnt/longhorn

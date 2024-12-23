@@ -18,23 +18,3 @@ worker_node_disk_increase: 46
 # List tags for VMs in Proxmox
 pve_tags:
   - k3s
-
-# k3s_worker_node_storage: 'local-nvme'
-
-# `lspci` to identify devices to pass through, then specify in host_vars for each host:
-# k3s_worker_pcie:
-#   - "02:00.0"   # Typically NVME storage
-#   - "00:02.0"   # Typically the built in Intel UHD Graphics
-
-# Create additional virtual disks on particular storage ID's
-# k3s_worker_virtual_disk:
-#   - 'local-zfs:10,format=raw'
-
-# Passthough disks to k3s worker nodes using their /dev/disk/by-id name:
-# k3s_worker_disk_passthrough:
-#   - ata-ST4000VN000-1H4168_Z301GA45
-#   - ata-ST4000VN000-1H4168_Z3054AS0
-
-# These variables are specified per proxmox host in the host_vars:
-# worker_node_memory: 36864
-# worker_node_cpu: 6
