@@ -4,7 +4,9 @@
   block:
     - name: Check/wait for cloud-init tasks to finish
       shell: cloud-init status --wait
+      register: return_status
       changed_when: false
+      failed_when: return_status.rc != 0 and return_status.rc != 2
 
     - name: Set timezone to "{{ timezone }}"
       become: yes
