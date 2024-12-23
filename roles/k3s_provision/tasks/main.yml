@@ -27,7 +27,7 @@
     vm_network_bridge: "{{ all_node_network_bridge }}"
     vm_network_vlan: "{{ all_node_network_vlan }}"
     vm_disk_increase: "{{ worker_node_disk_increase }}"
-    vm_pcie_device: "{{ k3s_worker_pcie|default(omit) }}"
+    vm_pcie_device: "{{ k3s_worker_pcie|default([]) }}"
     vm_disk_virtual: "{{ k3s_worker_virtual_disk|default([]) }}"
     vm_disk_passthrough: "{{ k3s_worker_disk_passthrough|default([]) }}"
     vm_storage: "{{ k3s_worker_node_storage|default(omit) }}"
