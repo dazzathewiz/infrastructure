@@ -84,3 +84,10 @@ chia_storage
 backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 pihole ansible_host=10.10.3.52 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 docker ansible_host=10.10.2.153 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+
+# VM's (IE: hosted in proxmox etc and not baremetal)
+[vm:children]
+chia_storage
+chia_farmer
+othervms
+k3s_cluster

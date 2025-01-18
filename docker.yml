@@ -36,11 +36,6 @@
     - { role: containers/portainer_agent, tags: [containers] }
     - role: containers/telegraf
       vars:
-        telegraf_agent_output:
-          - type: influxdb
-            config:
-              - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
-              - database = "filecoin"
         telegraf_plugins_default:
           - plugin: cpu
             config:

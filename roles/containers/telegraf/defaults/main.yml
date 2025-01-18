@@ -6,6 +6,9 @@ container_name: telegraf
 # Pre-defined profiles for specific functions; requires <name>.yml file in defaults
 profile: ""
 
+# Used to customise the bucket name for InfluxDB v2
+host_type: "{% if inventory_hostname in groups['vm'] %}vm{% elif inventory_hostname in groups['baremetal'] %}physical{% endif %}"
+
 #[global_tags]
 telegraf_global_tags: []
 
@@ -25,11 +28,20 @@ telegraf_agent_precision: ""
 telegraf_agent_omit_hostname: False
 
 #[outputs.*]
+
+# For InfluxDB v1 database
+  # - type: influxdb
+  #   config:
+  #     - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
+  #     - database = "filecoin"
+
 telegraf_agent_output:
-  - type: influxdb
+  - type: influxdb_v2
     config:
-      - urls = ["http://{{ influx_v1_server }}:{{ influx_v1_port }}"]
-      - database = "filecoin"
+      - urls = ["http://{{ influx_server }}:{{ influx_port }}"]
+      - token = "{{ lookup ('vars', 'influx_token_telegraf-' + host_type ) }}"
+      - organization = "{{ influx_organization}}"
+      - bucket = "telegraf-{{ host_type }}"
 
 #[inputs.*]
 # defaults - /etc/telegraf/telegraf.conf
