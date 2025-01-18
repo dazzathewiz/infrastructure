@@ -22,7 +22,7 @@ networks:
 influx_server: 10.10.1.101
 influx_port: 80
 influx_organization: homelab.local
-influx_v1_server: "{{ hostvars['unnas'].ansible_host }}"
+influx_v1_server: 10.10.1.101
 influx_v1_port: 8086
 
 # Container defaults
