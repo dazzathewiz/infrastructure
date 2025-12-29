@@ -114,6 +114,7 @@
         container_storj_data: /mnt/disk3/storj/data
         container_storj_identity: /mnt/disk3/storj/Identity/storagenode
         container_data_backup_dir: "{{ persistent_backup }}/storagenode"
+      tags: containers, storj
     
     # machinaris containers
     # Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
