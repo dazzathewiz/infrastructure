@@ -57,7 +57,7 @@
       tags: containers, telegraf
     
     - role: docker_compose_generator
-      tags: setup
+      tags: setup, docker-compose
 
     # Watchtower
     - role: containers/watchtower
