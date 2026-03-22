@@ -152,36 +152,11 @@ HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
 ## Bootstrap QEMU VM
 ```ansible <host or host_group> -m include_role -a name=vmguest -K```
 
-## Storecrypt
-```ansible-playbook storecrypt.yml --ask-vault-password```
-```--tags``` Include: 
-- provision
-- 45drives
-- config
-- setup
-- zfs
-- containers*
-
-* Note that ZFS doesn't install automatically; It was much easier to use Houston to configure ZFS 
-import on storecrypt; see: https://miner.dazzathewiz.com:9090/
-
-### Manual post-install activities for storecrypt
-1. Deploy manually w/ Portainer and docker-compose: https://github.com/dazzathewiz/chia-forks.git
-2. Fix telegraf hddtemp by running `sudo dpkg-reconfigure hddtemp` (see: https://github.com/dazzathewiz/infrastructure/issues/9)
-
 ## PiFour
 ```ansible-playbook pifour.yml --ask-vault-password```
 ```--tags``` Indclude:
 - setup
 - containers
-
-## Chiamain
-1. Ensure you have [1password-cli](#1Password) working
-2. `ansible-playbook chiamain.yaml --ask-vault-password`
-3. Start the docker stack with `docker-compose up -d` from home dir `~/`
-4. SSL keys may need to be copied over from backup, if you expect existing harvesters to connect to master node
-
-* Note it will take some time to do a DB copy if this is a first-time setup. DB sync can be painful and likely needs to be managed separately.
 
 ### Notes:
 1. For new Shinobi deployments, setup the users and consider copying existing cameras via [Export/Import][shinobi-monitor]
