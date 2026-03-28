@@ -12,11 +12,6 @@ pveceph osd create --encrypted 1 /dev/sda
 pveceph osd create --encrypted 1 /dev/sdc
 ceph-volume lvm batch --osds-per-device 4 --crush-device-class nvme --dmcrypt /dev/nvme1n1
 
-# Prox3
-pveceph osd create --encrypted 1 /dev/sde
-pveceph osd create --encrypted 1 /dev/sdf
-ceph-volume lvm batch --osds-per-device 4 --crush-device-class nvme --dmcrypt /dev/nvme1n1
-
 # Prox 5
 ceph-volume lvm batch --osds-per-device 2 --crush-device-class nvme --dmcrypt /dev/nvme1n1
 
