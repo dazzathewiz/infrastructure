@@ -7,4 +7,4 @@ images:
   - https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
   - https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
 #  - https://releases.ubuntu.com/20.04/ubuntu-20.04.5-live-server-amd64.iso
-  - http://mirror.overthewire.com.au/pub/ubuntu-releases/24.04.1/ubuntu-24.04.1-live-server-amd64.iso
+  - http://mirror.overthewire.com.au/pub/ubuntu-releases/25.04/ubuntu-25.04-live-server-amd64.iso
