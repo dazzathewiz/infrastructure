@@ -60,7 +60,7 @@
   ignore_errors: true
   failed_when: result == 2
   changed_when: result.rc == 0
-  notify: restart pve node
+  notify: restart pve-node
 
 
 # Identify the processor manufacturer by looking for "Intel" or "AMD"
@@ -162,7 +162,7 @@
 
 - debug: msg="{{ inventory_hostname }} needs reboot after grub or vfio/iommu changes"
   changed_when: true
-  notify: restart pve node
+  notify: restart pve-node
   when: update_grub.changed or vfio.changed or gvt.changed or update_proxboot.changed
 
 # After reboot please verify:
@@ -186,7 +186,7 @@
 
 - debug: msg="{{ inventory_hostname }} needs reboot after hostname changes"
   changed_when: true
-  notify: restart pve node
+  notify: restart pve-node
   when: update_hostname1.changed or update_hostname2.changed
 
 - name: Set DNS servers in /etc/resolv.conf
