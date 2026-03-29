@@ -9,6 +9,7 @@
     that:
       - "_pve_vms.response | length <= 0"
     msg: "Proxmox host {{ ansible_hostname }} already contains virtual guests and cannot join a cluster until removed!"
+  ignore_errors: true
 
 - name: Lookup cluster information
   proxmox_query:
