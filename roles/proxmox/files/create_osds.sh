@@ -12,6 +12,9 @@ pveceph osd create --encrypted 1 /dev/sda
 pveceph osd create --encrypted 1 /dev/sdc
 ceph-volume lvm batch --osds-per-device 4 --crush-device-class nvme --dmcrypt /dev/nvme1n1
 
+# Prox3
+pveceph osd create /dev/nvme0n1 --crush-device-class nvme --encrypted 1
+
 # Prox 5
 ceph-volume lvm batch --osds-per-device 2 --crush-device-class nvme --dmcrypt /dev/nvme1n1
 
@@ -19,6 +22,16 @@ ceph-volume lvm batch --osds-per-device 2 --crush-device-class nvme --dmcrypt /d
 
 # Check OSDs (EG: determine if encrypted)
 ceph-volume lvm list
+
+# Under the hood:
+
+# Proxmox uses ceph-volume via `pveceph`
+# ceph-volume uses LUKS (dm-crypt) for encryption
+# --------------------------------------------------------------
+# | Proxmox CLI	    | Ceph CLI	| Meaning                        |
+# | --encrypted 1	| --dmcrypt	| Enable LUKS encryption         |
+# | --encrypted 0	| (default)	| No encryption                  |
+# --------------------------------------------------------------
 
 #  stderr: [errno 13] RADOS permission denied (error connecting to the cluster)
 # -->  RuntimeError: Unable to create a new OSD id
