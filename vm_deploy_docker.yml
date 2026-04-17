@@ -13,6 +13,7 @@
         vm_memory_min: 2048
         vm_cpu: 4
         vm_network_bridge: vmbr1
+        vm_network_vlan: "{{ networks['infrastructure_services']['vlan'] }}"
         vm_disk_increase: 4
         vm_disk_ssdemulation: yes
         vm_disk_discard: yes
