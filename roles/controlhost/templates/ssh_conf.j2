@@ -1,5 +1,8 @@
 #jinja2:lstrip_blocks: True
-  
+
+Host *
+  StrictHostKeyChecking accept-new
+
  {% for host in query('inventory_hostnames', 'all:!control') %}
 Host {{ hostvars[host]['inventory_hostname'] }}
   User {{ hostvars[host].ansible_user }}
