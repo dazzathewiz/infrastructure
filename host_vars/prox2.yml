@@ -8,6 +8,5 @@ k3s_worker_disk_passthrough:
   - ata-ST4000VN000-1H4168_Z3054BCQ
   - ata-ST4000VN008-2DR166_ZDHAQJG9
 
-k3s_worker_node_memory: 32768
-k3s_worker_node_memory_min: 16384
+k3s_worker_node_memory: 16384
 k3s_worker_node_cpu: 6
