@@ -15,8 +15,8 @@ prox5 ansible_host=10.10.2.88 ansible_user=root ansible_connection=ssh ansible_s
 [unraid]
 unnas ansible_host=192.168.10.10 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
-[dietpi_ups]
-pi-ups ansible_host=192.168.10.79 ansible_user=dietpi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+# [dietpi_ups]
+# pi-ups ansible_host=192.168.10.79 ansible_user=dietpi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [dietpi_four]
 pifour ansible_host=192.168.10.82 ansible_user=dietpi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
@@ -34,7 +34,7 @@ pikvm ansible_host=10.0.172.245 ansible_user=root ansible_connection=ssh ansible
 
 # Bare metal infrastructure (IE: not VM's, k3s, or docker)
 [baremetal:children]
-dietpi_ups
+# dietpi_ups
 unraid
 proxmox
 otherbaremetal
@@ -79,7 +79,7 @@ k3sworker5
 # chia_storage
 
 [othervms]
-backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+# backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 pihole ansible_host=10.10.3.52 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 docker ansible_host=10.10.2.153 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 truenas01 ansible_host=10.10.2.104 ansible_user=admin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
