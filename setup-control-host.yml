@@ -3,6 +3,29 @@
   roles:
     - controlhost
 
-- hosts: all,!control
+- hosts: all,!control,!unraid
   roles:
     - sshkeys
+
+# Unraid doesn't ship with Python, ergo no gather_facts, and use `raw` interpreter instead
+- hosts: unraid
+  gather_facts: false
+  tasks:
+    - name: Ensure /root/.ssh exists
+      raw: mkdir -p /root/.ssh && chmod 700 /root/.ssh
+      changed_when: false
+
+    - name: Distribute control host pubkeys to authorized_keys
+      raw: |
+        key="{{ lookup('file', item) | trim }}"
+        keydata=$(echo "$key" | awk '{print $2}')
+        if grep -q "$keydata" /root/.ssh/authorized_keys 2>/dev/null; then
+          echo "EXISTS"
+        else
+          echo "$key" >> /root/.ssh/authorized_keys
+          echo "ADDED"
+        fi
+      with_fileglob:
+        - "roles/controlhost/files/*.pub"
+      register: key_result
+      changed_when: "'ADDED' in key_result.stdout"
