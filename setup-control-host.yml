@@ -3,9 +3,23 @@
   roles:
     - controlhost
 
-- hosts: all,!control,!unraid
+- hosts: all,!control,!unraid,!pikvms
   roles:
     - sshkeys
+
+# pikvm has a read-only filesystem; gather_facts disabled so pre_tasks runs rw before any module writes
+- hosts: pikvms
+  gather_facts: false
+  pre_tasks:
+    - name: Remount filesystem read-write
+      raw: rw
+      changed_when: false
+  roles:
+    - sshkeys
+  post_tasks:
+    - name: Remount filesystem read-only
+      raw: ro
+      changed_when: false
 
 # Unraid doesn't ship with Python, ergo no gather_facts, and use `raw` interpreter instead
 - hosts: unraid

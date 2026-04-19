@@ -23,10 +23,10 @@ pifour ansible_host=192.168.10.82 ansible_user=dietpi ansible_connection=ssh ans
 pi-01 ansible_host=10.10.3.152 ansible_user=dietpi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [dietpi:children]
-dietpi_ups
+# dietpi_ups
 dietpi_four
 
-[raspi_other]
+[pikvms]
 pikvm ansible_host=10.0.172.245 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [otherbaremetal]
@@ -37,6 +37,7 @@ pikvm ansible_host=10.0.172.245 ansible_user=root ansible_connection=ssh ansible
 # dietpi_ups
 unraid
 proxmox
+pikvms
 otherbaremetal
 
 [k3s_master]
