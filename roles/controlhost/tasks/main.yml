@@ -12,7 +12,7 @@
 - name: Copy "{{ public_key }}" to you local git repo
   copy:
     src: "{{ public_key }}"
-    dest: "{{ playbook_dir }}/roles/controlhost/files/{{ ansible_hostname }}.pub"
+    dest: "{{ playbook_dir }}/roles/controlhost/files/{{ ansible_facts['hostname'] }}.pub"
   register: keyupdated
 
 - name: Check ~/.ssh/config exists
