@@ -1,6 +1,6 @@
 ---
 
-- name: Ensure authorized keys for "{{ anisble_user }}" user are copied
+- name: Ensure authorized keys for "{{ ansible_user }}" user are copied
   authorized_key:
     user: "{{ ansible_user }}"
     key: "{{ lookup('file', item) }}"
