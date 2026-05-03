@@ -14,6 +14,7 @@ These scripts live in the repo so:
 | Path | Host | Purpose |
 |---|---|---|
 | [`unraid/reverse_sync.sh`](unraid/reverse_sync.sh) | Unraid | Pull TrueNAS → Unraid media (rsync), with ZFS snapshot + backup-dir safety net |
+| [`unraid/sync_plex_appdata.sh`](unraid/sync_plex_appdata.sh) | Unraid | Pull TrueNAS → Unraid appdata (rsync), using existing ZFS snapshot |
 | [`truenas/truenas_dedupe.py`](truenas/truenas_dedupe.py) | TrueNAS | Identify and remove lower-quality duplicate media files using an Unraid manifest |
 
 Each subdirectory has its own README covering deployment + configuration.
