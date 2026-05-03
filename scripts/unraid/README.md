@@ -88,3 +88,49 @@ indefinitely; safe to schedule.
 duplicate files BEFORE the reverse sync runs (so you don't pull older
 quality versions back to Unraid), see
 [`../truenas/truenas_dedupe.py`](../truenas/truenas_dedupe.py).
+
+---
+
+### sync_plex_appdata.sh — remote NAS → Unraid ZFS appdata replication
+
+Performs incremental ZFS send/recv of a Plex appdata dataset from a remote
+NAS to Unraid. Designed to run "At Startup of Array" — idempotent, exits
+cleanly if already current.
+
+The remote NAS continues running Plex throughout; sends read from snapshots
+so the running container is never disrupted.
+
+**Env vars (from `reverse_sync.env`):** `RS_SRC_HOST` (required),
+`RS_SRC_USER`, `RS_SRC_BIND`, `RS_SSH_KEY`, `RS_KNOWN_HOSTS`,
+`RS_ZFS_SRC` (required), `RS_ZFS_DST` (required), `RS_ZFS_BIN`.
+
+```bash
+# /boot/config/reverse_sync.env
+RS_ZFS_SRC="tank/applications/plex"    # Required: the remote source zfs_pool/dataset/subset
+RS_ZFS_DST="tank/appdata/plex"         # Required: the local source (unraid) zfs_pool/dataset/subset
+RS_ZFS_BIN="/usr/sbin/zfs"             # Optional: if your remote has a different BIN location; 
+                                       # non-interactive SSH sessions don't kiad full shell PATH
+```
+
+**Required setup before first run:**
+1. SSH key — same key as `reverse_sync.sh` (`RS_SSH_KEY`).
+2. ZFS delegation on the source host (one-time, run as root on the NAS):
+   ```bash
+   zfs allow <RS_SRC_USER> send <RS_ZFS_SRC>
+   ```
+   This lets the unprivileged SSH user run `zfs send` without sudo.
+3. Destination dataset on Unraid must already exist with at least one
+   snapshot (the seed transfer). See script header for the seed command.
+4. Destination dataset should be `readonly=on`:
+   ```bash
+   zfs set readonly=on <RS_ZFS_DST>
+   ```
+5. Local env file at `/boot/config/reverse_sync.env` with `RS_ZFS_SRC`,
+   `RS_ZFS_DST` (and optionally `RS_ZFS_BIN`) set.
+
+**Scheduling:** "At Startup of Array" in User Scripts. The script is
+idempotent — running it multiple times per day costs only an SSH round-trip
+and a `zfs list` call when already current. Requires that the source NAS
+takes regular snapshots so there is an incremental to pull.
+
+**Logs:** `${RS_LOG_DIR}/plex_appdata_sync-<timestamp>.log`.
