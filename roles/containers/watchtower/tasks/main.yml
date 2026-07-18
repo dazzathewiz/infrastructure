@@ -9,7 +9,7 @@
   become: yes
   docker_container:
     name: "{{ container_name }}"
-    image: "containrrr/watchtower"
+    image: "beatkind/watchtower"
     pull: yes
     state: 'started'
     hostname: "{{ inventory_hostname }}"
