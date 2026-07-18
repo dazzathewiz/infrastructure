@@ -51,7 +51,7 @@ containers:
     privileged: true
     network_mode: host
 
-persistent_backup: /mnt/truenas01/backup
+persistent_backup: "{{ backup_local_mountpoint }}"
 
 filesystem_mounts:
-  - { path: "{{ persistent_backup }}", src: "{{ hostvars['truenas01'].ansible_host }}:/mnt/nas/backup", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }
+  - { path: "{{ persistent_backup }}", src: "{{ backup_server }}:{{ backup_server_export }}", fstype: nfs, opts: 'auto,nofail,noatime,nolock,intr,tcp,actimeo=1800' }

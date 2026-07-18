@@ -41,3 +41,8 @@ provisioning_user: infadmin
 
 # System defaults
 enable_powersaving: true
+
+# Backup target — change backup_server here to repoint all backup jobs
+backup_server: "{{ hostvars['unnas'].ansible_host }}"
+backup_server_export: /mnt/user/nas_backup
+backup_local_mountpoint: /mnt/nas-backup
