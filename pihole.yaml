@@ -16,6 +16,7 @@
         packages:
           - nfs-common
         mounts: "{{ filesystem_mounts }}"
+      tags: setup
 
     # Setup docker
     - { role: geerlingguy.pip, become: true, tags: [setup] }
