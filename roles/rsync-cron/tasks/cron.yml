@@ -4,13 +4,13 @@
 
 - set_fact:
     cron_cmd: "{{ rsync_cmd }}"
-  when: "not sync_cron_additional_commands"
+  when: sync_cron_additional_commands | length == 0
 
 # We can't directly concat commands with &&. We have to wrap them in bash -c ''.
 # see http://askubuntu.com/questions/265209/running-two-commands-in-crontab
 - set_fact:
     cron_cmd: "bash -c '{{ rsync_cmd }}{% for c in sync_cron_additional_commands%} && {{ c }}{% endfor %}'"
-  when: "sync_cron_additional_commands"
+  when: sync_cron_additional_commands | length > 0
 
 - name: Ensure the dest directory path exists
   file:
