@@ -1,17 +1,17 @@
 ---
 
-- name: Setup Pihole backup shell script ~/pihole-backup.sh
+- name: Setup Pihole backup shell script {{ pihole_backup_script_path }}
   template:
     src: pihole-backup.j2
-    dest: ~/pihole-backup.sh
+    dest: "{{ pihole_backup_script_path }}"
     mode: u=rwx,g=r,o=r
 
-- name: Create cron entry for ~/pihole-backup.sh
+- name: Create cron entry for {{ pihole_backup_script_path }}
   cron:
     name: "Pihole Teleport Backup"
     minute: "{{ pihole_backup_minute }}"
     hour: "{{ pihole_backup_hour }}"
-    job: "~/pihole-backup.sh"
+    job: "{{ pihole_backup_script_path }}"
 
 - name: Ensure the backup directory path exists
   file:

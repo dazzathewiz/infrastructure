@@ -4,7 +4,7 @@ container_name: pihole
 container_network_ip: ""                # Must be provided
 container_network_subnet: "{{ networks['network_services']['subnet'] }}"
 container_network_gateway: "{{ networks['network_services']['gateway'] }}"
-container_network_interface: "{{ ansible_default_ipv4.interface if ansible_default_ipv4.interface is defined else ansible_default_ipv6.interface if ansible_default_ipv6.interface is defined }}"
+container_network_interface: "{{ ansible_facts['default_ipv4']['interface'] if ansible_facts['default_ipv4']['interface'] is defined else ansible_facts['default_ipv6']['interface'] if ansible_facts['default_ipv6']['interface'] is defined }}"
 
 # Pihole docker settings
 pihole_hostname: pihole2
@@ -22,3 +22,13 @@ pihole_backup: no
 pihole_backup_retension: 30    # keep the last 'n' backup files
 pihole_backup_hour: 15         # 3pm
 pihole_backup_minute: 0        # on the hour
+
+# Absolute path for the backup script, derived from `ansible_user` (the SSH
+# connection user) rather than `~` or ansible_env.HOME. Both of those resolve
+# according to whichever become context happens to apply to the task/fact
+# gathering that touches them, so if the playbook is ever run with -b/--become
+# they silently retarget to /root/, deploying the script where cron does not
+# call it. `ansible_user` is a static inventory variable unaffected by
+# --become, so this path is identical regardless of how the playbook is run.
+pihole_backup_script_dir: "/home/{{ ansible_user }}"
+pihole_backup_script_path: "{{ pihole_backup_script_dir }}/pihole-backup.sh"

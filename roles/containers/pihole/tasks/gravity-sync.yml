@@ -18,7 +18,7 @@
 #   - python-pip-*
 # AND to have pip packages installed to run docker_container_info
 #   - pip install docker
-- name: Inspect docker container id {{ container_id.stdout }} on {{ pihole_gravity_master_host }}
+- name: Inspect docker container id {{ container_id.stdout | default('unknown') }} on {{ pihole_gravity_master_host }}
   docker_container_info:
     name: "{{ container_id.stdout }}"
   register: pihole

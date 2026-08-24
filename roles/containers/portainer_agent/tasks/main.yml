@@ -4,7 +4,7 @@
   become: yes
   docker_container:
     name: "{{ container_name }}"
-    image: "portainer/agent"
+    image: "portainer/agent:latest"
     pull: yes
     state: 'started'
     ports:

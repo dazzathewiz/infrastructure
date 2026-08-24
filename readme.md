@@ -33,6 +33,9 @@ See sections below for:
 - Proxmox configuration management
 - DietPi configuration management
 
+## Operational Notes
+- `pihole.yaml` must **not** be run with `-b`/`--become`. Escalation is already handled per-task within the `containers/pihole` role (only tasks that need root use `become: yes`); the backup script and its cron entry deliberately run as the connecting user. Passing `-b` changes nothing load-bearing since the deployed path is now absolute rather than `~`-relative, but it is still not the intended way to run this playbook.
+
 ## Setup local machine as an Infrastructure Control Host
 ```
 ansible-playbook setup-control-host.yml

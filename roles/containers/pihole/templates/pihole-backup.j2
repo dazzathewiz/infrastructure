@@ -17,7 +17,16 @@ fi
 
 logger -t pihole-backup "Teleporter backup OK: ${archive_name}"
 
-# and delete all oldest files and keep only {{ pihole_backup_retension }}
+# Delete all but the newest {{ pihole_backup_retension }} archives, run inside
+# the container since /backup is owned root:root by the container and the
+# connecting user cannot remove files there directly.
 # - https://www.ostechnix.com/find-delete-oldest-file-x-files-directory/
 # Mixed .tar.gz (pre-v6) / .zip (v6+) archives sort fine together by mtime.
-(cd "${backup_dir}" && ls -1t | tail -n +{{  pihole_backup_retension + 1 }} | xargs -r rm)
+prune_output="$(docker exec {{ container_name }} sh -c 'cd /backup && ls -1t | tail -n +{{ pihole_backup_retension + 1 }} | xargs -r rm' 2>&1)"
+prune_status=$?
+
+if [ ${prune_status} -ne 0 ]; then
+    logger -t pihole-backup "Teleporter prune WARNING (exit ${prune_status}): ${prune_output}"
+fi
+
+exit 0
