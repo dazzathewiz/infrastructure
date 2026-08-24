@@ -42,7 +42,7 @@
   when: "pihole_gravity_sync | bool"
 
 - import_tasks: remove-gravity-sync.yaml
-  when: not pihole_gravity_sync and 'gravity-sync.service' in services
+  when: not pihole_gravity_sync and 'gravity-sync.service' in ansible_facts['services']
 
 - import_tasks: pihole-backup.yaml
   when: "pihole_backup | bool"

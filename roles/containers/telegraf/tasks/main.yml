@@ -4,6 +4,7 @@
   shell: stat -c '%g' /var/run/docker.sock
   register: docker_gid
   changed_when: false
+  check_mode: no
 
 - name: Apply specific profile {{ profile }}
   block:
