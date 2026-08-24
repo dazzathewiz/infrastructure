@@ -1,8 +1,23 @@
 #!/bin/bash
 
-# Run Pi-hole core Teleport command inside container # See: https://docs.pi-hole.net/core/pihole-command/
-docker exec -w /backup {{ container_name }} pihole -a -t
+# Run the Pi-hole v6 Teleporter export inside the container. `pihole -a -t`
+# was removed in v6 (https://github.com/pi-hole/pi-hole/issues/5928); the
+# replacement lives in pihole-FTL, writes the archive into its working
+# directory, and prints the filename it created to stdout.
+backup_dir="{{ docker_dir }}/{{ container_name }}/backup"
+
+teleporter_output="$(docker exec -w /backup {{ container_name }} pihole-FTL --teleporter 2>&1)"
+teleporter_status=$?
+archive_name="$(echo "${teleporter_output}" | grep -oE '[^[:space:]]+\.zip' | tail -n1)"
+
+if [ ${teleporter_status} -ne 0 ] || [ -z "${archive_name}" ] || [ ! -s "${backup_dir}/${archive_name}" ]; then
+    logger -t pihole-backup "Teleporter backup FAILED (exit ${teleporter_status}): ${teleporter_output}"
+    exit 1
+fi
+
+logger -t pihole-backup "Teleporter backup OK: ${archive_name}"
 
 # and delete all oldest files and keep only {{ pihole_backup_retension }}
 # - https://www.ostechnix.com/find-delete-oldest-file-x-files-directory/
-(cd {{ docker_dir }}/{{ container_name }}/backup && ls -1t | tail -n +{{  pihole_backup_retension + 1 }} | xargs -r rm)
+# Mixed .tar.gz (pre-v6) / .zip (v6+) archives sort fine together by mtime.
+(cd "${backup_dir}" && ls -1t | tail -n +{{  pihole_backup_retension + 1 }} | xargs -r rm)
