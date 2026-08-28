@@ -50,7 +50,6 @@ k3sworker1 ansible_host=10.10.1.16 ansible_user=infadmin ansible_connection=ssh 
 k3sworker2 ansible_host=10.10.1.72 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 k3sworker3 ansible_host=10.10.1.46 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 # k3sworker4 ansible_host=10.10.1.88 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-k3sworker5 ansible_host=10.10.1.18 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [k3s_cluster:children]
 k3s_master
@@ -61,7 +60,6 @@ k3sworker1
 k3sworker2
 k3sworker3
 # k3sworker4
-k3sworker5
 
 # [chia_farmer]
 # chiamain ansible_host=192.168.15.9 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
@@ -83,7 +81,6 @@ k3sworker5
 # backup ansible_host=192.168.10.95 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 pihole ansible_host=10.10.3.52 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 docker ansible_host=10.10.2.153 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-truenas01 ansible_host=10.10.2.104 ansible_user=admin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 # VM's (IE: hosted in proxmox etc and not baremetal)
 [vm:children]
