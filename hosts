@@ -1,8 +1,3 @@
-#[maas]
-#maas1 ansible_host=10.10.0.5 ansible_user=maasadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-
-#miner ansible_host=192.168.15.11 ansible_user=fil ansible_connection=ssh
-
 [control]
 controlhost ansible_host=127.0.0.1 ansible_connection=local
 
@@ -10,10 +5,10 @@ controlhost ansible_host=127.0.0.1 ansible_connection=local
 prox1 ansible_host=10.10.2.174 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 prox2 ansible_host=10.10.2.23 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 prox3 ansible_host=10.10.2.43 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-prox5 ansible_host=10.10.2.88 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [unraid]
 unnas ansible_host=10.10.2.10 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
+unplay ansible_host=10.10.2.12 ansible_user=root ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 # [dietpi_ups]
 # pi-ups ansible_host=192.168.10.79 ansible_user=dietpi ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
@@ -49,7 +44,6 @@ k3smaster3 ansible_host=10.10.1.65 ansible_user=infadmin ansible_connection=ssh 
 k3sworker1 ansible_host=10.10.1.16 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 k3sworker2 ansible_host=10.10.1.72 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 k3sworker3 ansible_host=10.10.1.46 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
-# k3sworker4 ansible_host=10.10.1.88 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
 
 [k3s_cluster:children]
 k3s_master
@@ -59,7 +53,6 @@ k3s_node
 k3sworker1
 k3sworker2
 k3sworker3
-# k3sworker4
 
 # [chia_farmer]
 # chiamain ansible_host=192.168.15.9 ansible_user=infadmin ansible_connection=ssh ansible_ssh_private_key_file=~/.ssh/id_ed25519_infadmin
