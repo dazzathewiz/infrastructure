@@ -11,6 +11,7 @@ Note: this role uses template variables from the "proxmox" role in this repo
 All vars are optional depending on your configuration.
 * If no `instance_name` is defined, a random 8-char string will be chosen as VM/LXC name
 * A VM will be created unless otherwise specified `provision_type:`. Valid options are `vm` or `lxc`
+* `vm_cpu_params` defaults to `x86-64-v2-AES`. Proxmox's own default (kvm64) lacks x86-64-v2, and newer glibc-based images crash on it. Set to `''` to keep the template's CPU type instead
 * All other VM/container configuration will use the template defaults unless otherwise specifed
 
 ### Example VM Deployment
@@ -22,7 +23,7 @@ All vars are optional depending on your configuration.
             vm_memory: 10240                        # Memory MB to assign VM
             vm_memory_min: 6114                     # Sets the minimum memory assigned to VM ballon
             vm_cpu: 4                               # vCPU's to assign VM
-            vm_cpu_params: "flags=+pdpe1gb\\;+aes"  # --cpu parameters for `qm set`, note the '+' and double escape '\\'
+            vm_cpu_params: "cputype=x86-64-v2-AES,flags=+pdpe1gb\\;+aes"  # --cpu parameters for `qm set` (default: x86-64-v2-AES), note the '+' and double escape '\\'
             vm_network_bridge: vmbr1                # Proxmox bridge interface
             vm_network_vlan: 901                    # VLAN
             vm_network_mac: 06:FF:DB:D0:60:B2       # MAC address to assign VM NIC
