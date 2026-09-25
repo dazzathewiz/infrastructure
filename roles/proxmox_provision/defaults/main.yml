@@ -10,6 +10,11 @@ provision_type: "vm"    # Options: [ vm | lxc ]
 vm_start: yes             # Start the VM after it's provisioned
 vm_enable_agent: yes      # Enable the proxmox qemu agent
 vm_enable_numa: no        # Enable NUMA
+# CPU model, passed to `qm set --cpu`. Proxmox's own default when unset is kvm64, which lacks
+# x86-64-v2 (SSE4.2, POPCNT) - newer glibc-based images crash on it ("CPU does not support x86-64-v2").
+# x86-64-v2-AES rather than 'host' so HA-managed VMs stay migratable between nodes.
+# Override with full --cpu syntax if needed, or set to '' to keep the template's CPU type.
+vm_cpu_params: "x86-64-v2-AES"
 vm_install_qemu_agent: "{{ provision_add_to_inventory }}"
 vm_disk_passthrough: []   # Disk ID's to pass through to VM. See: https://pve.proxmox.com/wiki/Passthrough_Physical_Disk_to_Virtual_Machine_(VM)
 vm_disk_virtual: []       # List of virtual disks to be created. List items should be in format 'STORAGE_ID:SIZE_IN_GB<,options>', EG: 'local-zfs:10,format=raw'

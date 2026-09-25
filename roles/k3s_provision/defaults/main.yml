@@ -2,10 +2,6 @@
 # All Nodes configuration
 all_node_network_bridge: vmbr1
 all_node_network_vlan: 901
-# CPU model for all k3s VMs. Without it Proxmox defaults to kvm64, which lacks
-# x86-64-v2 (SSE4.2, POPCNT) and crashes newer glibc-based images.
-# Not 'host': masters are HA-managed and migrate between nodes, so it must be portable.
-all_node_cpu_type: "x86-64-v2-AES"
 
 # Master Nodes
 master_node_name: "k3smaster"
