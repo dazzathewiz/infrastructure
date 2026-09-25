@@ -57,7 +57,7 @@
 
 - name: Set CPU parameters
   shell: qm set {{ vm.vmid }} --cpu {{ vm_cpu_params }}
-  when: vm_cpu_params is defined and vm.changed
+  when: vm_cpu_params is defined and vm_cpu_params | length > 0 and vm.changed
 
 - name: Set enable NUMA
   shell: qm set {{ vm.vmid }} --numa 1

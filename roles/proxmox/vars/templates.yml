@@ -7,4 +7,5 @@ pve_template_name: ubuntu-cloud
 pve_template_id: "{{ pve_tempate_id_prefix }}{{ inventory_hostname[-1] }}"
 pve_template_mem: 4096
 pve_template_cores: 4
+pve_template_cpu: x86-64-v2-AES   # Not kvm64 (Proxmox default): lacks x86-64-v2, newer glibc images crash on it
 pve_template_interface: vmbr1
