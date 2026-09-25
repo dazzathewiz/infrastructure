@@ -13,7 +13,7 @@
 
 - name: Build the cloud image template
   shell: |
-    qm create "{{ pve_template_id }}" --memory "{{ pve_template_mem }}" --core "{{ pve_template_cores }}" --name "{{ pve_template_name }}" --net0 virtio,bridge="{{ pve_template_interface }}"
+    qm create "{{ pve_template_id }}" --memory "{{ pve_template_mem }}" --core "{{ pve_template_cores }}" --cpu "{{ pve_template_cpu }}" --name "{{ pve_template_name }}" --net0 virtio,bridge="{{ pve_template_interface }}"
     qm importdisk "{{ pve_template_id }}" /mnt/pve/ISO/template/iso/"{{ pve_template_image }}" "{{ _node_storage_local }}"
     qm set "{{ pve_template_id }}" --scsihw virtio-scsi-pci --scsi0 "{{ _node_storage_local }}":vm-"{{ pve_template_id }}"-disk-0
     qm set "{{ pve_template_id }}" --ide2 "{{ _node_storage_local }}":cloudinit
