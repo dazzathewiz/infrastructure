@@ -127,6 +127,8 @@ Deploy the k3s nodes:
 Add the new nodes to the `hosts` file, then finalise basic configuration:
 ```ansible-playbook k3s.yml```
 
+This includes the Longhorn prerequisites, and the `multipathd` blacklist that stops it claiming Longhorn volumes (see [multipath_blacklist](roles/multipath_blacklist/readme.md)).
+
 HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
 1. Datacenter -> HA -> Groups
 ![Proxmox HA Groups](images/HA%20Groups.png)
@@ -167,4 +169,4 @@ HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
 [shinobi-monitor]: https://hub.shinobi.video/articles/view/QzWPj4vp8Y2k1R5
 [proxmox-readme]: roles/proxmox/readme.md
 [opautomation]: https://developer.1password.com/docs/connect/get-started/#step-1-set-up-a-secrets-automation-workflow
-[opcli]: https://sculley.github.io/posts/2022/12/31/using-1password-to-automatically-retrieve-your-ansible-become-password.html
+[opcli]: https://sculley.github.io/posts/2022/12/31/using-1password-to-automatically-retrieve-your-ansible-block-password.html
