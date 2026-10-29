@@ -1,0 +1,37 @@
+---
+
+- name: Multipath blacklist Tasks
+  block:
+    - name: Gather package facts
+      package_facts:
+        manager: auto
+
+    # Nothing to blacklist when multipath-tools isn't installed; multipathd can't claim Longhorn's disks
+    - name: Skip when multipath-tools is not installed
+      debug:
+        msg: "multipath-tools not installed on {{ inventory_hostname }}; skipping multipath blacklist"
+      when: "'multipath-tools' not in ansible_facts.packages"
+
+    # Older nodes had the stanza added by hand, without markers. Convert it in place to the managed block
+    # so blockinfile below doesn't append a duplicate. The effective config is unchanged, so no restart.
+    - name: Adopt a hand-written blacklist stanza into the managed block
+      become: yes
+      replace:
+        path: "{{ multipath_conf_path }}"
+        regexp: '(?<!# BEGIN ANSIBLE MANAGED BLOCK\n)^blacklist \{\n[ \t]*devnode "\^sd\[a-z0-9\]\+"\n\}\n?'
+        replace: "# BEGIN ANSIBLE MANAGED BLOCK\n{{ multipath_blacklist_block }}\n# END ANSIBLE MANAGED BLOCK\n"
+      register: multipath_adopt
+      when: "'multipath-tools' in ansible_facts.packages"
+
+    # Same marker and block as k3s-ansible's k3s_server_post role, so the two agree on the masters
+    - name: Blacklist sd devices from multipathd
+      become: yes
+      blockinfile:
+        path: "{{ multipath_conf_path }}"
+        block: "{{ multipath_blacklist_block }}"
+      when:
+        - "'multipath-tools' in ansible_facts.packages"
+        - not multipath_adopt.changed
+      notify: restart multipathd
+
+  tags: multipath,longhorn,setup

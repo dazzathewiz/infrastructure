@@ -1,0 +1,9 @@
+---
+
+multipath_conf_path: /etc/multipath.conf
+
+# Longhorn exposes each attached volume as an iSCSI /dev/sdX disk; keep multipathd off all sd devices
+multipath_blacklist_block: |-
+  blacklist {
+    devnode "^sd[a-z0-9]+"
+  }
