@@ -127,6 +127,8 @@ Deploy the k3s nodes:
 Add the new nodes to the `hosts` file, then finalise basic configuration:
 ```ansible-playbook k3s.yml```
 
+This includes the Longhorn prerequisites, and the `multipathd` blacklist that stops it claiming Longhorn volumes (see [multipath_blacklist](roles/multipath_blacklist/readme.md)).
+
 HA can be setup in proxmox for the k3smaster nodes who reside on shared storage:
 1. Datacenter -> HA -> Groups
 ![Proxmox HA Groups](images/HA%20Groups.png)

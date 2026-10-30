@@ -42,3 +42,9 @@
         enabled: yes
         state: started
       tags: longhorn,setup
+
+# Stop multipathd claiming Longhorn's iSCSI disks. Masters can host Longhorn attachments too, so every k3s node.
+# See: roles/multipath_blacklist/readme.md
+- hosts: k3s_cluster
+  roles:
+    - role: multipath_blacklist
